@@ -1,0 +1,12 @@
+Package: SEEDS
+Type: Package
+Title: Estimating hidden inputs that indicate errors in the model equation
+Version: 0.1.0
+Author: Tobias Newmiwaka
+Maintainer: Tobias N. <tobias.newmiwaka@gmail.com>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: GPL 3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
