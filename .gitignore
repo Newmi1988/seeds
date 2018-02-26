@@ -5,4 +5,7 @@
 logModel.R
 costateStart.R
 costate.R
+<<<<<<< HEAD
 stateHiddenInput.R
+=======
+>>>>>>> c53e7caebe00960a8aaf8d110b5cc964c8dcdebd
