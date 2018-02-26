@@ -39,7 +39,6 @@
 greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measFunc, measData, std,
                            parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad) {
 
-  #' sanitize the inputs
   if(missing(systemInput)) {
     systemInput <- NULL
   }
@@ -119,9 +118,9 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   source('costate.R')
   source('stateHiddenInput.R')
 
-  #' optW if knots are specific left out of optimisation, get the maximal estimated inputs
+
   iter <- (sum(optW))
-  #' predicting alpha based on fit
+
   estiAlpha2 <- list()
 
   if(is.null(alpha2)) {
@@ -135,7 +134,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     library('parallel')
     noCores <- detectCores() -1
     if(noCores > 1){
-      #' setup for using parallel computing
 
       library('doParallel')
       library('foreach')
@@ -192,8 +190,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
 
   } else {
-    #' Get initial values for the aucs
-    #' start first esitmation
     results <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, x0 = x0, optW = optW,
                              times=times, measFunc= measFunc, measData = y, STD = std,
                              alpha1 = alpha1, alpha2 = alpha2,

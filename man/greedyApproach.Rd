@@ -42,12 +42,6 @@ will only use perform a calculation of the inputs for all knots without a sparse
 }
 \value{
 returns a results-object with default plot function. The plot shows the estimated best sparse fit
-sanitize the inputs
-optW if knots are specific left out of optimisation, get the maximal estimated inputs
-predicting alpha based on fit
-setup for using parallel computing
-Get initial values for the aucs
-start first esitmation
 }
 \description{
 calculates controls based on a first optimisation with gradient descent; should result in a sparse vector
