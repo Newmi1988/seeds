@@ -37,10 +37,14 @@
 #' @return returns a results-object with default plot function. The plot shows the estimated best sparse fit
 
 greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measFunc, measData, std,
-                           parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad) {
+                           parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString) {
 
   if(missing(systemInput)) {
     systemInput <- NULL
+  }
+  
+  if(missing(cString)) {
+    cStrin <- NULL
   }
 
   if(missing(greedyLogical)) {
@@ -114,6 +118,8 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   odeEq <- isDynElaNet(odeEq)
   odeEq <- calculateCostate(odeEq)
   createFunctions(odeEq)
+  
+  detach('package:Deriv')
 
   source('costate.R')
   source('stateHiddenInput.R')
@@ -123,7 +129,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
   estiAlpha2 <- list()
 
-  if(is.null(alpha2)) {
+  if(is.null(alpha2) && require('parallel') && require('doParallel') && require('foreach')) {
     alpha2Start <- 1  # starting value for estimating alpha2
 
     steps <- 6        # number of values that are valuated for best fit
@@ -132,24 +138,25 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     error <- matrix(rep(0,2),ncol=2)
     colnames(error) <- c('alpha','MSE')
     library('parallel')
+    library('doParallel')
+    library('foreach')
     noCores <- detectCores() -1
     if(noCores > 1){
 
-      library('doParallel')
-      library('foreach')
+
       print('More than 1 core detected, using parallel computing.')
-      exportVars <- c('dynElasticNet','testMessure', 'y')
+      exportVars <- c('y','costate')
 
       cl <- makeCluster(noCores)
       registerDoParallel(cl)
 
       estiAlpha2 <- foreach(i = 1:steps, .export = exportVars) %dopar% {
         dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta,x0 = x0, optW = optW,
-                      times=times, measFunc= measFunc, measData = y, STD = std,
+                      times=times, measFunc= measFunc, measData = y, STD = std, constStr = cString,
                       alpha1 = 0, alpha2 = alpha2Start*10^(1-i), modelInput = systemInput,
                       parameters = parameters, modelFunc = modelFunc,maxIteration=100, plotEsti = FALSE, conjGrad = conjGrad)
       }
-      stopCluster(cl)
+      doParallel::stopCluster(cl)
       error[1,] = c( 10^(1-1),mean(estiAlpha2[[1]]$rmse))
       for( i in 2:steps) {
         error = rbind(error,c( alpha2Start*10^(1-i),mean(estiAlpha2[[i]]$rmse)))
@@ -165,7 +172,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
         alpha2 = alpha2Start*10^(1-i)
         estiAlpha2[[i]] <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta,x0 = x0, optW = optW,
                                          times=times, measFunc= measFunc, measData = y, STD = std,
-                                         alpha1 = alpha1, alpha2 = alpha2,
+                                         alpha1 = alpha1, alpha2 = alpha2, constStr = cString,
                                          parameters = parameters, modelFunc = modelFunc, modelInput = systemInput,
                                          maxIteration=100, plotEsti = plotEstimates, conjGrad = conjGrad)
         if (i==1){
@@ -192,7 +199,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   } else {
     results <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, x0 = x0, optW = optW,
                              times=times, measFunc= measFunc, measData = y, STD = std,
-                             alpha1 = alpha1, alpha2 = alpha2,
+                             alpha1 = alpha1, alpha2 = alpha2, constStr = cString,
                              parameters = parameters, modelFunc = modelFunc, plotEsti = plotEstimates,
                              modelInput = systemInput, conjGrad = conjGrad)
   }
@@ -219,8 +226,8 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       print(which(optW > 0))
       optWs[[i]] <- optW
       resAlg[[i]] <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, alpha1 = alpha1, alpha2 = alpha2,x0 = x0, optW = optW,
-                                   times=times, measFunc= testMessure, measData = y, STD = std, modelInput = systemInput,
-                                   parameters = parameters, modelFunc = testModel, origAUC = orgAUC, plotEsti = plotEstimates, conjGrad = conjGrad)
+                                   times=times, measFunc= measFunc, measData = y, STD = std, modelInput = systemInput, constStr = cString,
+                                   parameters = parameters, modelFunc = modelFunc, origAUC = orgAUC, plotEsti = plotEstimates, conjGrad = conjGrad)
 
       print(resAlg[[i]]$optW)
 
@@ -238,7 +245,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     }
 
     if(length(resAlg)==(iter-1)) {
-      cat('No sparse solution was produced. Returning estimates for the carried out iterations')
+      cat('The algorithm did not find a minimal sparse solution. Returning last solution as best fit')
       resAlg$optimalSol <- i
       resAlg$measurements <- measData
       i = i+1
@@ -248,8 +255,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       resAlg$measurements <- measData
     }
 
-
-    source('resultsClass.R')
     res <- results(modelFunction = odeEq@modelStr,
                    measureFunction = odeEq@measureStr,
                    hiddenInputs = resAlg[[i-1]]$w,

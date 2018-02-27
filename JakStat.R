@@ -77,10 +77,10 @@ optW <- rep(1,4)
 y <- data.frame(measure$t, measure$y1, measure$y2)
 sd <- data.frame(results$y1sd, results$y2sd)
 
+JakStatConst <- '2*x4+ 2*x3 + x1 + x2 == N'
 
-
-greedyApproach(alphaStep = 0.01, alpha2 = 0.1,
+results <- greedyApproach(alphaStep = 0.01, alpha2 = 0.1,
                x0 = x0, optW = c(1,1,1,1) , times=times,
                measFunc= measJakStat,  measData = y, std = sd,
                parameters = parameters, systemInput = inputData,
-               modelFunc = modelJakStat, plotEstimates = T, conjGrad = F)
+               modelFunc = modelJakStat, plotEstimates = T, conjGrad = F, cString = JakStatConst)

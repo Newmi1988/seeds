@@ -20,10 +20,11 @@
 
 
 
-dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2,measData,
+dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2,measData, constStr,
                           STD,modelFunc,measFunc,modelInput,optW,origAUC,maxIteration,plotEsti, conjGrad) {
 
   source('stateHiddenInput.R')
+  source('costate.R')
   library("deSolve")
   library('pracma')
 
@@ -181,8 +182,35 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     matplot(x = tPlot, y = w, type='l', col = 'red')
   }
 
-  # starting vector for the costates
-
+  createConst <- function(constString,needGrad) {
+    library('Ryacas')
+    trim <- function(x) gsub(pattern = '\\s', replacement = "", x = x)
+    cont = strsplit(x = trim(constString), split = "==")[[1]][2]
+    
+    eqs <- character(length = length(needGrad))
+    for(i in 1:length(needGrad)) {
+      str <- paste0('Solve({',trim(constString),'},{x',needGrad[i],'})\n')
+      eqs[i] <- as.character(yacas(str))
+    }
+    eq <- trim(gsub(pattern = 'list\\(||\\)\\)', replacement = "", x = eqs))
+    eq = gsub(pattern = '==', replacement = '=', x = eq)
+    eq = gsub(pattern = "(x)([0-9])", replacement = 'P[,\\2]', x = eq)
+    eq = gsub(pattern = cont, replacement = '', x = eq)
+    
+    detach("package:Ryacas")
+    return(eq)
+  }
+  
+  evalGrad <- function(constStr,gradM, optW) {
+    gradzero <- which(colSums(gradM) == 0)
+    optCur <- which(optW > 0)
+    
+    nG <- optCur[optCur %in% gradzero]
+    
+    cP <- createConst(constString = constStr, needGrad = nG)
+    
+    return(cP)
+  }
 
   # cost function that is to be optimized
   costFunction <- function(measureTimes,input,alphaDynNet) {
@@ -238,7 +266,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
   offset <- 5
   usedAlphas <- rep(0,offset)
-
+  cP <- NULL
 
   if(missing(maxIteration)) {
     maxIter <- 100
@@ -256,9 +284,13 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
     Tp = solCostate[,1]
     P = solCostate[,-1, drop=FALSE]
-
-    # P[,4] = optW[4] * (-2*P[,3]-P[,2]-P[,1])/2
-
+    
+    if(!is.null(constStr) && i == 1) {
+      cP = evalGrad(gradM = P, optW = optW, constStr = constStr)
+    }
+    if(!is.null(cP)){
+      eval(parse(text = cP))
+    }
 
     oldW = w
 
@@ -304,9 +336,6 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     # calculate the new hidden inputs
     w = oldW + alpha*step
 
-    # par(mfrow=c(1,2))
-    # matplot(step, type = 'l', lwd = 2)
-    # matplot(w, type = 'l', lwd = 2)
 
 
     # CALCULATION OF THE TRAJEKTORIES THAT RESULTS FROM THE NEW HIDDEN INPUT

@@ -32,7 +32,7 @@ results <- setRefClass("results",
                                      ),
                          methods = list(
                            show = function() {
-                              dimW <- sum(colSums(.self$hiddenInputs)>0)
+                              dimW <- sum(colSums(abs(.self$hiddenInputs[,-1]))>0)
                               cat(paste0('estimated needed hidden inputs needed ', num2str(dimW), ' at given points.\n'))
                               print(.self$hiddenInputs)
                            }
