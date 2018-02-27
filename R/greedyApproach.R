@@ -137,15 +137,15 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
     error <- matrix(rep(0,2),ncol=2)
     colnames(error) <- c('alpha','MSE')
-    library('parallel')
-    library('doParallel')
-    library('foreach')
+
     noCores <- detectCores() -1
     if(noCores > 1){
-
-
+      library('parallel')
+      library('doParallel')
+      library('foreach')
+      print(costate)
       print('More than 1 core detected, using parallel computing.')
-      exportVars <- c('y','costate')
+      exportVars <- c('dynElasticNet','measFunc', 'y', 'costate')
 
       cl <- makeCluster(noCores)
       registerDoParallel(cl)
@@ -187,10 +187,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     slopeErr <- diff(error[,1]) / diff(error[,2])
     slopeErr = slopeErr[which(slopeErr >0 )]
     changeTresh <- min(which(slopeErr <0.5)) + 1
-
-    # alpha2 = alpha2Start*10^(1-which.min(error[,2]))  # alpha2 is selected based on the squared error at the given measurement times
-    # results <- estiAlpha2[[which.min(error[,2])]]     # use the estimated results of the estimation for saving time
-    #
 
     alpha2 = alpha2Start*10^(-changeTresh)  # alpha2 is selected based on the squared error at the given measurement times
     results <- estiAlpha2[[changeTresh-1]]     # use the estimated results of the estimation for saving time

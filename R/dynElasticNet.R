@@ -207,8 +207,9 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     
     nG <- optCur[optCur %in% gradzero]
     
-    cP <- createConst(constString = constStr, needGrad = nG)
-    
+    if(length(nG)>0) {
+      cP <- createConst(constString = constStr, needGrad = nG)
+    }
     return(cP)
   }
 
