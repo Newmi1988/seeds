@@ -79,7 +79,11 @@ sd <- data.frame(results$y1sd, results$y2sd)
 
 JakStatConst <- '2*x4+ 2*x3 + x1 + x2 == N'
 
+<<<<<<< HEAD
 results <- greedyApproach(alphaStep = 0.01, alpha2 = 0.1,
+=======
+greedyApproach(alphaStep = 0.01, alpha2 = 0.1,
+>>>>>>> 2deec3011ea2137397847489fd13aebd22767d03
                x0 = x0, optW = c(1,1,1,1) , times=times,
                measFunc= measJakStat,  measData = y, std = sd,
                parameters = parameters, systemInput = inputData,

@@ -13,7 +13,7 @@ An S4 class used to handle formating ODE-Equation and calculate the needed funct
 \describe{
 \item{\code{modelStr}}{a vector of strings describing the ODE}
 
-\item{\code{measureStr}}{a vector of strings describing the}
+\item{\code{measureStr}}{a vector of strings representing the equation of the measurement function}
 
 \item{\code{origEq}}{a vector of strings containing the original model function}
 
