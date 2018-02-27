@@ -78,7 +78,6 @@ y <- data.frame(measure$t, measure$y1, measure$y2)
 sd <- data.frame(results$y1sd, results$y2sd)
 
 
-
 greedyApproach(alphaStep = 0.01, alpha2 = 0.1,
                x0 = x0, optW = c(1,1,1,1) , times=times,
                measFunc= measJakStat,  measData = y, std = sd,
