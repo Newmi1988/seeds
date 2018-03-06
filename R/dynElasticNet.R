@@ -177,9 +177,14 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     j3 = costFunction(measureTimes,input,alphaDynNet)
     
     
-    alpha = alpha3 - (alphaB-alphaA)/4 * (jB - jA)/(jB-2*j3+jA)
-    
-    return(alpha)
+    alphaT = alpha3 - (alphaB-alphaA)/4 * (jB - jA)/(jB-2*j3+jA)
+
+    if(alphaT > 0){
+      alpha = alphaT
+      return(alpha)
+    } else {
+      return(alpha)
+    }
   }
 
   showEstimates <- function(measureTimes,AUCs,input, alpha2, J, nomSol){
