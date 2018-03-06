@@ -96,9 +96,6 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   # X trajectories of the states
   x <- solNominal[,-1, drop=FALSE]
 
-  #initialize the hidden input vector
-
-
   w <- matrix(rep(0,nrow(x)*ncol(x)), nrow = nrow(x)) # is initialized as constant zero
   colnames(w) <- paste0(rep("w",ncol(w)),1:ncol(w))
 
@@ -154,31 +151,38 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     return(alpha)
   }
 
-  showEstimates <- function(measureTimes,AUCs,input, alpha2, J){
+  showEstimates <- function(measureTimes,AUCs,input, alpha2, J, nomSol){
     tPlot <- seq(from=measureTimes[1], to = measureTimes[length(measureTimes)], length.out = 50)
 
     y <- sapply(input$interpY, mapply, tPlot)
     yhat <- sapply(input$interpyHat, mapply, tPlot)
     w <- sapply(input$w, mapply, tPlot)
-
-    minY = min(min(y),min(yhat))
-    maxY = max(max(y),max(yhat))
+    yNom <- sapply(nomSol, mapply, tPlot)
 
     J <- unlist(J)
     J = J[J!=0]
-
+    
     width = 2
-    par(mfrow=c(2,2))
-    #par(mfrow=c(1,3))
+    numMeas <- ncol(y)
+    if((numMeas+3)%% 3 == 0){
+      n <- (numMeas + 3) %/% 3
+    } else {
+      n <- (numMeas + 3) %/% 3 + 1
+    }
+    m <- 3
+    par(mfrow=c(n,m))
     barplot(unlist(AUCs[1,]), col = 'red', xlab = 'hidden inputs', main = 'AUC (a.u)')
-    matplot(x = tPlot, y = y, type = 'l', col = 4, xlab = '', ylab = '', ylim = c(minY,maxY), lwd = width)
-    par(new=TRUE)
-    matplot(x = tPlot, y = yhat, type = 'l', col = 2, xlab = 't', ylab = 'y', ylim = c(minY,maxY), lwd = width)
-    title(expression("y " * phantom("y") * " "), col.main = "black")
-    title(expression(phantom("y ") * hat('y')), col.main = "red")
+    for( i in 1:numMeas) {
+      yLab <- paste0('y',as.character(i))
+      yMax <- max(max(y[,i]),max(yhat[,i]),max(yNom[,i]))
+      yMin <- min(min(y[,i]),min(yhat[,i]),min(yNom[,i]))
+      matplot(x = tPlot, y = y[,i], type = 'l', col = 'black', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
+      par(new=T)
+      matplot(x = tPlot, y = yhat[,i], type='l', col = 'red', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
+      par(new=T)
+      matplot(x = tPlot, y = yNom[,i], type='l', col = 'blue', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
+    }
     plot(J, type = 'l', xlab = 'iteration', ylab = 'J[w]', lwd = width)
-
-    ## show the estimated inputs
     matplot(x = tPlot, y = w, type='l', col = 'red')
   }
 
@@ -241,7 +245,9 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   }
 
   yHat <- getMeassures(solNominal,measFunc)
-
+  yNominal <- apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
+  
+  
   # interpolation
   # linear approximation of the calculated values of x,y and yhat
   xInterp <- apply(X = x, MARGIN = 2, FUN = function(x) approxfun(x = Tx, y = x, rule=2, method = 'linear'))
@@ -369,7 +375,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
 
     if(plotEsti == TRUE) {
-      showEstimates(measureTimes,AUCs,input,alpha2,J)
+      showEstimates(measureTimes,AUCs,input,alpha2,J, yNominal)
     }
     # if the change in the cost function is smaller that epsilon the algorithmus stops
     if (( abs(J[[i+1]]/J[[i]]) > 0.9975) && i>1) {

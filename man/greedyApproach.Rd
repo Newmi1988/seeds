@@ -6,7 +6,7 @@
 \usage{
 greedyApproach(alphaStep, Beta, alpha1, alpha2, x0, optW, times, measFunc,
   measData, std, parameters, systemInput, modelFunc, greedyLogical,
-  plotEstimates, conjGrad)
+  plotEstimates, conjGrad, cString)
 }
 \arguments{
 \item{alphaStep}{the starting stepsize for the gradient descent

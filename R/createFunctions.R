@@ -21,13 +21,6 @@ createFunctions <- function(odeEq,logTransf){
     close(fileState)
   }
   
-  createTransformModel <- function(modelODE) {
-    file.create('logModel.R')
-    fileLogState <- file('logModel.R')
-    writeLines(modelODE,fileLogState)
-    close(fileLogState)
-  }
-  
   createCostateStart <- function(costateStartEq) {
     file.create('costateStart.R')
     fileCostateStart <- file('costateStart.R')
@@ -62,12 +55,6 @@ createFunctions <- function(odeEq,logTransf){
       addInputsMeasure <- odeEq@measureStr[!grepl("\\{|\\}",odeEq@measureStr)]
       addInputsMeasure = append(addInputsMeasure[!grepl("function|list|[x,y]",addInputsMeasure)],"\n")
       
-      # t1 <- trim(unlist(strsplit(x = addiOper, split = "<-|=")))[seq(from=1,to= 2*length(addiOper),by = 2)]
-      # t2 <- trim(unlist(strsplit(x = addInputsMeasure, split = "<-|=")))[seq(from=1,to= 2*length(addInputsMeasure),by = 2)]
-      # 
-      # cString <- append(addiOper,addInputsMeasure)
-      # print(cString)
-      # print(!t1 %in% t2)
       
       if(length(addiOper)!=0){
         funcStartStr = append(funcStartStr,addiOper,after = length(funcStartStr)+2)
@@ -216,7 +203,6 @@ createFunctions <- function(odeEq,logTransf){
   
   wrapperCreateFunc <- function(odeEq) {
     createCostateStart(formatCharMatrix(odeEq))
-    createTransformModel(formatFuncString(odeEq,'logTransf'))
     createCostate(formatFuncString(odeEq,"costate"))
     if(odeEq@dynamicElasticNet){
       createStateHiddenInput(formatFuncString(odeEq,"hiddenInputState"))
