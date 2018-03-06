@@ -183,7 +183,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       matplot(x = tPlot, y = yNom[,i], type='l', col = 'blue', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
     }
     plot(J, type = 'l', xlab = 'iteration', ylab = 'J[w]', lwd = width)
-    matplot(x = tPlot, y = w, type='l', col = 'red')
+    matplot(x = tPlot, y = w, type='l', col = 'red', lwd = width)
   }
 
   createConst <- function(constString,needGrad) {
@@ -240,7 +240,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     }
 
     #combining the costs
-    cost = sum(yCost$Start)  + sum(yCost$Middle) + sum(yCost$End) + alphaDynNet$a1*wCost$L1 + alphaDynNet$a2*wCost$L2
+    cost = 10*sum(yCost$Start)  + 10*sum(yCost$Middle) + sum(yCost$End) + alphaDynNet$a1*wCost$L1 + alphaDynNet$a2*wCost$L2
     return(cost)
   }
 
