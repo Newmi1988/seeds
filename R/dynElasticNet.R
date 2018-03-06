@@ -170,7 +170,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       n <- (numMeas + 3) %/% 3 + 1
     }
     m <- 3
-    par(mfrow=c(n,m))
+    par(mfrow=c(n,m), ask=F)
     barplot(unlist(AUCs[1,]), col = 'red', xlab = 'hidden inputs', main = 'AUC (a.u)')
     for( i in 1:numMeas) {
       yLab <- paste0('y',as.character(i))
