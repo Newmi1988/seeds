@@ -12,7 +12,8 @@ LazyData: true
 RoxygenNote: 6.0.1
 Imports: deSolve,
     pracma,
-    Deriv
+    Deriv,
+    Ryacas
 Suggests: pracma,
     parallel,
     doParallel,
