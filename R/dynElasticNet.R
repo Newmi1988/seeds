@@ -85,11 +85,16 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   if(all(is.null(names(x0)))) {
     names(x0) <- paste0(rep("x",length(x0)),1:length(x0))
   }
+  
+  if(!is.null(modelInput)){
+    inputInterp <- list()
+    inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
+    solNominal <- as.data.frame(ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))
+  } else {
+    solNominal <- as.data.frame(ode(y = x0, times = times, func = modelFunc, parms = parameters))
+  }
 
-  inputInterp <- list()
-  inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
 
-  solNominal <- as.data.frame(ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))
 
   # Tx the timepoints of the solution of the nominal model
   Tx <- solNominal[,1]
@@ -147,7 +152,33 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       beta = stepBeta^(i)
       alpha = alphaS*beta
     }
-
+    # quadratic interpolation to find the minimum
+    alphaA <- alpha/stepBeta
+    alphaB <- alpha
+    jA <- arrayJ[i-1]
+    jB <- arrayJ[i]
+    
+    alpha3 <- 0.5*(alphaA+alphaB)
+    newW = oldW + alpha3*gradStep
+    
+    input$optW <- optW
+    input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) approxfun(x = Tp, y = x, method = 'linear', rule=2))
+    time <- seq(from = tInt[1], to = tInt[2], length.out = 300)
+    solX <- ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
+    
+    Tx <- solX[,1]
+    x <- solX[,-1, drop=FALSE]
+    
+    yHat <- getMeassures(solX,measFunc)
+    
+    input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) approxfun(x = Tx, y = x, rule=2, method = 'linear'))
+    input$interpyHat <- apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
+    
+    j3 = costFunction(measureTimes,input,alphaDynNet)
+    
+    
+    alpha = alpha3 - (alphaB-alphaA)/4 * (jB - jA)/(jB-2*j3+jA)
+    
     return(alpha)
   }
 
@@ -240,7 +271,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     }
 
     #combining the costs
-    cost = 10*sum(yCost$Start)  + 10*sum(yCost$Middle) + sum(yCost$End) + alphaDynNet$a1*wCost$L1 + alphaDynNet$a2*wCost$L2
+    cost = sum(yCost$Start)  + sum(yCost$Middle) + sum(yCost$End) + alphaDynNet$a1*wCost$L1 + alphaDynNet$a2*wCost$L2
     return(cost)
   }
 
@@ -349,8 +380,10 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     inputState <- list()
     inputState$optW <- optW
     inputState$wInterp <- apply(X = w, MARGIN = 2, FUN = function(x) approxfun(x = Tp, y = x, method = 'linear', rule=2))
-    inputState$u <- inputInterp
-
+    
+    if(!is.null(modelInput)){
+      inputState$u <- inputInterp
+    }
     solX <- ode(y = x0, times = times,func = hiddenInputState, parms = parameters, input=inputState)
 
     Tx <- solX[,1]

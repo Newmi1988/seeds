@@ -98,8 +98,12 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     systemInput <- NULL
   }
   
+  if(missing(std)){
+    std <- NULL
+  }
+  
   if(missing(cString)) {
-    cStrin <- NULL
+    cString <- NULL
   }
 
   if(missing(greedyLogical)) {
