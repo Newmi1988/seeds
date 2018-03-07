@@ -30,7 +30,6 @@ symbolicDiff <- function(odeObj){
     }
     costDeriveState <- costFuncDeriv(odeObj, format)
     costateEq <- formatDerivMatrix(Jf,costDeriveState)
-    
     #clear the equations
     #costateEq = unlist(lapply(X = costateEq,FUN = Simplify))
     
@@ -106,6 +105,9 @@ symbolicDiff <- function(odeObj){
       p[i] = paste0("dp",as.character(i)," = optW[",as.character(i),"]*(",paste(paste0(lagrangePara,rep(x = "(",n),unlist(derivMatrix[,i])),rep(x = ")",n), collapse = ""))
     }
     p <- paste0(paste(p,costDeriveState,sep = " - "),")")
+
+    # Simplify does couse errors in functions with fractions
+    #p <- unlist(lapply(X = p,Simplify))
     return(p)
   }
   
@@ -148,7 +150,7 @@ symbolicDiff <- function(odeObj){
   
   strMatrixMulti <- function(M1,M2){ 
     if(ncol(M1) != nrow(M2)) {
-      print('multiplication not possible. Dimensions dont match')
+      cat('multiplication not possible. Dimensions dont match')
     }
     else {
       colM1 <- ncol(M1)

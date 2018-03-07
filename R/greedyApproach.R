@@ -275,10 +275,10 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     # alphaStep = alphaStep*10
 
     for(i in 1:(iter-1)) {
-      print('-----------------------------------------')
-      print('selection done: starting new optimization')
-      print('selected inputs:')
-      print(which(optW > 0))
+      cat('_________________________________________')
+      cat('selection done: starting new optimization\n')
+      cat('selected inputs:\n')
+      cat(which(optW > 0))
       optWs[[i]] <- optW
       resAlg[[i]] <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, alpha1 = alpha1, alpha2 = alpha2,x0 = x0, optW = optW,
                                    times=times, measFunc= measFunc, measData = y, STD = std, modelInput = systemInput, constStr = cString,
@@ -287,12 +287,13 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       print(resAlg[[i]]$optW)
 
 
-      costError[i,] = c(sum(resAlg[[i]]$rmse),resAlg[[i]]$J)
+      # costError[i,] = c(sum(resAlg[[i]]$rmse),resAlg[[i]]$J)
+      costError[i,] = c(mean(resAlg[[i]]$rmse),resAlg[[i]]$J)
 
 
       ## use best fit inteads last iteration
       if(i > 1 && ( costError[i,1] > costError[i-1,1])  ) {
-        print('hidden inputs on knots:')
+        cat('hidden inputs on knots:\n')
         print(which(optWs[[i-1]] %in% 1))
         break
       }

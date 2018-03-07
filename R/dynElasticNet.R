@@ -153,38 +153,47 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       alpha = alphaS*beta
     }
     # quadratic interpolation to find the minimum
-    alphaA <- alpha/stepBeta
-    alphaB <- alpha
-    jA <- arrayJ[i-1]
-    jB <- arrayJ[i]
     
-    alpha3 <- 0.5*(alphaA+alphaB)
-    newW = oldW + alpha3*gradStep
+    intAlpha1 <- alpha
+    intAlpha2 <- alpha*stepBeta
+    costAlpha1 <- arrayJ[i-1]
+    costAlpha2 <- arrayJ[i]
     
-    input$optW <- optW
-    input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) approxfun(x = Tp, y = x, method = 'linear', rule=2))
-    time <- seq(from = tInt[1], to = tInt[2], length.out = 300)
-    solX <- ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
-    
-    Tx <- solX[,1]
-    x <- solX[,-1, drop=FALSE]
-    
-    yHat <- getMeassures(solX,measFunc)
-    
-    input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) approxfun(x = Tx, y = x, rule=2, method = 'linear'))
-    input$interpyHat <- apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
-    
-    j3 = costFunction(measureTimes,input,alphaDynNet)
-    
-    
-    alphaT = alpha3 - (alphaB-alphaA)/4 * (jB - jA)/(jB-2*j3+jA)
-
-    if(alphaT > 0){
-      alpha = alphaT
-      return(alpha)
-    } else {
-      return(alpha)
+    cubicInterpolMin <- function(alphaA,alphaB,jA,jB){
+      
+      alpha3 <- 0.5*(alphaA+alphaB)
+      newW = oldW + alpha3*gradStep
+      
+      input$optW <- optW
+      input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) approxfun(x = Tp, y = x, method = 'linear', rule=2))
+      time <- seq(from = tInt[1], to = tInt[2], length.out = 300)
+      solX <- ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
+      
+      Tx <- solX[,1]
+      x <- solX[,-1, drop=FALSE]
+      
+      yHat <- getMeassures(solX,measFunc)
+      
+      input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) approxfun(x = Tx, y = x, rule=2, method = 'linear'))
+      input$interpyHat <- apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
+      
+      j3 = costFunction(measureTimes,input,alphaDynNet)
+      
+      
+      alphaT = alpha3 - (alphaB-alphaA)/4 * (jB - jA)/(jB-2*j3+jA)
+      
+      if(alphaT > 0){
+        alpha = alphaT
+        return(alpha)
+      } else {
+        alpha <- cubicInterpolMin(alphaA = alphaA, alphaB = alpha3, jA = jA, jB = j3)
+        return(alpha)
+      }
     }
+    
+    return(cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2))
+    # return(alpha)
+
   }
 
   showEstimates <- function(measureTimes,AUCs,input, alpha2, J, nomSol){
