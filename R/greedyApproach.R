@@ -275,7 +275,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     # alphaStep = alphaStep*10
 
     for(i in 1:(iter-1)) {
-      cat('_________________________________________')
+      cat('_________________________________________\n')
       cat('selection done: starting new optimization\n')
       cat('selected inputs:\n')
       cat(which(optW > 0))
@@ -284,9 +284,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
                                    times=times, measFunc= measFunc, measData = y, STD = std, modelInput = systemInput, constStr = cString,
                                    parameters = parameters, modelFunc = modelFunc, origAUC = orgAUC, plotEsti = plotEstimates, conjGrad = conjGrad)
 
-      print(resAlg[[i]]$optW)
-
-
       # costError[i,] = c(sum(resAlg[[i]]$rmse),resAlg[[i]]$J)
       costError[i,] = c(mean(resAlg[[i]]$rmse),resAlg[[i]]$J)
 
@@ -294,14 +291,14 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       ## use best fit inteads last iteration
       if(i > 1 && ( costError[i,1] > costError[i-1,1])  ) {
         cat('hidden inputs on knots:\n')
-        print(which(optWs[[i-1]] %in% 1))
+        cat(which(optWs[[i-1]] %in% 1))
         break
       }
       optW <- resAlg[[i]]$optW
     }
 
     if(length(resAlg)==(iter-1)) {
-      cat('The algorithm did not find a minimal sparse solution. Returning last solution as best fit')
+      cat('The algorithm did not find a minimal sparse solution. Returning last solution as best fit\n')
       resAlg$optimalSol <- i
       resAlg$measurements <- measData
       i = i+1

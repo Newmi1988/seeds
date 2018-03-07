@@ -314,6 +314,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
   J <- list()
   J[[1]] <- costFunction(measureTimes,input,alphaDynNet)
+  cat('\n')
   cat(paste0('nominal cost J[w]= ',J[[1]],'\n'))
 
   offset <- 5
