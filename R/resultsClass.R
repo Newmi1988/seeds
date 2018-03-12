@@ -33,7 +33,7 @@ results <- setRefClass("results",
                          methods = list(
                            show = function() {
                               dimW <- sum(colSums(abs(.self$hiddenInputs[,-1]))>0)
-                              cat(paste0('estimated needed hidden inputs needed ', num2str(dimW), ' at given points.\n'))
+                              cat(paste0('estimated needed hidden inputs needed ', pracma::num2str(dimW), ' at given points.\n'))
                               print(.self$hiddenInputs)
                            }
                          )

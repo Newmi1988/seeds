@@ -25,11 +25,11 @@ A data frame with 8 rows and 11 columns
     \item{y3}{total amounts of UVR8 dimers}
     \item{y4}{concentration of elongated hypocotyl 5 (HY5) protein}
     \item{y5}{concentration measured of UVR8 monomers}
-    \item{y1sdt}{standard deviation of the first measurement}
-    \item{y2sdt}{standard deviation of the second measurement}
-    \item{y3sdt}{standard deviation of the third measurement}
-    \item{y4sdt}{standard deviation of the fourth measurement}
-    \item{y5sdt}{standard deviation of the fifth measurement}
+    \item{y1std}{standard deviation of the first measurement}
+    \item{y2std}{standard deviation of the second measurement}
+    \item{y3std}{standard deviation of the third measurement}
+    \item{y4std}{standard deviation of the fourth measurement}
+    \item{y5std}{standard deviation of the fifth measurement}
 }
 }
 \keyword{datasets}

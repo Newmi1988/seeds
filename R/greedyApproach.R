@@ -36,7 +36,9 @@
 #'
 #' @return returns a results-object with default plot function. The plot shows the estimated best sparse fit
 #'
+#' @example /examples/uvb.R
 #' @example /examples/JakStat.R
+#' 
 
 greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measFunc, measData, std,
                            parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString) {
@@ -215,12 +217,12 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     costError <- cbind(rep(0,length(optW)),rep(0,length(optW)))
     colnames(costError) <- c('sum(MSE)','cost')
 
-    # alphaStep = alphaStep*10
+    # alphaStep = alphaStep*5
 
     for(i in 1:(iter-1)) {
       cat('_________________________________________\n')
       cat('selection done: starting new optimization\n')
-      cat('selected inputs:\n')
+      cat('optimizing states:\n')
       cat(which(optW > 0))
       optWs[[i]] <- optW
       resAlg[[i]] <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, alpha1 = alpha1, alpha2 = alpha2,x0 = x0, optW = optW,
@@ -233,8 +235,8 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
       ## use best fit inteads last iteration
       if(i > 1 && ( costError[i,1] > costError[i-1,1])  ) {
-        cat('hidden inputs on knots:\n')
-        cat(which(optWs[[i-1]] %in% 1))
+        # cat('hidden inputs on knots:\n')
+        # cat(which(optWs[[i-1]] %in% 1))
         break
       }
       optW <- resAlg[[i]]$optW
@@ -250,7 +252,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       resAlg$optimalSol <- i-1
       resAlg$measurements <- measData
     }
-
     res <- results(modelFunction = odeEq@modelStr,
                    measureFunction = odeEq@measureStr,
                    hiddenInputs = resAlg[[i-1]]$w,

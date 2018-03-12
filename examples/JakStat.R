@@ -46,7 +46,7 @@ sd <- data.frame(measure$y1sd, measure$y2sd)
 JakStatConst <- '2*x4+ 2*x3 + x1 + x2 == N'
 
 
-results <- greedyApproach(alphaStep = 0.01, alpha2 = 0.2, Beta = 0.8,
+results <- greedyApproach(alphaStep = 0.01, alpha2 = 0.4, Beta = 0.8,
                x0 = x0, optW = c(1,1,1,1) , times=times,
                measFunc= measJakStat,  measData = y, std = sd,
                parameters = parameters, systemInput = inputData,

@@ -81,9 +81,14 @@ uvbMeasure <- function(x) {
   return(list(y1,y2,y3,y4,y5))
 }
 
-y <- uvbData[,1:6]
-t <- y[,1]
 
-res <- greedyApproach(alphaStep = 75, alpha2 = 0.0001, optW = rep(1,13), x0 = x0,
+y <- uvbData[,1:6]
+t <- uvbData$t
+sd <- uvbData[,7:11]
+
+res <- greedyApproach(alphaStep = 100, alpha2 = 0.0002, optW = rep(1,13), x0 = x0,
                measFunc = uvbMeasure,times = t, measData = y, 
-               parameters = uvbParameter, modelFunc = uvbModel, plotEstimates = T, conjGrad = T)
+               parameters = uvbParameter, modelFunc = uvbModel, plotEstimates = TRUE, conjGrad = TRUE)
+
+
+
