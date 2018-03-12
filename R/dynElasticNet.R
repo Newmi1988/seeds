@@ -89,9 +89,9 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   if(!is.null(modelInput)){
     inputInterp <- list()
     inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
-    solNominal <- as.data.frame(ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))
+    solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))
   } else {
-    solNominal <- as.data.frame(ode(y = x0, times = times, func = modelFunc, parms = parameters))
+    solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters))
   }
 
 
@@ -134,7 +134,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       input$optW <- optW
       input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) approxfun(x = Tp, y = x, method = 'linear', rule=2))
       time <- seq(from = tInt[1], to = tInt[2], length.out = 300)
-      solX <- ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
+      solX <- deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
 
       Tx <- solX[,1]
       x <- solX[,-1, drop=FALSE]
@@ -167,7 +167,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       input$optW <- optW
       input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) approxfun(x = Tp, y = x, method = 'linear', rule=2))
       time <- seq(from = tInt[1], to = tInt[2], length.out = 300)
-      solX <- ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
+      solX <- deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
       
       Tx <- solX[,1]
       x <- solX[,-1, drop=FALSE]
@@ -332,7 +332,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     timesCostate <- seq(from = tf, to= t0, length.out =N)
 
 
-    solCostate <- ode(y = lT, times = timesCostate, func = costate, parms = parameters, input=input, atol = 1e-10)
+    solCostate <- deSolve::ode(y = lT, times = timesCostate, func = costate, parms = parameters, input=input, atol = 1e-10)
     solCostate = solCostate[nrow(solCostate):1,]
 
     Tp = solCostate[,1]
@@ -399,7 +399,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     if(!is.null(modelInput)){
       inputState$u <- inputInterp
     }
-    solX <- ode(y = x0, times = times,func = hiddenInputState, parms = parameters, input=inputState)
+    solX <- deSolve::ode(y = x0, times = times,func = hiddenInputState, parms = parameters, input=inputState)
 
     Tx <- solX[,1]
     x <- solX[,-1, drop=FALSE]
