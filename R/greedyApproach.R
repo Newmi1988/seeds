@@ -89,7 +89,7 @@
 #'                           x0 = x0, optW = c(1,1,1,1) , times=times,
 #'                           measFunc= measJakStat,  measData = y, std = sd,
 #'                           parameters = parameters, systemInput = inputData,
-#'                           modelFunc = modelJakStat, plotEstimates = T, conjGrad = F, cString = JakStatConst)
+#'                           modelFunc = modelJakStat, plotEstimates = TRUE, conjGrad = FALSE, cString = JakStatConst)
 #' 
 greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measFunc, measData, std,
                            parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString) {
@@ -188,7 +188,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
   estiAlpha2 <- list()
 
-  if(is.null(alpha2) && require('parallel') && require('doParallel') && require('foreach')) {
+  if(is.null(alpha2) && requireNamespace('parallel', quietly = TRUE) && requireNamespace('doParallel', quietly = TRUE) && requireNamespace('foreach', quietly = TRUE)) {
     alpha2Start <- 1  # starting value for estimating alpha2
 
     steps <- 6        # number of values that are valuated for best fit
@@ -199,17 +199,17 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
     noCores <- detectCores() -1
     if(noCores > 1){
-      library('parallel')
-      library('doParallel')
-      library('foreach')
+      # library('parallel')
+      # library('doParallel')
+      # library('foreach')
       print(costate)
       print('More than 1 core detected, using parallel computing.')
       exportVars <- c('dynElasticNet','measFunc', 'y', 'costate')
 
-      cl <- makeCluster(noCores)
+      cl <- parallel::makeCluster(noCores)
       registerDoParallel(cl)
 
-      estiAlpha2 <- foreach(i = 1:steps, .export = exportVars) %dopar% {
+      estiAlpha2 <- foreach::foreach(i = 1:steps, .export = exportVars) %dopar% {
         dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta,x0 = x0, optW = optW,
                       times=times, measFunc= measFunc, measData = y, STD = std, constStr = cString,
                       alpha1 = 0, alpha2 = alpha2Start*10^(1-i), modelInput = systemInput,

@@ -100,6 +100,6 @@ results <- greedyApproach(alphaStep = 0.01, alpha2 = 0.1,
                           x0 = x0, optW = c(1,1,1,1) , times=times,
                           measFunc= measJakStat,  measData = y, std = sd,
                           parameters = parameters, systemInput = inputData,
-                          modelFunc = modelJakStat, plotEstimates = T, conjGrad = F, cString = JakStatConst)
+                          modelFunc = modelJakStat, plotEstimates = TRUE, conjGrad = FALSE, cString = JakStatConst)
 
 }
