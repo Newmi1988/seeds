@@ -384,7 +384,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     }
     stepBeta = armijoBeta
     alpha = getAlphaBacktracking(oldW,w,Q,y,step,J,i,alphaDynNet,alphaS,stepBeta,optW,parameters,tInt,Tp,measFunc,input,measureTimes)
-    usedAlphas[mod(i,offset)+1] = alpha
+    usedAlphas[pracma::mod(i,offset)+1] = alpha
 
     # calculate the new hidden inputs
     w = oldW + alpha*step
