@@ -1,7 +1,5 @@
 symbolicDiff <- function(odeObj){
   
-  library(Deriv)
-  
   results <- list(costate=character(0), jacobian=matrix())
 
   formatEqs <- function(modelEq){
@@ -25,7 +23,7 @@ symbolicDiff <- function(odeObj){
     diffStates = paste0(rep(x = format,length(modelEq)),1:length(modelEq))
     for(i in 1:m){
       for(j in 1:n){
-        Jf[[i,j]] = Deriv(modelEq[i],diffStates[j])
+        Jf[[i,j]] = Deriv::Deriv(modelEq[i],diffStates[j])
       }
     }
     costDeriveState <- costFuncDeriv(odeObj, format)
@@ -49,7 +47,7 @@ symbolicDiff <- function(odeObj){
     meaFunc <- unlist(strsplit(odeObj@measureFunction,split = "="))[seq(from = 2, to = 2*m, by = 2) ]
     for(i in 1:n) {
       for(j in 1:m) {
-        Jh[[i,j]] = Deriv(meaFunc[j],diffStates[i])
+        Jh[[i,j]] = Deriv::Deriv(meaFunc[j],diffStates[i])
       }
     }
     # format for dynamic elastic net
@@ -70,7 +68,7 @@ symbolicDiff <- function(odeObj){
     diffStates = paste0(rep(x = format,length(odeObj@origEq)),1:length(odeObj@origEq))
     if(!odeObj@dynamicElasticNet) {
       for(j in 1:n){
-        Jl[j] = Deriv(odeObj@costFunction,diffStates[j])
+        Jl[j] = Deriv::Deriv(odeObj@costFunction,diffStates[j])
       }
       ret <- Jl
     }
@@ -80,7 +78,7 @@ symbolicDiff <- function(odeObj){
       meaFunc <- unlist(strsplit(odeObj@measureFunction,split = "="))[seq(from = 2, to = 2*m, by = 2) ]
       for(i in 1:n) {
         for(j in 1:m) {
-          Jh[[i,j]] = Deriv(meaFunc[j],diffStates[i])
+          Jh[[i,j]] = Deriv::Deriv(meaFunc[j],diffStates[i])
         }
       }
       # format for dynamic elastic net
@@ -180,9 +178,7 @@ symbolicDiff <- function(odeObj){
   results$origEq <- vectorFormat(odeObj@origEq)
   results$Hamilton <-  createHamilton(odeObj)
   
-  #results$costateStart <- costateStart(odeObj)
   
   return(results)
 
-  
 }
