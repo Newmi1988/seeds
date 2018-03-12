@@ -199,12 +199,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
     noCores <- detectCores() -1
     if(noCores > 1){
-      # library('parallel')
-      # library('doParallel')
-      # library('foreach')
-      # require('parallel', quietly = TRUE)
-      # require('doParallel', quietly = TRUE)
-      # require('foreach', quietly = TRUE)
 
       cat('More than 1 core detected, using parallel computing.\n')
       exportVars <- c('dynElasticNet','measFunc', 'y', 'costate')

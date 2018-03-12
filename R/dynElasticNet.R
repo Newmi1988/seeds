@@ -25,8 +25,8 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
   source('stateHiddenInput.R')
   source('costate.R')
-  library("deSolve")
-  library('pracma')
+  # library("deSolve")
+  # library('pracma')
 
   startOptW <- optW
 
@@ -232,21 +232,21 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   }
 
   createConst <- function(constString,needGrad) {
-    library('Ryacas')
+    # library('Ryacas')
     trim <- function(x) gsub(pattern = '\\s', replacement = "", x = x)
     cont = strsplit(x = trim(constString), split = "==")[[1]][2]
     
     eqs <- character(length = length(needGrad))
     for(i in 1:length(needGrad)) {
       str <- paste0('Solve({',trim(constString),'},{x',needGrad[i],'})\n')
-      eqs[i] <- as.character(yacas(str))
+      eqs[i] <- as.character(Ryacas::yacas(str))
     }
     eq <- trim(gsub(pattern = 'list\\(||\\)\\)', replacement = "", x = eqs))
     eq = gsub(pattern = '==', replacement = '=', x = eq)
     eq = gsub(pattern = "(x)([0-9])", replacement = 'P[,\\2]', x = eq)
     eq = gsub(pattern = cont, replacement = '', x = eq)
     
-    detach("package:Ryacas")
+    # detach("package:Ryacas")
     return(eq)
   }
   
