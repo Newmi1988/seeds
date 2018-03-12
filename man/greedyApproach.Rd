@@ -60,33 +60,33 @@ measure <- jakstatMeasurement
 
 modelJakStat  <- function(t, x, parameters, input) {
   with (as.list(parameters),{
-    
+
     k1 = parameters[1]
     k2 = parameters[2]
     k3 = parameters[3]
     k4 = parameters[4]
     s1 = parameters[5]
     s2 = parameters[6]
-    
+
     u <- input$u(t)
-    
+
     dx1 = -k1 * x[1]  * u
     dx2 = k1 *  x[1]  * u - k2 * x[2]^2
     dx3 = -k3*x[3] + 0.5*k2*x[2]^2
     dx4 = k3 * x[3]
-    
+
     list(c(dx1 ,dx2 ,dx3 ,dx4 ))
   })
 }
 
 measJakStat <- function(x) {
-  
+
   s1 <- 10^(-0.21)
   s2 <- 10^(-0.34)
-  
+
   y1 = s1*(x[,2]+ 2*x[,3])
   y2 = s2*(x[,1] + x[,2] + 2*x[,3])
-  
+
   return(list(y1,y2))
 }
 
@@ -96,10 +96,9 @@ sd <- data.frame(measure$y1sd, measure$y2sd)
 JakStatConst <- '2*x4+ 2*x3 + x1 + x2 == N'
 
 
-results <- greedyApproach(alphaStep = 0.01, alpha2 = 0.1,
-                          x0 = x0, optW = c(1,1,1,1) , times=times,
-                          measFunc= measJakStat,  measData = y, std = sd,
-                          parameters = parameters, systemInput = inputData,
-                          modelFunc = modelJakStat, plotEstimates = TRUE, conjGrad = FALSE, cString = JakStatConst)
-
+results <- greedyApproach(alphaStep = 0.01, alpha2 = 0.2, Beta = 0.8,
+               x0 = x0, optW = c(1,1,1,1) , times=times,
+               measFunc= measJakStat,  measData = y, std = sd,
+               parameters = parameters, systemInput = inputData,
+               modelFunc = modelJakStat, plotEstimates = TRUE, conjGrad = FALSE, cString = JakStatConst)
 }
