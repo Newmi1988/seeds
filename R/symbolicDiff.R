@@ -9,6 +9,7 @@ symbolicDiff <- function(odeObj){
   trimSpace <- function (x) gsub("\\s", "",x)
   
   simMaExpr <- function(x) apply(X = x, MARGIN = c(1,2), FUN = Deriv::Simplify)
+
   
   costate <- function(odeObj){
     modelEq <- formatEqs(odeObj@origEq)
@@ -28,8 +29,6 @@ symbolicDiff <- function(odeObj){
     }
     costDeriveState <- costFuncDeriv(odeObj, format)
     costateEq <- formatDerivMatrix(Jf,costDeriveState)
-    #clear the equations
-    #costateEq = unlist(lapply(X = costateEq,FUN = Simplify))
     
     coStart <- costateStart(odeObj, format)
 
@@ -101,11 +100,7 @@ symbolicDiff <- function(odeObj){
     for(i in 1:n){
       p[i] = paste0("dp",as.character(i)," = optW[",as.character(i),"]*(",paste(paste0(lagrangePara,rep(x = "(",n),unlist(derivMatrix[,i])),rep(x = ")",n), collapse = ""))
     }
-    p <- paste0(paste(p,costDeriveState,sep = " - "),")")
-
-    # Simplify does couse errors in functions with fractions
-    #p <- unlist(lapply(X = p,Simplify))
-    return(p)
+    return(paste0(paste(p,costDeriveState,sep = " - "),")"))
   }
   
   vectorFormat <- function(charVec){
