@@ -2,8 +2,8 @@ Package: seeds
 Type: Package
 Title: Estimating hidden inputs that indicate errors in the model equation
 Version: 0.1.0
-Author: Tobias Newmiwaka
-Maintainer: Tobias N. <tobias.newmiwaka@gmail.com>
+Authors@R: person("Tobias", "Newmiwaka", email = "tobias.newmiwaka@gmail.com",
+                  role = c("aut", "cre"))
 Description: A package combining two different algorithms for calculating hidden
   inputs. These hidden inputs can be interpreted as a controll that tries to minimize the
   discrepancies between a given model and a given measurements. The method is 
