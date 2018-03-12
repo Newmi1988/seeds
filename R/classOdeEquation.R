@@ -1,4 +1,4 @@
-#' An S4 class used to handle formating ODE-Equation and calculate the needed functions for the SEEDS-algorithm
+#' A S4 class used to handle formating ODE-Equation and calculate the needed functions for the seeds-algorithm
 #'
 #' @slot modelStr a vector of strings describing the ODE
 #' @slot measureStr a vector of strings representing the equation of the measurement function

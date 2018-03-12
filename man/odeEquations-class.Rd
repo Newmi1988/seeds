@@ -4,9 +4,9 @@
 \name{odeEquations-class}
 \alias{odeEquations-class}
 \alias{odeEq}
-\title{An S4 class used to handle formating ODE-Equation and calculate the needed functions for the SEEDS-algorithm}
+\title{A S4 class used to handle formating ODE-Equation and calculate the needed functions for the seeds-algorithm}
 \description{
-An S4 class used to handle formating ODE-Equation and calculate the needed functions for the SEEDS-algorithm
+A S4 class used to handle formating ODE-Equation and calculate the needed functions for the seeds-algorithm
 }
 \section{Slots}{
 
