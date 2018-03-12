@@ -202,8 +202,11 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       # library('parallel')
       # library('doParallel')
       # library('foreach')
-      print(costate)
-      print('More than 1 core detected, using parallel computing.')
+      # require('parallel', quietly = TRUE)
+      # require('doParallel', quietly = TRUE)
+      # require('foreach', quietly = TRUE)
+
+      cat('More than 1 core detected, using parallel computing.\n')
       exportVars <- c('dynElasticNet','measFunc', 'y', 'costate')
 
       cl <- parallel::makeCluster(noCores)
