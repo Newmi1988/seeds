@@ -1,6 +1,6 @@
 Package: seeds
 Type: Package
-Title: Estimating hidden inputs that indicate errors in the model equation
+Title: Estimate hidden inputs using the method of the dynamic elastic net
 Version: 0.1.0
 Authors@R: person("Tobias", "Newmiwaka", email = "tobias.newmiwaka@gmail.com",
                   role = c("aut", "cre"))

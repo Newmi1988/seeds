@@ -6,7 +6,7 @@
 #' uses \pkg{deSolve} to calculate the hidden inputs w based on the adjoint equations
 #' of the ODE-System. 
 #' 
-#' The adjoint equations are calculated using \pkg{Deriv}. For the usage of the 
+#' The adjoint equations are calculated using \pkg{\code{\link{Deriv}}}. For the usage of the 
 #' algorithm please look into the examples and documentation given for the
 #' functions 
 #' \describe{
