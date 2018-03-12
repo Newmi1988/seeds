@@ -8,7 +8,7 @@ symbolicDiff <- function(odeObj){
   
   trimSpace <- function (x) gsub("\\s", "",x)
   
-  simMaExpr <- function(x) apply(X = x, MARGIN = c(1,2), FUN = Simplify)
+  simMaExpr <- function(x) apply(X = x, MARGIN = c(1,2), FUN = Deriv::Simplify())
   
   costate <- function(odeObj){
     modelEq <- formatEqs(odeObj@origEq)
@@ -86,7 +86,6 @@ symbolicDiff <- function(odeObj){
       Jh = matrix(unlist(Jh),nrow = n)
       h <- matrix(paste(paste("q",1:ncol(Jh), sep = ""),"*",paste("(y",1:ncol(Jh), sep = ""),"-",paste("yhat",1:ncol(Jh),")", sep = ""),sep = ""),nrow = ncol(Jh))
       multi <- as.vector(strMatrixMulti(Jh,h))
-      #multi = simMaExpr(multi)
       ret <- paste("2*(",multi,")")
       ret = unlist(lapply(X = ret, FUN = Simplify))
 
