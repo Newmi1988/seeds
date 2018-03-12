@@ -391,7 +391,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       alphaS = alphaStep
     } else {
       alphaS = max(usedAlphas)
-      if(length(unique(usedAlphas))==2){
+      if(length(unique(usedAlphas))==1){
         alphaS = 4*alphaS
       }
     }
