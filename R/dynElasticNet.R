@@ -418,7 +418,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     absW <- abs(sapply(input$w, mapply, tAUC))
     interpAbsW <- apply(X = absW, MARGIN = 2, FUN = function(x) approxfun(x = tAUC, y = x, rule=2, method = 'linear'))
 
-    AUCs <- sapply(X = interpAbsW, FUN = function(x) trapzfun(f = x, a = t0, b = tf))
+    AUCs <- sapply(X = interpAbsW, FUN = function(x) pracma::trapzfun(f = x, a = t0, b = tf))
     cat(paste0('Iteration ',i,' J[w]=',round(J[[i+1]],8),'     change J[w]: ',round((1-abs(J[[i+1]]/J[[i]]))*100,2),' % \t\talpha=',alpha,'\n'))
 
 
