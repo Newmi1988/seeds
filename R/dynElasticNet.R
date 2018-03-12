@@ -236,7 +236,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     eqs <- character(length = length(needGrad))
     for(i in 1:length(needGrad)) {
       str <- paste0('Solve({',trim(constString),'},{x',needGrad[i],'})\n')
-      eqs[i] <- as.character(Ryacas::yacas(str))
+      eqs[i] <- as.character(suppressWarnings(Ryacas::yacas(str))) #warnings are generated because of an error in the orphaned xml1 package / issu is known
     }
     eq <- trim(gsub(pattern = 'list\\(||\\)\\)', replacement = "", x = eqs))
     eq = gsub(pattern = '==', replacement = '=', x = eq)
