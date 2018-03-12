@@ -178,7 +178,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   odeEq <- calculateCostate(odeEq)
   createFunctions(odeEq)
   
-  detach('package:Deriv')
 
   source('costate.R')
   source('stateHiddenInput.R')
