@@ -1,20 +1,22 @@
-Package: SEEDS
+Package: seeds
 Type: Package
 Title: Estimating hidden inputs that indicate errors in the model equation
 Version: 0.1.0
 Author: Tobias Newmiwaka
 Maintainer: Tobias N. <tobias.newmiwaka@gmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: A package combining two different algorithms for calculating hidden
+  inputs. These hidden inputs can be interpreted as a controll that tries to minimize the
+  discrepancies between a given model and a given measurements. The method is 
+  also called the 'dynamic elastic net'. The related work can be found in doi:10.1038/srep20772
 License: GPL 3
 Depends: R (>= 3.1.0)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
-Imports: deSolve,
-    pracma,
-    Deriv,
-    Ryacas
-Suggests: parallel,
-    doParallel,
-    foreach
+Imports: deSolve (>= 1.20),
+    pracma (>= 2.1.4),
+    Deriv (>= 3.8.4),
+    Ryacas (>= 0.3-1)
+Suggests: parallel (>= 3.4.3),
+    doParallel (>= 1.0.11),
+    foreach (>= 1.4.4)
