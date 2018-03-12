@@ -4,7 +4,7 @@
 \name{seeds-package}
 \alias{seeds}
 \alias{seeds-package}
-\title{seeds: Estimating hidden inputs that indicate errors in the model equation}
+\title{seeds: Estimate hidden inputs using the method of the dynamic elastic net}
 \description{
 A package combining two different algorithms for calculating hidden
 inputs. These hidden inputs can be interpreted as a controll that tries to minimize the
@@ -20,7 +20,7 @@ sparse controll that tries to minimize the discrepancies between a given
 uses \pkg{deSolve} to calculate the hidden inputs w based on the adjoint equations
 of the ODE-System. 
 
-The adjoint equations are calculated using \pkg{Deriv}. For the usage of the 
+The adjoint equations are calculated using \pkg{\code{\link{Deriv}}}. For the usage of the 
 algorithm please look into the examples and documentation given for the
 functions 
 \describe{
