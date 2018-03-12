@@ -6,9 +6,9 @@
 #' uses \pkg{deSolve} to calculate the hidden inputs w based on the adjoint equations
 #' of the ODE-System. 
 #' 
-#' The adjoint equations are calculated using \pkg{\code{\link{Deriv}}}. For the usage of the 
-#' algorithm please look into the examples and documentation given for the
-#' functions 
+#' The adjoint equations are calculated using the \code{\link{ode}} function of the 
+#' \pkg{deSolve} package. For the usage of the algorithm please look into the 
+#' examples and documentation given for the functions 
 #' \describe{
 #'    \item{\code{\link{greedyApproach}}}{a greedy algorithm to calculate a sparse control}
 #'    \item{\code{\link{dynElasticNet}}}{a conjugate gradient optimal control algorithm with L2 regulation} 
