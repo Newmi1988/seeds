@@ -7,8 +7,8 @@
 #' The conjugate gradient based algorithm uses a greedy algorithm to estimate a 
 #' sparse controll that tries to minimize the discrepancies between a given 
 #' 'nominal model given the measurements (e.g from an experiment). The algorithm
-#' uses \pkg{deSolve} to calculate the hidden inputs w based on the adjoint equations
-#' of the ODE-System. 
+#' the \code{\link{ode}} uses \pkg{deSolve} to calculate the hidden inputs w 
+#' based on the adjoint equations of the ODE-System. 
 #' 
 #' The adjoint equations are calculated using the \code{\link{ode}} function of the 
 #' \pkg{deSolve} package. For the usage of the algorithm please look into the 
@@ -17,4 +17,8 @@
 #'    \item{\code{\link{greedyApproach}}}{a greedy algorithm to calculate a sparse control}
 #'    \item{\code{\link{dynElasticNet}}}{a conjugate gradient optimal control algorithm with L2 regulation} 
 #' }
+#' 
+#' @references \strong{Benjamin Engelhardt, Holger Fröhlich, Maik Kschischo} 
+#' Learning (from) the errors of a systems biology model, \emph{Nature Scientific Reports},
+#'  6, 20772, 2016 \url{https://www.nature.com/articles/srep20772}
 "_PACKAGE"
