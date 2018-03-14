@@ -9,8 +9,8 @@
 #' @slot jacobian a matrix of strings representing the jacobian matrix model equations
 #' @slot costFunction a string containing the cost function
 #' @slot hamiltonian a string representing the Hamilton function of the model
-
-
+#' 
+#' @export
 odeEq <- setClass(
   #name of Class
   "odeEquations",

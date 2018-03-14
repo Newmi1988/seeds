@@ -25,19 +25,25 @@ dynElasticNet(alphaStep, armijoBeta, x0, parameters, times, alpha1, alpha2,
 
 \item{measData}{measured values of the experiment}
 
+\item{constStr}{a string that represents constrains, can be used to calculate a hidden input for a komponent that gradient is zero}
+
 \item{STD}{standard deviation of the experiment; leave empty if unknown}
 
 \item{modelFunc}{function that describes the ODE-system of the model}
 
 \item{measFunc}{function that maps the states to the outputs}
 
+\item{modelInput}{an dataset that discribes the external input of the system}
+
 \item{optW}{vector that indicated at which knots of the network the alogrithm should estimate the hidden inputs}
 
 \item{origAUC}{AUCs of the first optimisation; only used by the algorithm}
 
+\item{maxIteration}{a upper bound for the maximal number of iterations}
+
 \item{plotEsti}{boolean that controlls of the current estimates should be plotted}
 
-\item{maxIterations}{maximal steps the algorithm can use to find an optimum of the costfunction}
+\item{conjGrad}{boolean that indicates the usage of conjugate gradient method over the normal steepest descent}
 }
 \value{
 A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the costfunction

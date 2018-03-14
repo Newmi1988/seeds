@@ -13,6 +13,9 @@ greedyApproach(alphaStep, Beta, alpha1, alpha2, x0, optW, times, measFunc,
 a fitting stepsize will be calculated based on a backtracking line search
 if the algorithm converges to slow use a bigger stepsize}
 
+\item{Beta}{skaling parameter for the backtracking to approximate the stepsize of the gradient descent. Is set to  0.8
+if no value is given to the function}
+
 \item{alpha1}{L1-norm parameter of the dynamic elastic net approach, is set to zero for this algorithm}
 
 \item{alpha2}{L2-norm parameter of the dynamic elastic net approach
@@ -31,14 +34,22 @@ measurable}
 
 \item{measData}{a table that containts the measurements of the experiment; used to calculate the needed inputs}
 
+\item{std}{standard deviation of the measurement; used to weight the errors of the estimates in the cost function}
+
+\item{parameters}{vector or named vector that contains the parameters of the ODE equation}
+
+\item{systemInput}{an dataset that discribes the external input of the system}
+
 \item{modelFunc}{a R-Function that states the ODE system for which the hidden inputs should be calculated}
+
+\item{greedyLogical}{a boolean that states if the greedy approach should be used; if set to FALSE the algorithm
+will only use perform a calculation of the inputs for all knots without a sparse solution}
 
 \item{plotEstimates}{boolean that indicated if the current estimate should be shown}
 
-\item{parameter}{vector or named vector that contains the parameters of the ODE equation}
+\item{conjGrad}{boolean that indicates the usage of conjugate gradient method over the normal steepest descent}
 
-\item{greedy}{a boolean that states if the greedy approach should be used; if set to FALSE the algorithm
-will only use perform a calculation of the inputs for all knots without a sparse solution}
+\item{cString}{a string that represents constrains, can be used to calculate a hidden input for a komponent that gradient is zero}
 }
 \value{
 returns a results-object with default plot function. The plot shows the estimated best sparse fit
@@ -46,153 +57,4 @@ returns a results-object with default plot function. The plot shows the estimate
 \description{
 calculates controls based on a first optimisation with gradient descent; should result in a sparse vector
 of hidden inputs
-}
-\examples{
-# usb network example
-uvbParameter = c(  ks1=0.23,
-                 ks2=4.0526,
-                 kdr1=0.1,
-                 kdr2=0.2118,
-                 k1=0.0043,
-                 k2=161.62,
-                 ka1=0.0372,
-                 ka2=0.0611,
-                 ka3=4.7207,
-                 kd1=94.3524,
-                 kd2=50.6973,
-                 kd3=0.5508,
-                 ks3=0.4397,
-                 kdr3=1.246,
-                 uv=1,
-                 ka4=10.1285,
-                 kd4=1.1999,
-                 n1=3,
-                 n2=2,
-                 n3=3.5,
-                 kdr3a=0.9735,
-                 kdr3b=0.406,
-                 ksr=0.7537,
-                 FHY3_s=5)
-
-x0 = c(0.2,10,2,0,0,20,0,0,0,4.2,0.25,20,0)
-
-uvbModel <- function(t,x,parameters) {
-  ks1 = parameters[1]
-  ks2 = parameters[2]
-  kdr1 = parameters[3]
-  kdr2 = parameters[4]
-  k1 = parameters[5]
-  k2 = parameters[6]
-  ka1 = parameters[7]
-  ka2 = parameters[8]
-  ka3 = parameters[9]
-  kd1 = parameters[10]
-  kd2 = parameters[11]
-  kd3 = parameters[12]
-  ks3 = parameters[13]
-  kdr3 = parameters[14]
-  uv = parameters[15]
-  ka4 = parameters[16]
-  kd4 = parameters[17]
-  n1 = parameters[18]
-  n2 = parameters[19]
-  n3 = parameters[20]
-  kdr3a = parameters[21]
-  kdr3b = parameters[22]
-  ksr = parameters[23]
-  fhy3_s = parameters[24]
-  
-  dx1 = ((-2) * ((ka1 * (x[1]^2) * (x[4]^2)) - (kd1 * x[5])) + (-2) * ((ka2 * (x[1]^2) * x[2]) - (kd2 * x[3])) + ((ks1 *((1) + (uv * n3 * (x[11] + fhy3_s))))  - (kdr1 * ((1) + (n1 * uv)) * x[1])))
-  dx2 = ((-1) * ((ka2*(x[1]^2) * x[2]) - (kd2 * x[3])) +(-1) * ((ka4 * x[2] * x[12]) - (kd4 * x[13])))
-  dx3 = (((ka2 * (x[1]^2) * x[2]) - (kd2*  x[3]))) 
-  dx4 = ((-2) * (k1*(x[4]^2)) + (2) * (k2 * x[6]) + (-2) * ((ka1 * (x[1]^2)* (x[4]^2)) - (kd1 * x[5])) + (-1)* (ka3 * x[4] *x[7]))
-  dx5 =  (((ka1 * (x[1]^2) * (x[4]^2)) -(kd1 * x[5])))
-  dx6 = ((-1) * (k2 * x[6]) +  (k1 * (x[4]^2)) +(kd3 * (x[8]^2)))
-  dx7 = ((-1) * (ka3 * x[4] * x[7]) + ((ks2 * ((1) + (uv * x[5]))) -(kdr2 * x[7])) + (2) * (kd3 * (x[8]^2)))
-  dx8 = ((-2) * (kd3 * x[8]^2) + (ka3 * x[4] * x[7])) 
-  dx9  = 0 
-  dx10 = 0
-  dx11 =  (((ks3 * ((1) + (n2 * uv))) -(kdr3 * (((x[3] / (kdr3a + x[3])) + (x[13] / (kdr3b + x[13]))) -(x[5] / (ksr + x[5]))) *  x[11])))
-  dx12 = ((-1) * (ka4 * x[2] * x[12]) + (kd4 * x[13]))
-  dx13 =((ka4 * x[2] * x[12]) - (kd4 * x[13]))
-  
-  return(list(c(dx1,dx2,dx3,dx4,dx5,dx6,dx7,dx8,dx9,dx10,dx11,dx12,dx13)))
-}
-
-
-uvbMeasure <- function(x) {
-  
-  y1 = 2*x[,5] + x[,4] + x[,8]
-  y2 = 2*x[,5] + 2* x[,3] + x[,1]
-  y3 = x[,6]
-  y4 = x[,11]
-  y5 = x[,4]
-  
-  return(list(y1,y2,y3,y4,y5))
-}
-
-
-y <- uvbData[,1:6]
-t <- uvbData$t
-sd <- uvbData[,7:11]
-
-res <- greedyApproach(alphaStep = 100, alpha2 = 0.0002, optW = rep(1,13), x0 = x0,
-               measFunc = uvbMeasure,times = t, measData = y, 
-               parameters = uvbParameter, modelFunc = uvbModel, plotEstimates = TRUE, conjGrad = TRUE)
-
-
-
-N = 10^0.31
-x0 = c(N, 0, 0, 0)
-y <- c(X = x0)
-times <- c( 0.0208,  0.1098,   0.2696,    0.4999,    0.8002,    1.1697,    1.6077,    2.1129,    2.6843,    3.3205,    4.0200,    4.7811,    5.6020,    6.4808,    7.4154,    8.4035,    9.4429,   10.5310, 11.6653,   12.8431,   14.0616,   15.3179,   16.6090,   17.9319,   19.2834,   20.6603,   22.0594,   23.4773,   24.9107,   26.3561,   27.8102,   29.2695,   30.7305,   32.1898,   33.6439,   35.0893, 36.5227,   37.9406,   39.3397,   40.7166,   42.0681,   43.3910,   44.6821,   45.9384,   47.1569,   48.3347,   49.4690,   50.5571,   51.5965,   52.5846,   53.5192,   54.3980,   55.2189,   55.9800, 56.6795,   57.3157,   57.8871,   58.3923,   58.8303,   59.1998,   59.5001,   59.7304,   59.8902,   59.9792)
-parameters = 10^c(0.31, -1, -0.49, 0.42, -0.21, -0.34)
-
-inputData <- jakstatInput
-measure <- jakstatMeasurement
-
-
-modelJakStat  <- function(t, x, parameters, input) {
-  with (as.list(parameters),{
-
-    k1 = parameters[1]
-    k2 = parameters[2]
-    k3 = parameters[3]
-    k4 = parameters[4]
-    s1 = parameters[5]
-    s2 = parameters[6]
-
-    u <- input$u(t)
-
-    dx1 = -k1 * x[1]  * u
-    dx2 = k1 *  x[1]  * u - k2 * x[2]^2
-    dx3 = -k3*x[3] + 0.5*k2*x[2]^2
-    dx4 = k3 * x[3]
-
-    list(c(dx1 ,dx2 ,dx3 ,dx4 ))
-  })
-}
-
-measJakStat <- function(x) {
-
-  s1 <- 10^(-0.21)
-  s2 <- 10^(-0.34)
-
-  y1 = s1*(x[,2]+ 2*x[,3])
-  y2 = s2*(x[,1] + x[,2] + 2*x[,3])
-
-  return(list(y1,y2))
-}
-
-y <- data.frame(measure$t, measure$y1, measure$y2)
-sd <- data.frame(measure$y1sd, measure$y2sd)
-
-JakStatConst <- '2*x4+ 2*x3 + x1 + x2 == N'
-
-
-results <- greedyApproach(alphaStep = 0.01, alpha2 = 0.4, Beta = 0.8,
-               x0 = x0, optW = c(1,1,1,1) , times=times,
-               measFunc= measJakStat,  measData = y, std = sd,
-               parameters = parameters, systemInput = inputData,
-               modelFunc = modelJakStat, plotEstimates = TRUE, conjGrad = FALSE, cString = JakStatConst)
 }

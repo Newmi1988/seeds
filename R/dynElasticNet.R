@@ -13,13 +13,14 @@
 #' @param measFunc function that maps the states to the outputs
 #' @param optW vector that indicated at which knots of the network the alogrithm should estimate the hidden inputs
 #' @param origAUC AUCs of the first optimisation; only used by the algorithm
-#' @param maxIterations maximal steps the algorithm can use to find an optimum of the costfunction
 #' @param plotEsti boolean that controlls of the current estimates should be plotted
+#' @param modelInput an dataset that discribes the external input of the system
+#' @param conjGrad boolean that indicates the usage of conjugate gradient method over the normal steepest descent
+#' @param constStr  a string that represents constrains, can be used to calculate a hidden input for a komponent that gradient is zero
+#' @param maxIteration a upper bound for the maximal number of iterations
 #'
 #' @return A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the costfunction
-
-
-
+#' @export
 dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2,measData, constStr,
                           STD,modelFunc,measFunc,modelInput,optW,origAUC,maxIteration,plotEsti, conjGrad) {
 
@@ -47,7 +48,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
   N <- 100
   t0 <- times[1]
-  tf <- tail(times, n=1)
+  tf <- utils::tail(times, n=1)
   times <- seq(from = t0, to = tf, length.out = N)
   tInt <- c(t0,tf)
 

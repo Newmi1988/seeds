@@ -1,3 +1,16 @@
+#' Symbolic differentiation to create the adjoint equations
+#' 
+#' The function calculates the needed equations for the gradient descent alogrithm.
+#' The function needs a object of the S4 OdeEquation class. This class containts
+#' all the needed equations.
+#' 
+#' The calculation is based on the Derive function of the package Deriv. The needed
+#' object can be created with the S4 class OdeEquations.
+#' 
+#' @param odeObj a object of the S4 class odeEquation
+#' 
+#' @export
+
 symbolicDiff <- function(odeObj){
   
   results <- list(costate=character(0), jacobian=matrix())
@@ -119,9 +132,6 @@ symbolicDiff <- function(odeObj){
     addLambda <- paste(rep("p[",n),1:n,rep("]*(", n), EQ,rep(x = ")",n), sep = "")
     concEq <- paste(addLambda, collapse = "+")
     if(odeEq@dynamicElasticNet) {
-      #' Implement the cost function of the dynamic elastic net
-      
-      
       m <- length(odeEq@measureFunction)
       costDynElaNet <- paste("(y",1:m,"- yhat",1:m,")",sep = "")
       costDynElaNet = paste(costDynElaNet, collapse = "+")

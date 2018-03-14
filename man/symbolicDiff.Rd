@@ -2,10 +2,19 @@
 % Please edit documentation in R/symbolicDiff.R
 \name{symbolicDiff}
 \alias{symbolicDiff}
-\title{Implement the cost function of the dynamic elastic net}
+\title{Symbolic differentiation to create the adjoint equations}
 \usage{
 symbolicDiff(odeObj)
 }
+\arguments{
+\item{odeObj}{a object of the S4 class odeEquation}
+}
 \description{
-Implement the cost function of the dynamic elastic net
+The function calculates the needed equations for the gradient descent alogrithm.
+The function needs a object of the S4 OdeEquation class. This class containts
+all the needed equations.
+}
+\details{
+The calculation is based on the Derive function of the package Deriv. The needed
+object can be created with the S4 class OdeEquations.
 }
