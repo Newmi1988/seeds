@@ -1,4 +1,4 @@
-createFunctions <- function(odeEq,logTransf){ 
+createFunctions <- function(odeEq){ 
   
   trim <- function (x)  sub("^\\s+", "", x) 
   trimSpace <- function (x) gsub("\\s", "",x)
@@ -85,38 +85,22 @@ createFunctions <- function(odeEq,logTransf){
     }
     else {
       stringOde <- odeEq@origEq
-      
-      if(funcType!='logTransf') {
-        funcStartStr <- paste(funcType," <- function(t, x, parameters, input) { \n with (as.list(parameters),{ \n")
-        funcStartStr = append(funcStartStr,"\t\toptW <- input$optW", after = length(funcStartStr)+1)
-      } else {
-        funcStartStr <- paste(funcType," <- function(t, x, parameters) { \n with (as.list(parameters),{ \n")
-      }
+      funcStartStr <- paste(funcType," <- function(t, x, parameters, input) { \n with (as.list(parameters),{ \n")
+      funcStartStr = append(funcStartStr,"\t\toptW <- input$optW", after = length(funcStartStr)+1)
       
       addiOperUntrimed <- odeEq@modelStr[!grepl("\\{|\\}",odeEq@modelStr)]
       addiOper <- append(addiOperUntrimed[!grepl("function|list|d[x,y]|input",addiOperUntrimed)],"\n")
       
-      if(funcType!='logTransf') {
-        dynNetInterpolate <-  c("\t\tw <- sapply(input$w, mapply, t)",
+      dynNetInterpolate <-  c("\t\tw <- sapply(input$w, mapply, t)",
                                 "\t\tu <- sapply(input$u, mapply, t)\n")
-        funcStartStr = append(funcStartStr,dynNetInterpolate, after = length(funcStartStr)+1)
-      }
+      funcStartStr = append(funcStartStr,dynNetInterpolate, after = length(funcStartStr)+1)
 
       if(length(addiOper)!=0){
         funcStartStr = append(funcStartStr,addiOper,after = length(funcStartStr)+2)
       }
       
-      if(funcType=='logTransf') {
-          splitStr <- unlist(strsplit(x = stringOde, split = ' = '))
-          dxStr <- splitStr[seq(from=1,to=length(splitStr), by=2)]
-          eqStr <- splitStr[seq(from=2,to=length(splitStr), by=2)]
-          eqStr = gsub(pattern = "(\\b[x,y,p,q])(\\[[0-9]*\\])(\\s)*",replacement = "exp( \\1[\\2] )", x = eqStr)
-          stringOde <- paste0('\t\t',paste(dxStr,eqStr,sep = ' = '))
-      }
-      else {
-        stringOde <- paste0("\t\t",paste0(stringOde,paste0("+ optW[",1:length(stringOde),"] *w[",1:length(stringOde),"]")))
-      }
-      
+
+      stringOde <- paste0("\t\t",paste0(stringOde,paste0("+ optW[",1:length(stringOde),"] *w[",1:length(stringOde),"]")))
       funcMiddleStr = append(funcStartStr,stringOde, after = length(funcStartStr)+2)
       
       toList <- paste0(unlist(strsplit(x = stringOde, split = "="))[seq(1, 2*length(stringOde), by = 2)],collapse = ",")
@@ -181,28 +165,7 @@ createFunctions <- function(odeEq,logTransf){
     }
   }
   
-  formatCharMatrix <- function(odeEq) {
-    n = nrow(odeEq@invSimMatrix)
-    charSimMatrix <- paste0(as.vector(odeEq@invSimMatrix), collapse = ",")
-    charJhT <- paste0(as.vector(odeEq@JhT), collapse = ",")
-    
-    charVec <- c()
-    
-    charVec[1] = "costateStart <- function(x,alpha2,measData) {\n"
-    charVec[2] = paste0("\t\tJh <- t(matrix(c(",charJhT,"),nrow=",n,"))",collapse = "")
-    charVec[3] = "\t\tpseudoInv <- ginv(Jh)"
-    charVec[4] = "\t\txProj <- pseudoInv %*% t(measData[nrow(measData),2:ncol(measData)])"
-    charVec[5] = "\t\tlT <- as.numeric(-alpha2*(x[nrow(x),]-xProj))\n"
-    charVec[6] = "\treturn(lT)"
-    charVec[7] = "}"
-    
-    return(charVec)
-    
-  }
-  
-  
   wrapperCreateFunc <- function(odeEq) {
-    createCostateStart(formatCharMatrix(odeEq))
     createCostate(formatFuncString(odeEq,"costate"))
     if(odeEq@dynamicElasticNet){
       createStateHiddenInput(formatFuncString(odeEq,"hiddenInputState"))
