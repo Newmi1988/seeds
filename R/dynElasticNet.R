@@ -87,7 +87,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   
   if(!is.null(modelInput)){
     inputInterp <- list()
-    inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
+    inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
     solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))
   } else {
     solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters))
@@ -131,7 +131,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       newW = oldW + alpha*gradStep
 
       input$optW <- optW
-      input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) approxfun(x = Tp, y = x, method = 'linear', rule=2))
+      input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
       time <- seq(from = tInt[1], to = tInt[2], length.out = 300)
       solX <- deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
 
@@ -140,8 +140,8 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
       yHat <- getMeassures(solX,measFunc)
 
-      input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) approxfun(x = Tx, y = x, rule=2, method = 'linear'))
-      input$interpyHat <- apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
+      input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
+      input$interpyHat <- apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
       
       arrayJ[i] = costFunction(measureTimes,input,alphaDynNet)
       
@@ -169,7 +169,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       newW = oldW + alpha3*gradStep
       
       input$optW <- optW
-      input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) approxfun(x = Tp, y = x, method = 'linear', rule=2))
+      input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
       time <- seq(from = tInt[1], to = tInt[2], length.out = 300)
       solX <- deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
       
@@ -178,8 +178,8 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       
       yHat <- getMeassures(solX,measFunc)
       
-      input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) approxfun(x = Tx, y = x, rule=2, method = 'linear'))
-      input$interpyHat <- apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
+      input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
+      input$interpyHat <- apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
       
       j3 = costFunction(measureTimes,input,alphaDynNet)
 
@@ -298,16 +298,16 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   }
 
   yHat <- getMeassures(solNominal,measFunc)
-  yNominal <- apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
+  yNominal <- apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
   
   
   # interpolation
   # linear approximation of the calculated values of x,y and yhat
-  xInterp <- apply(X = x, MARGIN = 2, FUN = function(x) approxfun(x = Tx, y = x, rule=2, method = 'linear'))
-  yInterp <- apply(X = measData[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) approxfun(x = measData[,1], y = x, rule=2, method = 'linear'))
-  yHatInterp <- apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
-  qInterp <- apply(X = Q, MARGIN = 2, FUN = function(x) approxfun(x =times, y = x, rule = 2, method = 'linear'))
-  wInterp <- apply(X = w, MARGIN = 2, FUN = function(x) approxfun(x = Tx, y = x, rule = 2, method = 'linear'))
+  xInterp <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
+  yInterp <- apply(X = measData[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = measData[,1], y = x, rule=2, method = 'linear'))
+  yHatInterp <- apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
+  qInterp <- apply(X = Q, MARGIN = 2, FUN = function(x) stats::approxfun(x =times, y = x, rule = 2, method = 'linear'))
+  wInterp <- apply(X = w, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule = 2, method = 'linear'))
 
 
   # list of functions that approximate the data
@@ -408,7 +408,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     # CALCULATION OF THE TRAJEKTORIES THAT RESULTS FROM THE NEW HIDDEN INPUT
     inputState <- list()
     inputState$optW <- optW
-    inputState$wInterp <- apply(X = w, MARGIN = 2, FUN = function(x) approxfun(x = Tp, y = x, method = 'linear', rule=2))
+    inputState$wInterp <- apply(X = w, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
     
     if(!is.null(modelInput)){
       inputState$u <- inputInterp
@@ -421,8 +421,8 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
     yHat <- getMeassures(solX,measFunc)
     # interp
-    input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) approxfun(x = Tx, y = x, rule=2, method = 'linear'))
-    input$interpyHat <- apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
+    input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
+    input$interpyHat <- apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
     input$w <- inputState$wInterp
 
     # calculate the new cosT
@@ -430,7 +430,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
     tAUC <- times
     absW <- abs(sapply(input$w, mapply, tAUC))
-    interpAbsW <- apply(X = absW, MARGIN = 2, FUN = function(x) approxfun(x = tAUC, y = x, rule=2, method = 'linear'))
+    interpAbsW <- apply(X = absW, MARGIN = 2, FUN = function(x) stats::approxfun(x = tAUC, y = x, rule=2, method = 'linear'))
 
     AUCs <- sapply(X = interpAbsW, FUN = function(x) pracma::trapzfun(f = x, a = t0, b = tf))
     cat(paste0('Iteration ',i,' J[w]=',round(J[[i+1]],8),'     change J[w]: ',round((1-abs(J[[i+1]]/J[[i]]))*100,2),' % \t\talpha=',alpha,'\n'))

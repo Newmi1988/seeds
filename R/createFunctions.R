@@ -1,3 +1,9 @@
+#' creates files for costate and argumented state
+#' 
+#' The function handles the formating of the ODE
+#' 
+#' @param odeEq a object of the odeEquation class
+
 createFunctions <- function(odeEq){ 
   
   trim <- function (x)  sub("^\\s+", "", x) 
