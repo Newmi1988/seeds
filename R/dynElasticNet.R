@@ -205,8 +205,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     } else {
       return(alpha)
     }
-
-    # return(cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2))
+    
     # return(alpha)
 
   }
@@ -368,26 +367,20 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       else {
         gNeg = P - alpha2*w
         
-        
-        
         # newInt <- apply(X = -gNeg, MARGIN = 2, FUN = function(x) pracma::trapz(Tp, x^2))
         newGrad <- gNeg * (gNeg + oldGrad)
         newInt <- apply(X = newGrad, MARGIN = 2, FUN = function(x) pracma::trapz(Tp, x))
 
         oldInt <- apply(X = oldGrad, MARGIN = 2, FUN = function(x) pracma::trapz(Tp, x^2))
-        betaStep = pracma::mldivide(oldInt,newInt)
-        betaStep[is.nan(betaStep)] <- 0
-        step = gNeg + as.numeric(betaStep)*step
 
-        # newInt <- apply(X = -gNeg, MARGIN = 2, FUN = function(x) x %*% x)
-        # oldInt <- apply(X = oldGrad, MARGIN = 2, FUN = function(x) x %*% x)
-        # betaStep = newInt / oldInt
-        # betaStep[is.infinite(betaStep)] <- 0
+        newInt[is.nan(newInt)] <- 0
+        oldInt[is.nan(oldInt)] <- 0
+        betaTest <- sum(newInt)/sum(oldInt)
+        step = gNeg + betaTest*step
+
+        # betaStep = pracma::mldivide(oldInt,newInt)
         # betaStep[is.nan(betaStep)] <- 0
-        # 
-        # step = gNeg + t(t(step)*betaStep)
-
-
+        # step = gNeg + as.numeric(betaStep)*step
         oldGrad = -gNeg
 
       }
@@ -505,6 +498,8 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   lastJ = lastJ[length(lastJ)]
   results$J <- lastJ
   results$totalJ <- J
+  
+  cat(paste0('RMSE:',mean(results$rmse)))
 
 
   return(results)

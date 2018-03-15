@@ -241,9 +241,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   odeEq <- calculateCostate(odeEq)
   createFunctions(odeEq)
   
-  
-
-
 
   iter <- (sum(optW))
   estiAlpha2 <- list()
