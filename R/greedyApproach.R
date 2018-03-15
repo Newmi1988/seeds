@@ -234,7 +234,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   checkDimensions()
 
   #create the needed files
-  odeEq <- odeEq()
+  odeEq <- new("odeEquations")
   odeEq <- createModelEqClass(odeEq,modelFunc)
   odeEq <- setMeassureFunc(odeEq,measFunc)
   odeEq <- isDynElaNet(odeEq)
@@ -266,7 +266,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
       estiAlpha2 <- foreach::foreach(i = 1:steps, .export = exportVars) %dopar% {
         dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta,x0 = x0, optW = optW,
-                      times=times, measFunc= measFunc, measData = y, STD = std, constStr = cString,
+                      times=times, measFunc= measFunc, measData = measData, STD = std, constStr = cString,
                       alpha1 = 0, alpha2 = alpha2Start*10^(1-i), modelInput = systemInput,
                       parameters = parameters, modelFunc = modelFunc,maxIteration=100, plotEsti = FALSE, conjGrad = conjGrad)
       }
@@ -285,7 +285,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
         alpha2 = alpha2Start*10^(1-i)
         estiAlpha2[[i]] <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta,x0 = x0, optW = optW,
-                                         times=times, measFunc= measFunc, measData = y, STD = std,
+                                         times=times, measFunc= measFunc, measData = measData, STD = std,
                                          alpha1 = alpha1, alpha2 = alpha2, constStr = cString,
                                          parameters = parameters, modelFunc = modelFunc, modelInput = systemInput,
                                          maxIteration=100, plotEsti = plotEstimates, conjGrad = conjGrad)
@@ -308,7 +308,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
   } else {
     results <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, x0 = x0, optW = optW,
-                             times=times, measFunc= measFunc, measData = y, STD = std,
+                             times=times, measFunc= measFunc, measData = measData, STD = std,
                              alpha1 = alpha1, alpha2 = alpha2, constStr = cString,
                              parameters = parameters, modelFunc = modelFunc, plotEsti = plotEstimates,
                              modelInput = systemInput, conjGrad = conjGrad)
@@ -327,7 +327,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     costError <- cbind(rep(0,length(optW)),rep(0,length(optW)))
     colnames(costError) <- c('sum(MSE)','cost')
 
-    # alphaStep = alphaStep*5
+    alphaStep = alphaStep*4
 
     for(i in 1:(iter-1)) {
       cat('_________________________________________\n')
@@ -336,7 +336,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       cat(which(optW > 0))
       optWs[[i]] <- optW
       resAlg[[i]] <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, alpha1 = alpha1, alpha2 = alpha2,x0 = x0, optW = optW,
-                                   times=times, measFunc= measFunc, measData = y, STD = std, modelInput = systemInput, constStr = cString,
+                                   times=times, measFunc= measFunc, measData = measData, STD = std, modelInput = systemInput, constStr = cString,
                                    parameters = parameters, modelFunc = modelFunc, origAUC = orgAUC, plotEsti = plotEstimates, conjGrad = conjGrad)
 
       # costError[i,] = c(sum(resAlg[[i]]$rmse),resAlg[[i]]$J)
@@ -345,8 +345,8 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
       ## use best fit inteads last iteration
       if(i > 1 && ( costError[i,1] > costError[i-1,1])  ) {
-        # cat('hidden inputs on knots:\n')
-        # cat(which(optWs[[i-1]] %in% 1))
+        cat('hidden inputs on knots:\n')
+        cat(which(optWs[[i-1]] %in% 1))
         break
       }
       optW <- resAlg[[i]]$optW
@@ -362,7 +362,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       resAlg$optimalSol <- i-1
       resAlg$measurements <- measData
     }
-    res <- results(modelFunction = odeEq@modelStr,
+    res <- new('results',modelFunction = odeEq@modelStr,
                    measureFunction = odeEq@measureStr,
                    hiddenInputs = resAlg[[i-1]]$w,
                    auc = resAlg[[i-1]]$AUC,

@@ -11,7 +11,7 @@
 #' @slot hamiltonian a string representing the Hamilton function of the model
 #' 
 #' @export
-odeEq <- setClass(
+setClass(
   #name of Class
   "odeEquations",
   slots = c(

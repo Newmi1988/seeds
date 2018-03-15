@@ -200,14 +200,14 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       }
     }
     
-    # if(i>2) {
-    #   return(cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2))
-    # } else {
-    #   return(alpha)
-    # }
-    # 
+    if(i>2) {
+      return(cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2))
+    } else {
+      return(alpha)
+    }
+
     # return(cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2))
-    return(alpha)
+    # return(alpha)
 
   }
 
@@ -344,7 +344,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     timesCostate <- seq(from = tf, to= t0, length.out =N)
 
 
-    solCostate <- deSolve::ode(y = lT, times = timesCostate, func = costate, parms = parameters, input=input, atol = 1e-10)
+    solCostate <- deSolve::ode(y = lT, times = timesCostate, func = costate, parms = parameters, input=input)
     solCostate = solCostate[nrow(solCostate):1,]
 
     Tp = solCostate[,1]
@@ -368,7 +368,12 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       else {
         gNeg = P - alpha2*w
         
-        newInt <- apply(X = -gNeg, MARGIN = 2, FUN = function(x) pracma::trapz(Tp, x^2))
+        
+        
+        # newInt <- apply(X = -gNeg, MARGIN = 2, FUN = function(x) pracma::trapz(Tp, x^2))
+        newGrad <- gNeg * (gNeg + oldGrad)
+        newInt <- apply(X = newGrad, MARGIN = 2, FUN = function(x) pracma::trapz(Tp, x))
+
         oldInt <- apply(X = oldGrad, MARGIN = 2, FUN = function(x) pracma::trapz(Tp, x^2))
         betaStep = pracma::mldivide(oldInt,newInt)
         betaStep[is.nan(betaStep)] <- 0
@@ -401,7 +406,11 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       }
     }
     stepBeta = armijoBeta
-    alpha = getAlphaBacktracking(oldW,w,Q,y,step,J,i,alphaDynNet,alphaS,stepBeta,optW,parameters,tInt,Tp,measFunc,input,measureTimes)
+
+    alpha = getAlphaBacktracking(oldW = oldW,W = w,Q = Q,y = measData, 
+                                 gradStep = step,J = J,currIter = i,alphaDynNet = alphaDynNet,
+                                 alphaS = alphaS,stepBeta = stepBeta,optW = optW,para = parameters,
+                                 tInt = tInt,Tp = Tp,measFunc = measFunc,input = input,measureTimes = measureTimes)
     usedAlphas[pracma::mod(i,offset)+1] = alpha
 
     # calculate the new hidden inputs
@@ -437,14 +446,14 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     interpAbsW <- apply(X = absW, MARGIN = 2, FUN = function(x) stats::approxfun(x = tAUC, y = x, rule=2, method = 'linear'))
 
     AUCs <- sapply(X = interpAbsW, FUN = function(x) pracma::trapzfun(f = x, a = t0, b = tf))
-    cat(paste0('Iteration ',i,' J[w]=',round(J[[i+1]],8),'     change J[w]: ',round((1-abs(J[[i+1]]/J[[i]]))*100,2),' % \t\talpha=',alpha,'\n'))
+    cat(paste0('Iteration ',i,' J[w]=',round(J[[i+1]],8),'     change J[w]: ',round((1-abs(J[[i+1]]/J[[i]]))*100,4),' % \t\talpha=',alpha,'\n'))
 
 
     if(plotEsti == TRUE) {
       showEstimates(measureTimes,AUCs,input,alpha2,J, yNominal)
     }
     # if the change in the cost function is smaller that epsilon the algorithmus stops
-    if (( abs(J[[i+1]]/J[[i]]) > 0.9975) && i>1) {
+    if (( abs(J[[i+1]]/J[[i]]) > 0.999) && i>1) {
       break
     }
   }

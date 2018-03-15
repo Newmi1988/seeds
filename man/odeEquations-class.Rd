@@ -3,7 +3,6 @@
 \docType{class}
 \name{odeEquations-class}
 \alias{odeEquations-class}
-\alias{odeEq}
 \title{A S4 class used to handle formating ODE-Equation and calculate the needed functions for the seeds-algorithm}
 \description{
 A S4 class used to handle formating ODE-Equation and calculate the needed functions for the seeds-algorithm

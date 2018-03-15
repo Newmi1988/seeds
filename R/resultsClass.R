@@ -1,4 +1,5 @@
 
+
 plot.results <- function(obj) {
   plot.new()
   numMeas <- dim(obj$allData$measurements)[2]
@@ -20,7 +21,7 @@ plot.results <- function(obj) {
 
 }
 
-results <- setRefClass("results",
+setRefClass("results",
                        fields = list(modelFunction = "character", 
                                      measureFunction = "character",
                                      hiddenInputs = "matrix",
