@@ -241,14 +241,9 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   odeEq <- calculateCostate(odeEq)
   createFunctions(odeEq)
   
-
-  # source('costate.R')
-  # utils::globalVariables('hiddenInputState')
-  # source('stateHiddenInput.R')
-
-
+  
+  
   iter <- (sum(optW))
-
   estiAlpha2 <- list()
 
   if(is.null(alpha2) && requireNamespace('parallel', quietly = TRUE) && requireNamespace('doParallel', quietly = TRUE) && requireNamespace('foreach', quietly = TRUE)) {

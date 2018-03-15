@@ -38,14 +38,8 @@ odeEq <- setClass(
     jacobian = matrix(list(),nrow = 2, ncol = 2),
     hamiltonian = character(0),
     dynamicElasticNet = FALSE
-  ),
+  )
 
-  validity = function(object) {
-    if(!(is.character(object@origEq) && is.character(object@costateEq) && is.character(object@hamiltonian) && is.matrix(object@jacobian))) {
-      return("The Equations have to be characters and the Jacobian a matrix.")
-    }
-    return(TRUE)
-  }
 )
 
 setGeneric(name="setCostateEq",
@@ -60,7 +54,7 @@ setMethod(f = "setCostateEq",
           definition = function(theObject,costate)
           {
             theObject@costateEq <- costate
-            validObject(theObject)
+
             return(theObject)
           }
 )
@@ -77,7 +71,7 @@ setMethod(f = "setOrigEq",
           definition = function(theObject,origEq)
           {
             theObject@origEq <- origEq
-            validObject(theObject)
+
             return(theObject)
           }
 )
@@ -94,7 +88,7 @@ setMethod(f = "setJacobian",
           definition = function(theObject,jacobian)
           {
             theObject@jacobian <- jacobian
-            validObject(theObject)
+
             return(theObject)
           }
 )
@@ -111,7 +105,7 @@ setMethod(f = "setHamiltonian",
           definition = function(theObject,hamiltonian)
           {
             theObject@hamiltonian <- hamiltonian
-            validObject(theObject)
+
             return(theObject)
           }
 )
@@ -166,7 +160,7 @@ setMethod(f = "setCostFunc",
           {
             theObject@costFunction <- getEquations(costFunction)
             theObject@dynamicElasticNet <- FALSE
-            validObject(theObject)
+
             return(theObject)
           }
 )
@@ -183,7 +177,7 @@ setMethod(f = "setMeassureFunc",
           {
             theObject@measureStr <- deparse(meassureFunc,width.cutoff = 500)
             theObject@measureFunction <- getEquations(meassureFunc)
-            validObject(theObject)
+
             return(theObject)
           }
 )

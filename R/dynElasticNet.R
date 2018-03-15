@@ -27,10 +27,8 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   source('stateHiddenInput.R')
   source('costate.R')
   
-  costateFunc <- costate
-  # utils::globalVariables('hiddenInputState')
-  # utils::globalVariables('costate')
-  
+  costate <- get('costate', envir = environment())
+  hiddenInputState <- get('hiddenInputState', envir = environment())
   
 
   startOptW <- optW
@@ -73,13 +71,13 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     Q <- Q / abs(measureData)
     Q[is.infinite(Q)] = 0
     Q[is.na(Q)] = 0
-    interpQ <- apply(X = Q, MARGIN = 2, FUN = function(t) approx(x=measureTimes, y=t, xout = times))
+    interpQ <- apply(X = Q, MARGIN = 2, FUN = function(t) stats::approx(x=measureTimes, y=t, xout = times))
     interpQ = do.call(cbind, lapply(interpQ, FUN = function(t) cbind(t$y)) )
     Q <- interpQ
   }
   else {
     # interpolating the given standard deviations to be used as weights in the costete equation
-    interpSTD <- apply(X = STD, MARGIN = 2, FUN = function(t) approx(x = measData[,1], y = t, xout = times))
+    interpSTD <- apply(X = STD, MARGIN = 2, FUN = function(t) stats::approx(x = measData[,1], y = t, xout = times))
     interpSTD = do.call(cbind, lapply(interpSTD, FUN = function(t) cbind(t$y)))
     Q <- apply(X = interpSTD, MARGIN = 2, FUN = function(t)  (1/t^2)/length(t) )
   }
