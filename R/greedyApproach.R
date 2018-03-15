@@ -233,7 +233,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
   checkDimensions()
 
-  #create the needed files
+  # create the needed files
   odeEq <- new("odeEquations")
   odeEq <- createModelEqClass(odeEq,modelFunc)
   odeEq <- setMeassureFunc(odeEq,measFunc)
@@ -242,7 +242,9 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   createFunctions(odeEq)
   
   
-  
+
+
+
   iter <- (sum(optW))
   estiAlpha2 <- list()
 

@@ -9,9 +9,11 @@
 #' @slot jacobian a matrix of strings representing the jacobian matrix model equations
 #' @slot costFunction a string containing the cost function
 #' @slot hamiltonian a string representing the Hamilton function of the model
+#' @slot dynamicElasticNet boolean that indicates if the system equation should be calculated for the dynamic elastic net
 #' 
-#' @export
-setClass(
+#' @export odeEquations
+#' @exportClass odeEquations
+odeEquations <- setClass(
   #name of Class
   "odeEquations",
   slots = c(
@@ -20,7 +22,6 @@ setClass(
     origEq = "character",
     measureFunction = "character",
     costateEq = "character",
-    invSimMatrix = "matrix",
     JhT = "matrix",
     jacobian = "matrix",
     costFunction = "character",
@@ -35,12 +36,21 @@ setClass(
     measureFunction =  character(0),
     costateEq = character(0),
     costFunction = character(0),
+    JhT = matrix(list(),nrow = 2, ncol = 2),
     jacobian = matrix(list(),nrow = 2, ncol = 2),
+    costFunction = character(0),
     hamiltonian = character(0),
     dynamicElasticNet = FALSE
-  )
-
+  ),
+  validity = function(object) {
+    # ...some validation stuff...
+  }
 )
+
+setMethod('initialize', "odeEquations", function(.Object,...){
+            .Object <- callNextMethod()
+            return(.Object)
+          })
 
 setGeneric(name="setCostateEq",
            def = function(theObject,costate)
@@ -122,7 +132,6 @@ setMethod(f = "calculateCostate",
           {
             tempList <- symbolicDiff(theObject)
             theObject@costateEq <- tempList$costate
-            theObject@invSimMatrix <- tempList$invSimMatrix
             theObject@JhT <- tempList$JhT
             theObject@jacobian <- tempList$jacobian
             theObject@origEq <- tempList$origEq

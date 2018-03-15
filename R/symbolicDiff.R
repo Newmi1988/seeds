@@ -177,7 +177,6 @@ symbolicDiff <- function(odeObj){
   temp <- costate(odeObj)
   results$costate <- temp[[1]]
   results$jacobian <- temp[[2]]
-  results$invSimMatrix <- temp[[3]]
   results$JhT <- temp[[4]]
   results$origEq <- vectorFormat(odeObj@origEq)
   results$Hamilton <-  createHamilton(odeObj)

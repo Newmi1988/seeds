@@ -2,6 +2,7 @@
 
 export(dynElasticNet)
 export(greedyApproach)
+export(odeEquations)
 export(symbolicDiff)
 exportClasses(odeEquations)
 importFrom(graphics,barplot)
@@ -9,3 +10,5 @@ importFrom(graphics,matplot)
 importFrom(graphics,par)
 importFrom(graphics,plot)
 importFrom(graphics,plot.new)
+importFrom(methods,callNextMethod)
+importFrom(methods,new)

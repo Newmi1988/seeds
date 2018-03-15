@@ -3,6 +3,7 @@
 \docType{class}
 \name{odeEquations-class}
 \alias{odeEquations-class}
+\alias{odeEquations}
 \title{A S4 class used to handle formating ODE-Equation and calculate the needed functions for the seeds-algorithm}
 \description{
 A S4 class used to handle formating ODE-Equation and calculate the needed functions for the seeds-algorithm
@@ -27,5 +28,7 @@ A S4 class used to handle formating ODE-Equation and calculate the needed functi
 \item{\code{costFunction}}{a string containing the cost function}
 
 \item{\code{hamiltonian}}{a string representing the Hamilton function of the model}
+
+\item{\code{dynamicElasticNet}}{boolean that indicates if the system equation should be calculated for the dynamic elastic net}
 }}
 
