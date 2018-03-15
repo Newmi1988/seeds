@@ -26,6 +26,12 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
   source('stateHiddenInput.R')
   source('costate.R')
+  
+  costateFunc <- costate
+  # utils::globalVariables('hiddenInputState')
+  # utils::globalVariables('costate')
+  
+  
 
   startOptW <- optW
 

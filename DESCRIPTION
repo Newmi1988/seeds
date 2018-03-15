@@ -7,7 +7,7 @@ Authors@R: person("Tobias", "Newmiwaka", email = "tobias.newmiwaka@gmail.com",
 Description: A package combining two different algorithms for calculating hidden
   inputs. These hidden inputs can be interpreted as a controll that tries to minimize the
   discrepancies between a given model and a given measurements. The method is 
-  also called the 'dynamic elastic net'. The related work can be found in doi:10.1038/srep20772
+  also called the 'dynamic elastic net'.
 License: GPL (>=3)
 Depends: 
     R (>= 3.1.0)

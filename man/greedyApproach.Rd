@@ -114,17 +114,26 @@ uvbModel <- function(t,x,parameters) {
   ksr = parameters[23]
   fhy3_s = parameters[24]
   
-  dx1 = ((-2) * ((ka1 * (x[1]^2) * (x[4]^2)) - (kd1 * x[5])) + (-2) * ((ka2 * (x[1]^2) * x[2]) - (kd2 * x[3])) + ((ks1 *((1) + (uv * n3 * (x[11] + fhy3_s))))  - (kdr1 * ((1) + (n1 * uv)) * x[1])))
-  dx2 = ((-1) * ((ka2*(x[1]^2) * x[2]) - (kd2 * x[3])) +(-1) * ((ka4 * x[2] * x[12]) - (kd4 * x[13])))
+  dx1 = ((-2) * ((ka1 * (x[1]^2) * (x[4]^2)) - (kd1 * x[5])) +
+     (-2) * ((ka2 * (x[1]^2) * x[2]) - (kd2 * x[3])) + 
+     ((ks1 *((1) + (uv * n3 * (x[11] + fhy3_s))))  - (kdr1 * ((1) 
+     + (n1 * uv)) * x[1])))
+  dx2 = ((-1) * ((ka2*(x[1]^2) * x[2]) - (kd2 * x[3])) +
+     (-1) * ((ka4 * x[2] * x[12]) - (kd4 * x[13])))
   dx3 = (((ka2 * (x[1]^2) * x[2]) - (kd2*  x[3]))) 
-  dx4 = ((-2) * (k1*(x[4]^2)) + (2) * (k2 * x[6]) + (-2) * ((ka1 * (x[1]^2)* (x[4]^2)) - (kd1 * x[5])) + (-1)* (ka3 * x[4] *x[7]))
+  dx4 = ((-2) * (k1*(x[4]^2)) + (2) * (k2 * x[6]) + 
+     (-2) * ((ka1 * (x[1]^2)* (x[4]^2)) - (kd1 * x[5])) 
+     + (-1)* (ka3 * x[4] *x[7]))
   dx5 =  (((ka1 * (x[1]^2) * (x[4]^2)) -(kd1 * x[5])))
   dx6 = ((-1) * (k2 * x[6]) +  (k1 * (x[4]^2)) +(kd3 * (x[8]^2)))
-  dx7 = ((-1) * (ka3 * x[4] * x[7]) + ((ks2 * ((1) + (uv * x[5]))) -(kdr2 * x[7])) + (2) * (kd3 * (x[8]^2)))
+  dx7 = ((-1) * (ka3 * x[4] * x[7]) + ((ks2 * ((1) + 
+     (uv * x[5]))) -(kdr2 * x[7])) + (2) * (kd3 * (x[8]^2)))
   dx8 = ((-2) * (kd3 * x[8]^2) + (ka3 * x[4] * x[7])) 
   dx9  = 0 
   dx10 = 0
-  dx11 =  (((ks3 * ((1) + (n2 * uv))) -(kdr3 * (((x[3] / (kdr3a + x[3])) + (x[13] / (kdr3b + x[13]))) -(x[5] / (ksr + x[5]))) *  x[11])))
+  dx11 =  (((ks3 * ((1) + (n2 * uv))) -
+     (kdr3 * (((x[3] / (kdr3a + x[3])) +
+      (x[13] / (kdr3b + x[13]))) -(x[5] / (ksr + x[5]))) *  x[11])))
   dx12 = ((-1) * (ka4 * x[2] * x[12]) + (kd4 * x[13]))
   dx13 =((ka4 * x[2] * x[12]) - (kd4 * x[13]))
   
@@ -150,7 +159,8 @@ sd <- uvbData[,7:11]
 
 res <- greedyApproach(alphaStep = 100, alpha2 = 0.0002, optW = rep(1,13), x0 = x0,
                       measFunc = uvbMeasure,times = t, measData = y, 
-                     parameters = uvbParameter, modelFunc = uvbModel, plotEstimates = TRUE, conjGrad = TRUE)
+                     parameters = uvbParameter, modelFunc = uvbModel, 
+                     plotEstimates = TRUE, conjGrad = TRUE)
 }
 }
 
