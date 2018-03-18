@@ -44,6 +44,8 @@
 #' @param cString  a string that represents constrains, can be used to calculate a hidden input for a komponent that gradient is zero
 #'
 #' @param systemInput an dataset that discribes the external input of the system
+#' 
+#' @param epsilon parameter that defines the stopping criteria for the algorithm, in this case percent change in cost function J[w]
 #'
 #' @return returns a results-object with default plot function. The plot shows the estimated best sparse fit
 #'
@@ -154,11 +156,15 @@
 #' 
 #' @export
 
-greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measFunc, measData, std,
+greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measFunc, measData, std, epsilon,
                            parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString) {
 
   if(missing(systemInput)) {
     systemInput <- NULL
+  }
+  
+  if(missing(epsilon)) {
+    epsilon <- 0.25
   }
   
   if(missing(std)){
@@ -264,7 +270,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       doParallel::registerDoParallel(cl)
 
       estiAlpha2 <- foreach::foreach(i = 1:steps, .export = exportVars) %dopar% {
-        dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta,x0 = x0, optW = optW,
+        dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta,x0 = x0, optW = optW, eps = epsilon,
                       times=times, measFunc= measFunc, measData = measData, STD = std, constStr = cString,
                       alpha1 = 0, alpha2 = alpha2Start*10^(1-i), modelInput = systemInput,
                       parameters = parameters, modelFunc = modelFunc,maxIteration=100, plotEsti = FALSE, conjGrad = conjGrad)
@@ -283,7 +289,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       for (i in 1:steps) {
 
         alpha2 = alpha2Start*10^(1-i)
-        estiAlpha2[[i]] <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta,x0 = x0, optW = optW,
+        estiAlpha2[[i]] <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta,x0 = x0, optW = optW, eps = epsilon,
                                          times=times, measFunc= measFunc, measData = measData, STD = std,
                                          alpha1 = alpha1, alpha2 = alpha2, constStr = cString,
                                          parameters = parameters, modelFunc = modelFunc, modelInput = systemInput,
@@ -306,7 +312,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
 
   } else {
-    results <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, x0 = x0, optW = optW,
+    results <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, x0 = x0, optW = optW, eps = epsilon,
                              times=times, measFunc= measFunc, measData = measData, STD = std,
                              alpha1 = alpha1, alpha2 = alpha2, constStr = cString,
                              parameters = parameters, modelFunc = modelFunc, plotEsti = plotEstimates,
@@ -334,7 +340,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       cat('optimizing states:\n')
       cat(which(optW > 0))
       optWs[[i]] <- optW
-      resAlg[[i]] <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, alpha1 = alpha1, alpha2 = alpha2,x0 = x0, optW = optW,
+      resAlg[[i]] <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, alpha1 = alpha1, alpha2 = alpha2,x0 = x0, optW = optW, eps=epsilon,
                                    times=times, measFunc= measFunc, measData = measData, STD = std, modelInput = systemInput, constStr = cString,
                                    parameters = parameters, modelFunc = modelFunc, origAUC = orgAUC, plotEsti = plotEstimates, conjGrad = conjGrad)
 
@@ -352,7 +358,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     }
 
     if(length(resAlg)==(iter-1)) {
-      cat('The algorithm did not find a minimal sparse solution. Returning last solution as best fit\n')
+      cat('The algorithm did stop at the last combination of hidden inputs. Returning last solution as best fit\n')
       resAlg$optimalSol <- i
       resAlg$measurements <- measData
       i = i+1

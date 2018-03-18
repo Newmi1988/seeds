@@ -18,11 +18,12 @@
 #' @param conjGrad boolean that indicates the usage of conjugate gradient method over the normal steepest descent
 #' @param constStr  a string that represents constrains, can be used to calculate a hidden input for a komponent that gradient is zero
 #' @param maxIteration a upper bound for the maximal number of iterations
+#' @param eps citeria for stopping the algorithm
 #'
 #' @return A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the costfunction
 #' @export
 dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2,measData, constStr,
-                          STD,modelFunc,measFunc,modelInput,optW,origAUC,maxIteration,plotEsti, conjGrad) {
+                          STD,modelFunc,measFunc,modelInput,optW,origAUC,maxIteration,plotEsti, conjGrad, eps) {
 
   source('stateHiddenInput.R')
   source('costate.R')
@@ -48,7 +49,6 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
   # Initial Options
   optInit <- sum(optW)  # Anzahl der zu optimierenden Inputs
-  epsilon <- 0.1      # Abbruchkriterium der Armijo-Schrittweitenbestimmung
 
   N <- 100
   t0 <- times[1]
@@ -148,6 +148,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       input$interpyHat <- apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
       
       arrayJ[i] = costFunction(measureTimes,input,alphaDynNet)
+      cat(paste0('\ti=',i,' J[w]=',arrayJ[i],'  alpha=',alpha,' Beta=',stepBeta,'\n'))
       
       if ( i>1 && (arrayJ[i]>arrayJ[i-1]) && (arrayJ[i] < J[[currIter]])) {
         alpha = alphaS*stepBeta^(i-2)
@@ -197,6 +198,14 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       } else {
         alpha <- cubicInterpolMin(alphaA = alphaA, alphaB = alpha3, jA = jA, jB = j3)
         return(alpha)
+      }
+    }
+    
+    if(i>5 && currIter > 1){
+      if(armijoBeta==0.8){
+        armijoBeta <<- 0.65
+      } else {
+        armijoBeta <<- 0.5
       }
     }
     
@@ -320,6 +329,81 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     uInterp <- inputInterp
     input <- list(optW= optW,interpX =xInterp,interpY = yInterp, interpyHat= yHatInterp, q=qInterp, w = wInterp, u = uInterp)
   }
+  
+  adaptAlpha <- c(alphaStep*armijoBeta^2,alphaStep)
+  
+  adaptiveLineSearch <- function(oldW,W,Q,y,gradStep,J,currIter,optW
+                                 ,para,tInt,Tp,measFunc,input,measureTimes
+                                 ,adaptAlpha) {
+    alpha1 = adaptAlpha[1]
+    alpha3 = adaptAlpha[2]
+    alpha2 = (alpha1+alpha3)/2
+    alphaVec = c(alpha1, alpha2, alpha3)
+    arrayJ = rep(0,3)
+    
+    for (j in 1:3){
+      
+      newW = oldW + alphaVec[j]*gradStep
+      
+      input$optW <- optW
+      input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
+      time <- seq(from = tInt[1], to = tInt[2], length.out = 300)
+      solX <- deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
+      
+      Tx <- solX[,1]
+      x <- solX[,-1, drop=FALSE]
+      
+      yHat <- getMeassures(solX,measFunc)
+      
+      input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
+      input$interpyHat <- apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
+      
+      arrayJ[i] = costFunction(measureTimes,input,alphaDynNet)
+    }
+    
+    cNorm = ((alpha1-alpha2)*(alpha1-alpha3)*(alpha2-alpha3))
+    c0 = (alpha1*(alpha1-alpha2)*alpha2*arrayJ[3] + alpha2*alpha3*(alpha2-alpha3)*arrayJ[1]+ alpha1*alpha3*(alpha3-alpha1)*arrayJ[2])/
+      cNorm
+    c1 = ((alpha2^2-alpha1^2)*arrayJ[3] + (alpha1^2-alpha3^2)*arrayJ[2] + (alpha3^2-alpha2^2)*arrayJ[1])/
+      cNorm
+    c2 = ((alpha1-alpha2)*arrayJ[3]+(alpha2-alpha3)*arrayJ[1]+(alpha3- alpha1)*arrayJ[2])/cNorm
+    
+    alphaHat = -c1/2*c2
+    
+    eG = 10^-6
+    
+    kM <- 4/5 
+    kP <- 5/4
+    
+    eAlphaP <- 0.9
+    eAlphaM <- 0.1
+    
+    if (alphaHat > alpha1 + eAlphaP*(alpha3-alpha1)) {
+      adaptAlpha <<- kP * adaptAlpha
+    } else if(alphaHat <= alpha1+eAlphaM*(alpha3-alpha1)){
+      adaptAlpha <<- kM * adaptAlpha
+    } else {
+      adaptAlpha <<- adaptAlpha
+    }
+    
+    if(c2 > 0){
+     if(alphaHat < alpha1){
+       return(alpha1)
+     } else if(alphaHat > alpha3){
+       return(alpha3)
+     } else {
+       return(alphaHat)
+     }
+    } else {
+      if (arrayJ[1]+eG >= min(arrayJ[2:3])){
+        return(alpha1)
+        return(alpha3)
+      } else {
+        return(alphaHat)
+      }
+    }
+    
+  }
 
 
 
@@ -328,7 +412,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   cat('\n')
   cat(paste0('nominal cost J[w]= ',J[[1]],'\n'))
 
-  offset <- 3
+  offset <- 4
   usedAlphas <- rep(0,offset)
   cP <- NULL
 
@@ -337,6 +421,8 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   } else {
     maxIter <- maxIteration
   }
+  
+  
   for (i in 1:maxIter) {
 
     lT <- rep(0,ncol(x))
@@ -388,8 +474,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       step = P - alpha2*w
     }
 
-
-    # calculating the stepsize
+    if(length(alphaStep)==1){
     if(i < offset) {
       alphaS = alphaStep
     } else {
@@ -398,18 +483,20 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
         alphaS = 4*alphaS
       }
     }
-    stepBeta = armijoBeta
-
-    alpha = getAlphaBacktracking(oldW = oldW,W = w,Q = Q,y = measData, 
+    alpha = getAlphaBacktracking(oldW = oldW,W = w,Q = Q,y = measData,
                                  gradStep = step,J = J,currIter = i,alphaDynNet = alphaDynNet,
-                                 alphaS = alphaS,stepBeta = stepBeta,optW = optW,para = parameters,
+                                 alphaS = alphaS,stepBeta = armijoBeta,optW = optW,para = parameters,
                                  tInt = tInt,Tp = Tp,measFunc = measFunc,input = input,measureTimes = measureTimes)
     usedAlphas[pracma::mod(i,offset)+1] = alpha
+    } else {
+    alpha = adaptiveLineSearch(oldW = oldW, W = w, Q = Q, y = measData, gradStep = step,
+                               J = J, currIter = i, optW = optW, para = parameters, 
+                               tInt = tInt, Tp = Tp, measFunc = measFunc, input = input, 
+                               measureTimes = measureTimes, adaptAlpha = alphaStep)
+    }
 
     # calculate the new hidden inputs
     w = oldW + alpha*step
-
-
 
     # CALCULATION OF THE TRAJEKTORIES THAT RESULTS FROM THE NEW HIDDEN INPUT
     inputState <- list()
@@ -446,7 +533,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       showEstimates(measureTimes,AUCs,input,alpha2,J, yNominal)
     }
     # if the change in the cost function is smaller that epsilon the algorithmus stops
-    if (( abs(J[[i+1]]/J[[i]]) > 0.999) && i>1) {
+    if (( abs(J[[i+1]]/J[[i]]) > 1-(eps/100)) && i>1) {
       break
     }
   }
