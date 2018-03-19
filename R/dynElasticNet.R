@@ -152,7 +152,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       
       arrayJ[i] = costFunction(measureTimes,input,alphaDynNet)
       
-      cat(paste0('i=',i,' J[w]=',arrayJ[i], ' alpha=', alpha,' Beta=',stepBeta ,'\n'))
+      # cat(paste0('i=',i,' J[w]=',arrayJ[i], ' alpha=', alpha,' Beta=',stepBeta ,'\n'))
 
       if ( i>1 && (arrayJ[i]>arrayJ[i-1]) && (arrayJ[i] < J[currIter])) {
         alpha = alphaS*stepBeta^(i-2)
@@ -208,7 +208,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     
 
     alphaTemp <- cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2)
-    if(alphaTemp > 2*alphaS) {
+    if(alphaTemp > 5*alphaS) {
       return(alpha)
     } else {
       return(alphaTemp)
