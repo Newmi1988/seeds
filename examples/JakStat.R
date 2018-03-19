@@ -46,12 +46,12 @@ y <- data.frame(measure$t, measure$y1, measure$y2)
 sd <- data.frame(measure$y1sd, measure$y2sd)
 
 JakStatConst <- '2*x4+ 2*x3 + x1 + x2 == N'
-
-results <- greedyApproach(alphaStep = 0.01, alpha2 = 0.4, Beta = 0.8, epsilon = 1,
+system.time(
+results <- greedyApproach(alphaStep = 0.01, alpha2 = 0.4, Beta = 0.8, epsilon = 0.25,
                x0 = x0, optW = c(1,1,1,1) , times=times,
                measFunc= measJakStat,  measData = y, std = sd,
                parameters = parameters, systemInput = inputData,
-               modelFunc = modelJakStat, plotEstimates = FALSE, conjGrad = FALSE, cString = JakStatConst)
+               modelFunc = modelJakStat, plotEstimates = TRUE, conjGrad = FALSE, cString = JakStatConst))
 plot(results)
 
 

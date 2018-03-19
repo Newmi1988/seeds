@@ -325,14 +325,12 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   else {
     orgOptW <- optW <- results$optW
     orgAUC <- results$AUC
-    barplot(orgAUC)
-    print(results$rmse)
     optWs <- list()
     resAlg <- list()
     costError <- cbind(rep(0,length(optW)),rep(0,length(optW)))
     colnames(costError) <- c('sum(MSE)','cost')
 
-    alphaStep = alphaStep*4
+    # alphaStep = alphaStep*4
 
     for(i in 1:(iter-1)) {
       cat('_________________________________________\n')
