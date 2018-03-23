@@ -42,6 +42,27 @@ plot <- ggplot(OUTPUT$estimates%>%geather(),aes(x=t,y=))+
   
   
   
-  ggplot(A%>%gather(Label,estimate,2:3),aes(x=time,y=estimate,colour=Label))+geom_line()+theme_bw()
+  ggplot(A%>%gather(Label,estimate,2:3),aes(x=time,y=estimate,colour=Label))+geom_line()+theme_bw()+  facet_wrap(~Label)
+
   
+  Data
+  $ode
+  $measurments
+  $stimuli
+  $standarderror
+  $inputfunction
   
+  ParameterALGoRITHM <=>
+    MCMC_SET$STEP_trials      <- 8#15
+  MCMC_SET$EPS_step_size          <- 100*DATA$N
+  MCMC_SET$EPS_step_size_inner    <- 15
+  MCMC_SET$BURNIN           <- round(MCMC_SET$EPS_step_size/3)
+  MCMC_SET$BURNIN_inner     <- round(MCMC_SET$EPS_step_size_inner/3)
+  MCMC_TRACK                <- vector("list",dim(X_MODEL)[1])        
+  
+  SETTINGS MODEL Specific
+  
+DATA,BETA_LAMBDA,MCMC_SET$STEP_trials,MCMC_SET$EPS_step_size,MCMC_SET$EPS_step_size_inner,nom_ode,objective} 
+  
+S default??!
+  SIGMA default!?!
