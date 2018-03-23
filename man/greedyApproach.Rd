@@ -5,7 +5,7 @@
 \title{Greedy Approach Algorithm}
 \usage{
 greedyApproach(alphaStep, Beta, alpha1, alpha2, x0, optW, times, measFunc,
-  measData, std, parameters, systemInput, modelFunc, greedyLogical,
+  measData, std, epsilon, parameters, systemInput, modelFunc, greedyLogical,
   plotEstimates, conjGrad, cString)
 }
 \arguments{
@@ -35,6 +35,8 @@ measurable}
 \item{measData}{a table that containts the measurements of the experiment; used to calculate the needed inputs}
 
 \item{std}{standard deviation of the measurement; used to weight the errors of the estimates in the cost function}
+
+\item{epsilon}{parameter that defines the stopping criteria for the algorithm, in this case percent change in cost function J[w]}
 
 \item{parameters}{vector or named vector that contains the parameters of the ODE equation}
 

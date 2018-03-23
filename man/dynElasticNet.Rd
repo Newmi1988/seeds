@@ -6,7 +6,7 @@
 \usage{
 dynElasticNet(alphaStep, armijoBeta, x0, parameters, times, alpha1, alpha2,
   measData, constStr, STD, modelFunc, measFunc, modelInput, optW, origAUC,
-  maxIteration, plotEsti, conjGrad)
+  maxIteration, plotEsti, conjGrad, eps)
 }
 \arguments{
 \item{alphaStep}{starting value of the stepsize for the gradient descent, will be calculate to minimize the costfunction by backtracking algorithm}
@@ -44,6 +44,8 @@ dynElasticNet(alphaStep, armijoBeta, x0, parameters, times, alpha1, alpha2,
 \item{plotEsti}{boolean that controlls of the current estimates should be plotted}
 
 \item{conjGrad}{boolean that indicates the usage of conjugate gradient method over the normal steepest descent}
+
+\item{eps}{citeria for stopping the algorithm}
 }
 \value{
 A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the costfunction

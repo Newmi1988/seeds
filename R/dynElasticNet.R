@@ -136,13 +136,32 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     Tx <- rep(0,length(time))
     x <- matrix(0,length(optW)*length(time), ncol = length(optW))
     yHat <- matrix(rep(0,length(measData)), ncol = ncol(measData))
+    
+    ## catch to high alphas
+    # newW = oldW + alpha*gradStep
+    # 
+    # input$optW = optW
+    # input$w = apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
+    # 
+    # outOde = capture.output(deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input))
+    # if(grepl(pattern = "DLSODA", x = outOde)){
+    #   alphaS <<- alphaS/1.5
+    #   alpha = alphaS/(1.5^2)
+    #   cat(paste0('alpha = ', alpha,'\n'))
+    # }
+    
+    
 
     for (i in 1:iter) {
+      # cat(paste0('alpha=', alpha,'\n'))
       newW = oldW + alpha*gradStep
 
       input$optW = optW
       input$w = apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
+      
       solX = deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
+
+      
       Tx = solX[,1]
       x = solX[,-1, drop=FALSE]
 
@@ -152,14 +171,14 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       
       arrayJ[i] = costFunction(measureTimes,input,alphaDynNet)
       
-      # cat(paste0('i=',i,' J[w]=',arrayJ[i], ' alpha=', alpha,' Beta=',stepBeta ,'\n'))
+      cat(paste0('i=',i,' J[w]=',arrayJ[i], ' alpha=', alpha,' Beta=',stepBeta ,'\n'))
 
       if ( i>1 && (arrayJ[i]>arrayJ[i-1]) && (arrayJ[i] < J[currIter])) {
         alpha = alphaS*stepBeta^(i-2)
         break
       }
-      beta = stepBeta^(i)
-      alpha = alphaS*beta
+      # beta = stepBeta^(i)
+      alpha = alpha*stepBeta
     }
     # quadratic interpolation to find the minimum
     
@@ -205,14 +224,14 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     #     armijoBeta <<- 0.5
     # }
     # 
-    
-
-    alphaTemp <- cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2)
-    if(alphaTemp > 5*alphaS) {
-      return(alpha)
-    } else {
-      return(alphaTemp)
-    }
+    return(alpha)
+# 
+#     alphaTemp <- cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2)
+#     if(alphaTemp > 5*alphaS) {
+#       return(alpha)
+#     } else {
+#       return(alphaTemp)
+#     }
   }
 
   showEstimates <- function(measureTimes,AUCs,input, alpha2, J, nomSol){
@@ -351,7 +370,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   inputState <- list()
   inputState$optW <- optW
   solX <- matrix(rep(0,length(optW)*length(times)))
-  
+  alphaS = alphaStep
   for (i in 1:maxIter) {
     solCostate = deSolve::ode(y = lT, times = timesCostate, func = costate, parms = parameters, input=input)
     solCostate = solCostate[nrow(solCostate):1,]
@@ -395,15 +414,13 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       step = P - alpha2*w
     }
 
-    alphaS = alphaStep
-    # if(i < offset) {
-    #   alphaS = alphaStep
-    # } else {
-    #   alphaS = max(usedAlphas)
-    #   if(length(unique(usedAlphas))==1){
-    #     alphaS = 2*alphaS
-    #   }
-    # }
+# 
+#     if(i > offset) {
+#       alphaS = max(usedAlphas)
+#       if(length(unique(usedAlphas))==1){
+#         alphaS = 1.5*alphaS
+#       }
+#     }
     alpha = getAlphaBacktracking(oldW = oldW,W = w,Q = Q,y = measData,
                                  gradStep = step,J = J,currIter = i,alphaDynNet = alphaDynNet,
                                  alphaS = alphaS,stepBeta = armijoBeta,optW = optW,para = parameters,
@@ -439,7 +456,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     interpAbsW <- apply(X = absW, MARGIN = 2, FUN = function(x) stats::approxfun(x = tAUC, y = x, rule=2, method = 'linear'))
 
     AUCs <- sapply(X = interpAbsW, FUN = function(x) pracma::trapzfun(f = x, a = t0, b = tf))
-    cat(paste0('Iteration ',i,' J[w]=',round(J[i+1],8),'     change J[w]: ',round((1-abs(J[i+1]/J[i]))*100,4),' % \t\talpha=',alpha,'\n'))
+    cat(paste0('Iteration ',i,' J[w]=',round(J[i+1],2),'     change J[w]: ',round((1-abs(J[i+1]/J[i]))*100,4),' % \t\talpha=',alpha,'\n'))
 
 
     if(plotEsti == TRUE) {

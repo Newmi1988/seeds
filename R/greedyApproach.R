@@ -350,6 +350,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       if(i > 1 && ( costError[i,1] > costError[i-1,1])  ) {
         cat('hidden inputs on knots:\n')
         cat(which(optWs[[i-1]] %in% 1))
+        cat('\n')
         break
       }
       optW <- resAlg[[i]]$optW
