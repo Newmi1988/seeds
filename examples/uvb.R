@@ -1,4 +1,5 @@
 devtools::load_all()
+rm(list=ls())
 
 # usb network example
 uvbParameter = c(  ks1=0.23,
@@ -24,7 +25,7 @@ uvbParameter = c(  ks1=0.23,
                  kdr3a=0.9735,
                  kdr3b=0.406,
                  ksr=0.7537,
-                 FHY3_s=5)
+                 fhy3_s=5)
 
 x0 = c(0.2,10,2,0,0,20,0,0,0,4.2,0.25,20,0)
 
@@ -88,9 +89,8 @@ y <- uvbData[,1:6]
 t <- uvbData$t
 sd <- uvbData[,7:11]
 system.time(
-res <- greedyApproach(alphaStep = 200, alpha2 = 0.0001, optW = rep(1,13), x0 = x0,
-               measFunc = uvbMeasure,times = t, measData = y, epsilon = 0.05, Beta = 0.8,
+res <- greedyApproach(alphaStep = 200, alpha2 = 0.0001, optW = rep(1,13), x0 = x0, std = sd,
+               measFunc = uvbMeasure,times = t, measData = y, epsilon = 0.001, Beta = 0.8,
                parameters = uvbParameter, modelFunc = uvbModel, plotEstimates = TRUE, conjGrad = TRUE)
 )
-plot(res)
 

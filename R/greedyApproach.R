@@ -238,16 +238,26 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   }
 
   checkDimensions()
+  
+  if(is.loaded('derivsc')){
+    dyn.unload("model.dll")
+  }
 
   # create the needed files
   odeEq <- new("odeEquations")
   odeEq <- createModelEqClass(odeEq,modelFunc)
   odeEq <- setMeassureFunc(odeEq,measFunc)
+  
+  numInputs = length(x0)+1
+  createCFile(parameters = parameters,inputs = numInputs, odeEq@origEq)
+  
   odeEq <- isDynElaNet(odeEq)
   odeEq <- calculateCostate(odeEq)
   createFunctions(odeEq)
   
-
+  system("R CMD SHLIB model.c")
+  dyn.load("model.dll")
+  
   iter <- (sum(optW))
   estiAlpha2 <- list()
 
@@ -355,6 +365,8 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       }
       optW <- resAlg[[i]]$optW
     }
+    
+    dyn.unload("model.dll")
 
     if(length(resAlg)==(iter-1)) {
       cat('The algorithm did stop at the last combination of hidden inputs. Returning last solution as best fit\n')
@@ -362,7 +374,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       resAlg$measurements <- measData
       i = i+1
     } else {
-      #return(resAlg[[i-1]])
       resAlg$optimalSol <- i-1
       resAlg$measurements <- measData
     }
@@ -378,7 +389,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
 
     return(res)
-
   }
 
 }

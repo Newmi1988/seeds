@@ -89,25 +89,42 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     names(x0) <- paste0(rep("x",length(x0)),1:length(x0))
   }
   
+  # if(!is.null(modelInput)){
+  #   inputInterp <- list()
+  #   inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
+  #   #solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))
+  # } else {
+  #   solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters))
+  # }
+  
+  
+  ### with c code #########################################################
   if(!is.null(modelInput)){
-    inputInterp <- list()
-    inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
-    solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))
+    inputApprox <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approx(x = modelInput[,1], y = x, xout = times, rule = 2))
+    inputApprox = list(cbind(times,inputApprox$u$y))
   } else {
-    solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters))
+    inputApprox <- list(cbind(times,rep(0,length(times))))
   }
+  
+  w <- matrix(rep(0,length(x0)*length(times)), ncol = length(x0))
+  wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
+  wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
+  forcings <- c(inputApprox, wList)
 
-
+  solNominal = deSolve::ode(y = x0, times, func = "derivsc",
+                            parms = parameters, dllname = "model", initforc="forcc",
+                            forcings = forcings, initfunc = "parmsc")
+  
+  
 
   # Tx the timepoints of the solution of the nominal model
   Tx <- solNominal[,1]
   # X trajectories of the states
   x <- solNominal[,-1, drop=FALSE]
 
-  w <- matrix(rep(0,nrow(x)*ncol(x)), nrow = nrow(x)) # is initialized as constant zero
+  w = matrix(rep(0,nrow(x)*ncol(x)), nrow = nrow(x)) # is initialized as constant zero
   colnames(w) <- paste0(rep("w",ncol(w)),1:ncol(w))
 
-  # MEASURE OF THE CALCULATED TRAJEKTORIES
   getMeassures <- function(x,measFunc) {
     if(missing(measFunc)) {
       # if there is no function given for measurements it is assumed that all states are measurable
@@ -127,40 +144,26 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   getAlphaBacktracking <- function(oldW,W,Q,y,gradStep,J,currIter,alphaDynNet,alphaS,stepBeta,optW,para,tInt,Tp,measFunc,input,measureTimes) {
 
 
-    iter = 20
+    iter = 100
     alpha = alphaS
     arrayJ = rep(0,iter)
     
-    time <- seq(from = tInt[1], to = tInt[2], length.out = 200)
+    time <- seq(from = tInt[1], to = tInt[2], length.out = 100)
     solX <- matrix( rep(0,length(time)*(length(optW)+1)),ncol = length(optW)+1)
     Tx <- rep(0,length(time))
     x <- matrix(0,length(optW)*length(time), ncol = length(optW))
     yHat <- matrix(rep(0,length(measData)), ncol = ncol(measData))
     
-    ## catch to high alphas
-    # newW = oldW + alpha*gradStep
-    # 
-    # input$optW = optW
-    # input$w = apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
-    # 
-    # outOde = capture.output(deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input))
-    # if(grepl(pattern = "DLSODA", x = outOde)){
-    #   alphaS <<- alphaS/1.5
-    #   alpha = alphaS/(1.5^2)
-    #   cat(paste0('alpha = ', alpha,'\n'))
-    # }
-    
-    
-
+   
     for (i in 1:iter) {
-      # cat(paste0('alpha=', alpha,'\n'))
       newW = oldW + alpha*gradStep
 
-      input$optW = optW
-      input$w = apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
-      
-      solX = deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
-
+      wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
+      wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
+      forcings <- c(inputApprox, wList)
+      solX = deSolve::ode(y = x0, time, func = "derivsc",
+                          parms = parameters, dllname = "model", initforc="forcc",
+                          forcings = forcings, initfunc = "parmsc")
       
       Tx = solX[,1]
       x = solX[,-1, drop=FALSE]
@@ -171,7 +174,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       
       arrayJ[i] = costFunction(measureTimes,input,alphaDynNet)
       
-      cat(paste0('i=',i,' J[w]=',arrayJ[i], ' alpha=', alpha,' Beta=',stepBeta ,'\n'))
+      # cat(paste0('i=',i,' J[w]=',arrayJ[i], ' alpha=', alpha,' Beta=',stepBeta ,'\n'))
 
       if ( i>1 && (arrayJ[i]>arrayJ[i-1]) && (arrayJ[i] < J[currIter])) {
         alpha = alphaS*stepBeta^(i-2)
@@ -192,10 +195,18 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       alpha3 <- 0.5*(alphaA+alphaB)
       newW = oldW + alpha3*gradStep
       
-      input$optW <- optW
-      input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
-      time <- seq(from = tInt[1], to = tInt[2], length.out = 300)
-      solX <- deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
+      wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
+      wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
+      forcings <- c(inputApprox, wList)
+      solX = deSolve::ode(y = x0, time, func = "derivsc",
+                          parms = parameters, dllname = "model", initforc="forcc",
+                          forcings = forcings, initfunc = "parmsc")
+      
+      # input$optW <- optW
+      # input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
+      # time <- seq(from = tInt[1], to = tInt[2], length.out = 300)
+      # solX <- deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
+      
       
       Tx <- solX[,1]
       x <- solX[,-1, drop=FALSE]
@@ -211,7 +222,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       
       
       
-      if(alphaT > 0){
+      if(alphaT > 0 || !is.nan(alphaT)){
         alpha = alphaT
         return(alpha)
       } else {
@@ -219,19 +230,36 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
         return(alpha)
       }
     }
-    # 
-    # if(i>5 && currIter > 1){
-    #     armijoBeta <<- 0.5
-    # }
-    # 
-    return(alpha)
-# 
-#     alphaTemp <- cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2)
-#     if(alphaTemp > 5*alphaS) {
-#       return(alpha)
-#     } else {
-#       return(alphaTemp)
-#     }
+    
+    # return(alpha)
+
+    #check if the cubicInterpolation gives a lower value as the last iteration
+    
+    alphaTemp <- cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2)
+    newW = oldW + alphaTemp*gradStep
+    wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
+    wList <- lapply(wSplit, FUN = function(x) cbind(time,x))
+    forcings <- c(inputApprox, wList)
+    solX = deSolve::ode(y = x0, time, func = "derivsc",
+                        parms = parameters, dllname = "model", initforc="forcc",
+                        forcings = forcings, initfunc = "parmsc")
+
+    Tx <- solX[,1]
+    x <- solX[,-1, drop=FALSE]
+
+    yHat <- getMeassures(solX,measFunc)
+
+    input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
+    input$interpyHat <- apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
+
+    alphaCubicCOst = costFunction(measureTimes,input,alphaDynNet)
+
+    if(alphaCubicCOst > arrayJ[i-1]){
+      return(alpha)
+    } else {
+      return(alphaTemp)
+    }
+    
   }
 
   showEstimates <- function(measureTimes,AUCs,input, alpha2, J, nomSol){
@@ -371,6 +399,10 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   inputState$optW <- optW
   solX <- matrix(rep(0,length(optW)*length(times)))
   alphaS = alphaStep
+  
+  wApprox <- matrix(rep(0,length(times)*2), ncol=2)
+  wApprox[,1] = times
+  
   for (i in 1:maxIter) {
     solCostate = deSolve::ode(y = lT, times = timesCostate, func = costate, parms = parameters, input=input)
     solCostate = solCostate[nrow(solCostate):1,]
@@ -414,13 +446,8 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       step = P - alpha2*w
     }
 
-# 
-#     if(i > offset) {
-#       alphaS = max(usedAlphas)
-#       if(length(unique(usedAlphas))==1){
-#         alphaS = 1.5*alphaS
-#       }
-#     }
+
+
     alpha = getAlphaBacktracking(oldW = oldW,W = w,Q = Q,y = measData,
                                  gradStep = step,J = J,currIter = i,alphaDynNet = alphaDynNet,
                                  alphaS = alphaS,stepBeta = armijoBeta,optW = optW,para = parameters,
@@ -433,11 +460,23 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     # CALCULATION OF THE TRAJEKTORIES THAT RESULTS FROM THE NEW HIDDEN INPUT
     inputState$wInterp <- apply(X = w, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
     
-    if(!is.null(modelInput)){
-      inputState$u <- inputInterp
-    }
-    solX = deSolve::ode(y = x0, times = times,func = hiddenInputState, parms = parameters, input=inputState)
-
+    ### normal solver
+    
+    # if(!is.null(modelInput)){
+    #   inputState$u <- inputInterp
+    # }
+    # solX = deSolve::ode(y = x0, times = times,func = hiddenInputState, parms = parameters, input=inputState)
+    
+    ### c solver
+    wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
+    wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
+    
+    forcings <- c(inputApprox, wList)
+    solX = deSolve::ode(y = x0, times, func = "derivsc",
+                              parms = parameters, dllname = "model", initforc="forcc",
+                              forcings = forcings, initfunc = "parmsc")
+    
+    ####
     Tx = solX[,1]
     x = solX[,-1, drop=FALSE]
 

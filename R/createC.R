@@ -1,15 +1,12 @@
-createCFile <- function(parameters, inputs, Eq, extInp){
+createCFile <- function(parameters, inputs,Eq){
   
   StringC <- '#include <R.h>'
 
   
   # define parameters and inputs
   paraStr <- paste0('static double parms[',length(parameters),'];')
-  if(!is.null(extInp)) {
-    inpStr <- paste0('static double forc[', inputs+1,'];')
-  } else {
-    inpStr <- paste0('static double forc[', inputs,'];')
-  }
+
+  inpStr <- paste0('static double forc[', inputs+1,'];')
 
   
   
@@ -17,20 +14,16 @@ createCFile <- function(parameters, inputs, Eq, extInp){
   
   #define parameters
   if(is.null(names(parameters))){
-    para <- paste0('#define p',1:length(parameters)-1,' parms[',1:length(parameters)-1,']')
+    para <- paste0('#define p',1:length(parameters),' parms[',1:length(parameters)-1,']')
   } else {
     para <- paste0('#define ',names(parameters),' parms[',1:length(parameters)-1,']')
   }
   
   #define inputs
-  if(!is.null(extInp)){
     defInputU <- paste0('#define u forc[',0,']')
-    defInputs <- paste0('#define import',1:(inputs),' forc[',1:(inputs),']')
+    defInputs <- paste0('#define w',1:(inputs),' forc[',1:(inputs),']')
     StringC = append(StringC, values = c('',para,'',defInputU,defInputs))
-  } else {
-    defInputs <- paste0('#define import',1:(inputs),' forc[',1:(inputs)-1,']')
-    StringC = append(StringC, values = c('',para,'',defInputs))
-  }
+
   
   tStr <- rep("",5)
   # format the functions
@@ -56,7 +49,7 @@ createCFile <- function(parameters, inputs, Eq, extInp){
   eqC = gsub(pattern = "(\\[[0-9]*)", replacement = "\\1 -1", eqC)
 
   # eqC = gsub(pattern = "u*\\s*", replacement = "import0", eqC)
-  eqC = paste0("\t",eqC,"+import",1:length(eqC),";")
+  eqC = paste0("\t",eqC,"+w",1:length(eqC),";")
   
   
   StringC = append(StringC, values = c(startStr,eqC,'}'))
