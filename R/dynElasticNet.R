@@ -236,35 +236,30 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     #check if the cubicInterpolation gives a lower value as the last iteration
     # 
     alphaTemp <- cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2)
-    # newW = oldW + alphaTemp*gradStep
-    # wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
-    # wList <- lapply(wSplit, FUN = function(x) cbind(time,x))
-    # forcings <- c(inputApprox, wList)
-    # solX = deSolve::ode(y = x0, time, func = "derivsc",
-    #                     parms = parameters, dllname = "model", initforc="forcc",
-    #                     forcings = forcings, initfunc = "parmsc")
-    # 
-    # Tx <- solX[,1]
-    # x <- solX[,-1, drop=FALSE]
-    # 
-    # yHat <- getMeassures(solX,measFunc)
-    # 
-    # input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
-    # input$interpyHat <- apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
-    # 
-    # alphaCubicCOst = costFunction(measureTimes,input,alphaDynNet)
-    # 
-    # if(alphaCubicCOst > arrayJ[i-1]){
-    #   return(alpha)
-    # } else {
-    #   return(alphaTemp)
-    # }
-    
-    if(i == iter) {
+    newW = oldW + alphaTemp*gradStep
+    wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
+    wList <- lapply(wSplit, FUN = function(x) cbind(time,x))
+    forcings <- c(inputApprox, wList)
+    solX = deSolve::ode(y = x0, time, func = "derivsc",
+                        parms = parameters, dllname = "model", initforc="forcc",
+                        forcings = forcings, initfunc = "parmsc")
+
+    Tx <- solX[,1]
+    x <- solX[,-1, drop=FALSE]
+
+    yHat <- getMeassures(solX,measFunc)
+
+    input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
+    input$interpyHat <- apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
+
+    alphaCubicCOst = costFunction(measureTimes,input,alphaDynNet)
+
+    if(alphaCubicCOst > arrayJ[i-1]){
       return(alpha)
     } else {
       return(alphaTemp)
     }
+    
     
   }
 

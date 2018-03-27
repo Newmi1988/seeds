@@ -257,7 +257,10 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   createFunctions(odeEq)
   
   system("R CMD SHLIB model.c")
-  dyn.load("model.dll")
+  # check system format for dynamic library
+  ext <- .Platform$dynlib.ext
+  compiledModel <- paste0('model',ext)
+  dyn.load(compiledModel)
   
   iter <- (sum(optW))
   estiAlpha2 <- list()
