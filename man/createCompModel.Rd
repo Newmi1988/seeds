@@ -2,7 +2,7 @@
 % Please edit documentation in R/createC.R
 \name{createCompModel}
 \alias{createCompModel}
-\title{Create compilable c-code}
+\title{Create compilable c-code of a model}
 \usage{
 createCompModel(modelFunc, parameters)
 }
@@ -14,10 +14,17 @@ state-space representation.}
 \item{parameters}{a vector describing the parameters of the system. If names are missing the function
 tries to extract the declared parameters from the model function.}
 }
+\value{
+None
+}
 \description{
 Writes a c file that can be compiled for faster solution with the \code{\link[deSolver]{ode}} solver.
 The file created is formated to be used with the dynamic elastic net. A hidden input is 
 added to every component of the state vector.
+}
+\note{
+On the usage of compiled code in conjunction with \pkg{deSolve} take a look into the vignette 'R
+Package deSolve, Writing Code in Compiled Languages'
 }
 \examples{
 modelJakStat  <- function(t, x, parameters, input) {
@@ -32,7 +39,7 @@ modelJakStat  <- function(t, x, parameters, input) {
     
     u <- input$u(t)
     
-    dx1 = -k1 * x[1]  * u +2
+    dx1 = -k1 * x[1]  * u
     dx2 = k1 *  x[1]  * u - k2 * x[2]*x[2]
     dx3 = -k3*x[3] + 0.5*k2*x[2]*x[2]
     dx4 = k3 * x[3]
@@ -47,6 +54,5 @@ parameters = 10^c(0.31, -1, -0.49, 0.42, -0.21,-0.34)
 
 
 createCompModel(modelFunc = modelJakStat, parameters = parameters)
-
-View(model.C)
+file.edit('model.c')
 }

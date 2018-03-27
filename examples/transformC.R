@@ -10,7 +10,7 @@ modelJakStat  <- function(t, x, parameters, input) {
     
     u <- input$u(t)
     
-    dx1 = -k1 * x[1]  * u +2
+    dx1 = -k1 * x[1]  * u
     dx2 = k1 *  x[1]  * u - k2 * x[2]*x[2]
     dx3 = -k3*x[3] + 0.5*k2*x[2]*x[2]
     dx4 = k3 * x[3]
@@ -25,5 +25,4 @@ parameters = 10^c(0.31, -1, -0.49, 0.42, -0.21,-0.34)
 
 
 createCompModel(modelFunc = modelJakStat, parameters = parameters)
-
-View(model.C)
+file.edit('model.c')

@@ -65,11 +65,14 @@ createCFile <- function(parameters, inputs,Eq){
   writeFileC(StringC)
 } 
 
-#' Create compilable c-code
+#' Create compilable c-code of a model
 #' 
 #' Writes a c file that can be compiled for faster solution with the \code{\link[deSolver]{ode}} solver.
 #' The file created is formated to be used with the dynamic elastic net. A hidden input is 
 #' added to every component of the state vector.
+#' 
+#' @note On the usage of compiled code in conjunction with \pkg{deSolve} take a look into the vignette 'R
+#' Package deSolve, Writing Code in Compiled Languages' of the package.
 #' 
 #' @param modelFunc a R-function that can be solved with deSolve. External input of the system should
 #'                  be declared with 'u'. To ensure that the function is working use the most general
@@ -77,6 +80,8 @@ createCFile <- function(parameters, inputs,Eq){
 #'
 #' @param parameters a vector describing the parameters of the system. If names are missing the function
 #'                   tries to extract the declared parameters from the model function. 
+#'                   
+#' @return None
 #'                   
 #' @example examples/transformC.R
 #' @export
