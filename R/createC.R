@@ -14,7 +14,7 @@ createCFile <- function(parameters, inputs,Eq){
   
   #define parameters
   if(is.null(names(parameters))){
-    para <- paste0('#define p',1:length(parameters),' parms[',1:length(parameters)-1,']')
+    para <- paste0('#define ',Eq@parameters,' parms[',1:length(Eq@parameters)-1,']')
   } else {
     para <- paste0('#define ',names(parameters),' parms[',1:length(parameters)-1,']')
   }
@@ -44,7 +44,7 @@ createCFile <- function(parameters, inputs,Eq){
   # the ode function
   startStr <- "void derivsc(int *neq, double *t, double *x, double *dx, double *yout, int *ip)\n{"
   
-  eqC <- gsub(pattern = "(d*[x])([0-9]*)", replacement = "\\1[\\2]" ,Eq)
+  eqC <- gsub(pattern = "(d*[x])([0-9]*)", replacement = "\\1[\\2]" , Eq@origEq)
   eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^[0-9]*", replacement = "\\1*\\1", eqC)
   eqC = gsub(pattern = "(\\[[0-9]*)", replacement = "\\1 -1", eqC)
 
@@ -64,3 +64,26 @@ createCFile <- function(parameters, inputs,Eq){
   
   writeFileC(StringC)
 } 
+
+#' Create compilable c-code
+#' 
+#' Writes a c file that can be compiled for faster solution with the \code{\link[deSolver]{ode}} solver.
+#' The file created is formated to be used with the dynamic elastic net. A hidden input is 
+#' added to every component of the state vector.
+#' 
+#' @param modelFunc a R-function that can be solved with deSolve. External input of the system should
+#'                  be declared with 'u'. To ensure that the function is working use the most general
+#'                  state-space representation.
+#'
+#' @param parameters a vector describing the parameters of the system. If names are missing the function
+#'                   tries to extract the declared parameters from the model function. 
+#'                   
+#' @example examples/transformC.R
+#' @export
+createCompModel <- function(modelFunc, parameters){
+  odeEq <- new("odeEquations")
+  odeEq <- createModelEqClass(odeEq,modelFunc)
+  
+  numInputs = length(odeEq@origEq)+1
+  createCFile(parameters = parameters,inputs = numInputs, odeEq)
+}

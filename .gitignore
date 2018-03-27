@@ -7,3 +7,5 @@ costateStart.R
 costate.R
 stateHiddenInput.R
 model.c
+model.dll
+model.o

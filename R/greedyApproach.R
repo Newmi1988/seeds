@@ -247,9 +247,10 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   odeEq <- new("odeEquations")
   odeEq <- createModelEqClass(odeEq,modelFunc)
   odeEq <- setMeassureFunc(odeEq,measFunc)
+
   
   numInputs = length(x0)+1
-  createCFile(parameters = parameters,inputs = numInputs, odeEq@origEq)
+  createCFile(parameters = parameters,inputs = numInputs, odeEq)
   
   odeEq <- isDynElaNet(odeEq)
   odeEq <- calculateCostate(odeEq)

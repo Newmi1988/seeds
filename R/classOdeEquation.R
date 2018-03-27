@@ -26,7 +26,8 @@ odeEquations <- setClass(
     jacobian = "matrix",
     costFunction = "character",
     hamiltonian = "character",
-    dynamicElasticNet = "logical"
+    dynamicElasticNet = "logical",
+    parameters = "character"
   ),
 
   prototype = list(
@@ -40,7 +41,8 @@ odeEquations <- setClass(
     jacobian = matrix(list(),nrow = 2, ncol = 2),
     costFunction = character(0),
     hamiltonian = character(0),
-    dynamicElasticNet = FALSE
+    dynamicElasticNet = FALSE,
+    parameters = character(0)
   ),
   validity = function(object) {
     # ...some validation stuff...
@@ -151,7 +153,9 @@ setMethod(f = "createModelEqClass",
           definition = function(theObject,theModel)
           {
             theObject@modelStr <- deparse(theModel,width.cutoff = 500)
-            theObject@origEq <- getEquations(theModel)
+            tempList <- getEquations(theModel)
+            theObject@origEq <- tempList$strM
+            theObject@parameters <- tempList$strP
             return(theObject)
           }
 
@@ -167,7 +171,7 @@ setMethod(f = "setCostFunc",
           signature = "odeEquations",
           definition = function(theObject,costFunction)
           {
-            theObject@costFunction <- getEquations(costFunction)
+            theObject@costFunction <- getEquations(costFunction)$strM
             theObject@dynamicElasticNet <- FALSE
 
             return(theObject)
@@ -185,8 +189,7 @@ setMethod(f = "setMeassureFunc",
           definition = function(theObject,meassureFunc)
           {
             theObject@measureStr <- deparse(meassureFunc,width.cutoff = 500)
-            theObject@measureFunction <- getEquations(meassureFunc)
-
+            theObject@measureFunction <- getEquations(meassureFunc)$strM
             return(theObject)
           }
 )
