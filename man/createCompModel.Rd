@@ -24,9 +24,11 @@ added to every component of the state vector.
 }
 \note{
 On the usage of compiled code in conjunction with \pkg{deSolve} take a look into the vignette 'R
-Package deSolve, Writing Code in Compiled Languages'
+Package deSolve, Writing Code in Compiled Languages' of the package.
 }
 \examples{
+devtools::load_all()
+
 modelJakStat  <- function(t, x, parameters, input) {
   with (as.list(parameters),{
     
@@ -52,7 +54,8 @@ parameters = 10^c("k1"=0.31, "k2"=-1, "k3"=-0.49, "k4"= 0.42, "s1"=-0.21, "s2"=-
 # you can used a unnamed vector for the parameters if these are declared like in the function above
 parameters = 10^c(0.31, -1, -0.49, 0.42, -0.21,-0.34)
 
-
+## Function welche die C files erstellt.
 createCompModel(modelFunc = modelJakStat, parameters = parameters)
+# c file darstellen
 file.edit('model.c')
 }

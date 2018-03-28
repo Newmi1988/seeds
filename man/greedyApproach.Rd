@@ -62,7 +62,7 @@ of hidden inputs
 }
 \examples{
 {
-\dontrun{# usb network example
+usb network example
 uvbParameter = c(  ks1=0.23,
                    ks2=4.0526,
                    kdr1=0.1,
@@ -163,7 +163,6 @@ res <- greedyApproach(alphaStep = 100, alpha2 = 0.0002, optW = rep(1,13), x0 = x
                       measFunc = uvbMeasure,times = t, measData = y, 
                      parameters = uvbParameter, modelFunc = uvbModel, 
                      plotEstimates = TRUE, conjGrad = TRUE)
-}
 }
 
 }

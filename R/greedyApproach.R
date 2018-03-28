@@ -50,7 +50,7 @@
 #' @return returns a results-object with default plot function. The plot shows the estimated best sparse fit
 #'
 #' @examples{
-#' \dontrun{# usb network example
+#' usb network example
 #' uvbParameter = c(  ks1=0.23,
 #'                    ks2=4.0526,
 #'                    kdr1=0.1,
@@ -151,7 +151,6 @@
 #'                       measFunc = uvbMeasure,times = t, measData = y, 
 #'                      parameters = uvbParameter, modelFunc = uvbModel, 
 #'                      plotEstimates = TRUE, conjGrad = TRUE)
-#' }
 #' }
 #' 
 #' @export
