@@ -220,14 +220,16 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
       alphaT = alpha3 - (alphaB-alphaA)/4 * (jB - jA)/(jB-2*j3+jA)
       
-      
-      
-      if(alphaT > 0 || !is.nan(alphaT)){
-        alpha = alphaT
-        return(alpha)
+      if(is.nan(alphaT)){
+        return(alphaA)
       } else {
-        alpha <- cubicInterpolMin(alphaA = alphaA, alphaB = alpha3, jA = jA, jB = j3)
-        return(alpha)
+        if(alphaT > 0 ){
+          alpha = alphaT
+          return(alpha)
+        } else {
+          alpha <- cubicInterpolMin(alphaA = alphaA, alphaB = alpha3, jA = jA, jB = j3)
+          return(alpha)
+        }
       }
     }
     
@@ -491,7 +493,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     # calculate the new cosT
     J[i+1] = costFunction(measureTimes,input,alphaDynNet)
 
-    tAUC <- times
+    tAUC <- measureTimes
     absW <- abs(sapply(input$w, mapply, tAUC))
     interpAbsW <- apply(X = absW, MARGIN = 2, FUN = function(x) stats::approxfun(x = tAUC, y = x, rule=2, method = 'linear'))
 
@@ -541,7 +543,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     return((colSums((yhat - y)^2))/nrow(yhat))
   }
 
-  colnames(yHat) <- append('time', paste0('y',1:(ncol(yHat)-1)))
+  colnames(yHat) <- append('t', paste0('y',1:(ncol(yHat)-1)))
 
   results <- list()
   results$w <- cbind(Tp,w)
