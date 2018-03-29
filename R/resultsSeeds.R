@@ -1,20 +1,42 @@
 plot.resultsSeeds  <- function(obj) {
-  plot1 <- ggplot(obj@stateEstimates %>% gather(state, value, -1), aes(x=t, y=value, colour="red"))+ 
-    geom_line()+ 
-    scale_color_discrete()+
-    facet_wrap(~state)
+  
+  reformatOrder <- function(df){
+    df$facet = factor(df$state, levels = as.character(unique(factor(df$state))))
+    
+    return(df)
+  }
+  
+  
+  plot1 <- ggplot2::ggplot(reformatOrder(tidyr::gather(obj@stateEstimates,state, value, -1)), ggplot2::aes(x=t, y=value, colour="red"))+ 
+    ggplot2::geom_line()+
+    ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(obj@stateUnscertainUpper, state, value, -1), tidyr::gather(obj@stateUnscertainLower, state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+    ggplot2::scale_color_discrete()+
+    ggplot2::facet_wrap(~facet)
+  # if(!(is.data.frame(obj@stateUnscertainUpper) && nrow(obj@stateUnscertainUpper)==0)){
+  #   plot1 + 
+  # }
+
+  
+  plot2 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(obj@hiddenInputEstimates,state,value,-1)), ggplot2::aes(x=t,y=value, colour="red"))+
+    ggplot2::geom_line()+
+    ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(obj@hiddenInputUncertainUpper, state, value, -1), tidyr::gather(obj@hiddenInputUncertainLower, state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+    ggplot2::scale_color_discrete()+
+    ggplot2::facet_wrap(~facet)
 
   
   #print output
-  plot2 <- ggplot(data=obj@outputEstimates %>% gather(state,value, -1), aes(x=t, y=value, colour="red"))+
-    geom_line()+
-    geom_errorbar(data=obj@Data %>% gather(state,value, -1) %>% inner_join( obj@DataError %>% gather(state,value, -1), by=c("t","state")), aes(x=t, ymin= value.x - value.y , ymax = value.x + value.y), inherit.aes = FALSE)+
-    geom_point(data = obj@Data %>% gather(state,value,-1), aes(x=t, y=value), colour="black") +
-    scale_color_discrete()+
-    facet_wrap(~state)
+  plot3 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(obj@outputEstimates,state,value, -1)), ggplot2::aes(x=t, y=value, colour="red"))+
+    ggplot2::geom_line()+
+    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(obj@Data, state,value, -1), tidyr::gather(obj@DataError,state,value, -1), by=c("t","state"))), ggplot2::aes(x=t, ymin= value.x - value.y , ymax = value.x + value.y), inherit.aes = FALSE)+
+    ggplot2::geom_point(data =reformatOrder(tidyr::gather(obj@Data,state,value,-1)), ggplot2::aes(x=t, y=value), colour="black") +
+    ggplot2::scale_color_discrete()+
+    ggplot2::facet_wrap(~facet)
   
   
-  return(list(plot1,plot2))
+  
+
+  
+  return(list(plot1,plot2, plot3))
 
 }
 
