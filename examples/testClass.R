@@ -14,5 +14,10 @@ colnames(resDataStd) <- c("t",paste0('y',1:(ncol(resDataStd)-1)))
 resObj <- resultsSeeds(stateEstimates = resStates, hiddenInputEstimates = resHidden, 
              outputEstimates = resMeas, Data = resData, DataError = resDataStd)
 
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+
 plot(resObj)
 

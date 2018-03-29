@@ -92,7 +92,6 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   if(!is.null(modelInput)){
     inputInterp <- list()
     inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
-    #solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))
   } else {
     solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters))
   }
@@ -106,14 +105,19 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     inputApprox <- list(cbind(times,rep(0,length(times))))
   }
   
-  w <- matrix(rep(0,length(x0)*length(times)), ncol = length(x0))
-  wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
-  wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
-  forcings <- c(inputApprox, wList)
+  if(grepl("Rtools",Sys.getenv('PATH'))){
+    w <- matrix(rep(0,length(x0)*length(times)), ncol = length(x0))
+    wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
+    wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
+    forcings <- c(inputApprox, wList)
+    
+    solNominal = deSolve::ode(y = x0, times, func = "derivsc",
+                              parms = parameters, dllname = "model", initforc="forcc",
+                              forcings = forcings, initfunc = "parmsc")
+  } else {
+    solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))
+  }
 
-  solNominal = deSolve::ode(y = x0, times, func = "derivsc",
-                            parms = parameters, dllname = "model", initforc="forcc",
-                            forcings = forcings, initfunc = "parmsc")
   
   
 
@@ -195,17 +199,21 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       alpha3 <- 0.5*(alphaA+alphaB)
       newW = oldW + alpha3*gradStep
       
-      wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
-      wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
-      forcings <- c(inputApprox, wList)
-      solX = deSolve::ode(y = x0, time, func = "derivsc",
-                          parms = parameters, dllname = "model", initforc="forcc",
-                          forcings = forcings, initfunc = "parmsc")
+      if(grepl("Rtools",Sys.getenv('PATH'))){
+        wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
+        wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
+        forcings <- c(inputApprox, wList)
+        solX = deSolve::ode(y = x0, time, func = "derivsc",
+                            parms = parameters, dllname = "model", initforc="forcc",
+                            forcings = forcings, initfunc = "parmsc")
+      } else {
+        input$optW <- optW
+        input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
+        time <- seq(from = tInt[1], to = tInt[2], length.out = 300)
+        solX <- deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
+      }
+
       
-      # input$optW <- optW
-      # input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
-      # time <- seq(from = tInt[1], to = tInt[2], length.out = 300)
-      # solX <- deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
       
       
       Tx <- solX[,1]
@@ -463,13 +471,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     # CALCULATION OF THE TRAJEKTORIES THAT RESULTS FROM THE NEW HIDDEN INPUT
     inputState$wInterp <- apply(X = w, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
     
-    ### normal solver
-    
-    # if(!is.null(modelInput)){
-    #   inputState$u <- inputInterp
-    # }
-    # solX = deSolve::ode(y = x0, times = times,func = hiddenInputState, parms = parameters, input=inputState)
-    
+    if(grepl("Rtools",Sys.getenv('PATH'))){
     ### c solver
     wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
     wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
@@ -478,7 +480,13 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     solX = deSolve::ode(y = x0, times, func = "derivsc",
                               parms = parameters, dllname = "model", initforc="forcc",
                               forcings = forcings, initfunc = "parmsc")
-    
+    } else {
+      ### normal solver
+      if(!is.null(modelInput)){
+        inputState$u <- inputInterp
+      }
+      solX = deSolve::ode(y = x0, times = times,func = hiddenInputState, parms = parameters, input=inputState)
+    }
     ####
     Tx = solX[,1]
     x = solX[,-1, drop=FALSE]

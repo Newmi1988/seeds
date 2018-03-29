@@ -152,13 +152,16 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   odeEq <- isDynElaNet(odeEq)
   odeEq <- calculateCostate(odeEq)
   createFunctions(odeEq)
-  
-  system("R CMD SHLIB model.c")
-  # check system format for dynamic library
-  ext <- .Platform$dynlib.ext
-  compiledModel <- paste0('model',ext)
-  dyn.load(compiledModel)
-  
+  if(grepl("Rtools",Sys.getenv('PATH'))){
+    cat('Rtools found. Using compiled code for more performance.\n')
+    system("R CMD SHLIB model.c")
+    # check system format for dynamic library
+    ext <- .Platform$dynlib.ext
+    compiledModel <- paste0('model',ext)
+    dyn.load(compiledModel)
+  } else {
+    cat('No installation of Rtools detected using the normal solver.\n')
+  }
   iter <- (sum(optW))
   estiAlpha2 <- list()
 
