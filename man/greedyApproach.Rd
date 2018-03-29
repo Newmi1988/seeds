@@ -154,4 +154,6 @@ res <- greedyApproach(alphaStep = 200, alpha2 = 0.0001, optW = rep(1,13), x0 = x
                parameters = uvbParameter, modelFunc = uvbModel, plotEstimates = TRUE, conjGrad = TRUE)
 )
 
+plot(res)
+
 }
