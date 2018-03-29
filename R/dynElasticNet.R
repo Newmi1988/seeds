@@ -160,13 +160,21 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
    
     for (i in 1:iter) {
       newW = oldW + alpha*gradStep
+      
+      if(grepl("Rtools",Sys.getenv('PATH'))){
+        wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
+        wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
+        forcings <- c(inputApprox, wList)
+        solX = deSolve::ode(y = x0, time, func = "derivsc",
+                            parms = parameters, dllname = "model", initforc="forcc",
+                            forcings = forcings, initfunc = "parmsc")
+      } else {
+        input$optW = optW
+        input$w = apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
+        solX = deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
+      }
 
-      wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
-      wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
-      forcings <- c(inputApprox, wList)
-      solX = deSolve::ode(y = x0, time, func = "derivsc",
-                          parms = parameters, dllname = "model", initforc="forcc",
-                          forcings = forcings, initfunc = "parmsc")
+
       
       Tx = solX[,1]
       x = solX[,-1, drop=FALSE]
