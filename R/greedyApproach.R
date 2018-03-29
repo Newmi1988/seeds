@@ -136,9 +136,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
   checkDimensions()
   
-  if(is.loaded('derivsc')){
-    dyn.unload("model.dll")
-  }
+
 
   # create the needed files
   odeEq <- new("odeEquations")
@@ -154,10 +152,19 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   createFunctions(odeEq)
   if(grepl("Rtools",Sys.getenv('PATH'))){
     cat('Rtools found. Using compiled code for more performance.\n')
-    system("R CMD SHLIB model.c")
+    
     # check system format for dynamic library
     ext <- .Platform$dynlib.ext
     compiledModel <- paste0('model',ext)
+    
+    # unload dynlib if is already loaded make rewriting enable
+    if(is.loaded('derivsc')){
+      dyn.unload(compiledModel)
+    }
+    
+    system("R CMD SHLIB model.c")
+
+
     dyn.load(compiledModel)
   } else {
     cat('No installation of Rtools detected using the normal solver.\n')
@@ -244,8 +251,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     costError <- cbind(rep(0,length(optW)),rep(0,length(optW)))
     colnames(costError) <- c('sum(MSE)','cost')
 
-    # alphaStep = alphaStep*4
-
     for(i in 1:(iter-1)) {
       cat('_________________________________________\n')
       cat('selection done: starting new optimization\n')
@@ -270,7 +275,10 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       optW <- resAlg[[i]]$optW
     }
     
-    dyn.unload("model.dll")
+    if(grepl("Rtools",Sys.getenv('PATH'))){
+      dyn.unload(compiledModel)
+    }
+
 
     if(length(resAlg)==(iter-1)) {
       cat('The algorithm did stop at the last combination of hidden inputs. Returning last solution as best fit\n')
