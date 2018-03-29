@@ -312,8 +312,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     outputMeas <- as.data.frame(resAlg[[i-1]]$y)
     
     
-    
-    
     res <- resultsSeeds(stateEstimates = states,
                         stateUnscertainLower = stateUnsc, 
                         stateUnscertainUpper = stateUnsc,
