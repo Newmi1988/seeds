@@ -92,6 +92,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   if(!is.null(modelInput)){
     inputInterp <- list()
     inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
+    solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))  
   } else {
     solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters))
   }
@@ -114,8 +115,6 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     solNominal = deSolve::ode(y = x0, times, func = "derivsc",
                               parms = parameters, dllname = "model", initforc="forcc",
                               forcings = forcings, initfunc = "parmsc")
-  } else {
-    solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))
   }
 
   
