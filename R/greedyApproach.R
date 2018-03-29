@@ -1,7 +1,7 @@
 #' Greedy Approach Algorithm
 #'
 #' calculates controls based on a first optimisation with gradient descent; should result in a sparse vector
-#' of hidden inputs
+#' of hidden inputs.
 #'
 #' @param alphaStep      the starting stepsize for the gradient descent
 #'                a fitting stepsize will be calculated based on a backtracking line search
@@ -49,7 +49,7 @@
 #'
 #' @return returns a results-object with default plot function. The plot shows the estimated best sparse fit
 #'
-#' @example examples/uvb.R
+#' @examples examples/uvb.R
 #' 
 #' @export
 
