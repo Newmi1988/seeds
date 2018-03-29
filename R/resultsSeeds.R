@@ -1,5 +1,6 @@
 plot.resultsSeeds  <- function(obj) {
   
+  # added formating for plotting the states in the right order
   reformatOrder <- function(df){
     df$facet = factor(df$state, levels = as.character(unique(factor(df$state))))
     
@@ -12,9 +13,6 @@ plot.resultsSeeds  <- function(obj) {
     ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(obj@stateUnscertainUpper, state, value, -1), tidyr::gather(obj@stateUnscertainLower, state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
     ggplot2::scale_color_discrete()+
     ggplot2::facet_wrap(~facet)
-  # if(!(is.data.frame(obj@stateUnscertainUpper) && nrow(obj@stateUnscertainUpper)==0)){
-  #   plot1 + 
-  # }
 
   
   plot2 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(obj@hiddenInputEstimates,state,value,-1)), ggplot2::aes(x=t,y=value, colour="red"))+
@@ -24,7 +22,6 @@ plot.resultsSeeds  <- function(obj) {
     ggplot2::facet_wrap(~facet)
 
   
-  #print output
   plot3 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(obj@outputEstimates,state,value, -1)), ggplot2::aes(x=t, y=value, colour="red"))+
     ggplot2::geom_line()+
     ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(obj@Data, state,value, -1), tidyr::gather(obj@DataError,state,value, -1), by=c("t","state"))), ggplot2::aes(x=t, ymin= value.x - value.y , ymax = value.x + value.y), inherit.aes = FALSE)+
