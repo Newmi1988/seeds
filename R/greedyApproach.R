@@ -289,15 +289,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       resAlg$optimalSol <- i-1
       resAlg$measurements <- measData
     }
-    # res <- new('results',modelFunction = odeEq@modelStr,
-    #                measureFunction = odeEq@measureStr,
-    #                hiddenInputs = resAlg[[i-1]]$w,
-    #                auc = resAlg[[i-1]]$AUC,
-    #                estimatedStates = resAlg[[i-1]]$x[],
-    #                estimatedMeasurements = resAlg[[i-1]]$y,
-    #                optimalSolution = resAlg$optimalSol,
-    #                allData = resAlg
-    #                )
     
     states <- as.data.frame(resAlg[[i-1]]$x[])
     colnames(states)[1] <- "t"
@@ -311,7 +302,9 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     
     outputMeas <- as.data.frame(resAlg[[i-1]]$y)
     
-    
+    dataError <- cbind(t=measData[,1],std) 
+    colnames(dataError) <- c("t",paste0('y',1:(ncol(std))))
+
     res <- resultsSeeds(stateEstimates = states,
                         stateUnscertainLower = stateUnsc, 
                         stateUnscertainUpper = stateUnsc,
@@ -320,7 +313,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
                         hiddenInputUncertainUpper = hiddenInpUnsc,
                         outputEstimates = outputMeas,
                         Data = measData,
-                        DataError = cbind(t=measData[,1],std) 
+                        DataError = dataError
                         )
 
 

@@ -37,6 +37,22 @@ plot.resultsSeeds  <- function(obj) {
 
 }
 
+
+#' Results Class for the Algorithms
+#' 
+#' A S4 class that collects the results of the two algorithms
+#' 
+#' @slot stateEstimates data.frame containing the state estimates
+#' @slot stateUnscertainLower lower bound of the estimated states as calculated by the baysian method
+#' @slot stateUnscertainUpper upper bound of the estimated states as calculated by the baysian method
+#' @slot hiddenInputEstimates estimated hidden input
+#' @slot hiddenInputUncertainLower lower bounds of the estimated hidden inputs
+#' @slot hiddenInputUncertainUpper uppper bounds of the estimated hidden inputs
+#' @slot outputEstimates estimated measurements resulting from the control of the hidden inputs
+#' @slot Data the given measurements
+#' @slot DataError standard deviation of the given measurements
+#' 
+#' @exportClass 
 resultsSeeds <- setClass(
   'resultsSeeds',
   slots = c(
