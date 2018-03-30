@@ -42,6 +42,7 @@ resultsSeeds <- setClass(
   )
 )
 
+#' @export
 plot.resultsSeeds  <- function(obj) {
   
   # added formating for plotting the states in the right order
