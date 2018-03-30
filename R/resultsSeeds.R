@@ -52,7 +52,8 @@ plot.resultsSeeds  <- function(obj) {
 #' @slot Data the given measurements
 #' @slot DataError standard deviation of the given measurements
 #' 
-#' @exportClass 
+#' @export resultsSeeds
+#' @exportClass resultsSeeds
 resultsSeeds <- setClass(
   'resultsSeeds',
   slots = c(
