@@ -43,6 +43,7 @@ resultsSeeds <- setClass(
   )
 )
 
+
 plotResultsSeeds  <- function(x,y) {
   
   seedsobj = x
@@ -79,7 +80,7 @@ plotResultsSeeds  <- function(x,y) {
   
 }
 
-
+#' @export
 setMethod(f = "plot",
           signature = c(x="resultsSeeds",y="missing"),
           definition = function(x,y)
