@@ -2,6 +2,7 @@
 #' 
 #' A S4 class that collects the results of the two algorithms
 #' 
+#' 
 #' @slot stateEstimates data.frame containing the state estimates
 #' @slot stateUnscertainLower lower bound of the estimated states as calculated by the baysian method
 #' @slot stateUnscertainUpper upper bound of the estimated states as calculated by the baysian method
@@ -80,6 +81,19 @@ plotResultsSeeds  <- function(x,y) {
   
 }
 
+#' Plot method for the S4 class resultsSeeds
+#' 
+#' A standardized plot function to display the results of the algorithms. Both
+#' algorithms should result in objects of the class resultsSeeds. The results can
+#' be plotted using the \code{\link{plot}}-function.
+#' 
+#' @param x an object of type resultsSeeds which contains the results of the algorithms
+#' @param y ...
+#' 
+#' @rdname resultsSeeds-methods
+#' 
+#' @aliases plot,resultsSeeds,missing-method
+#' 
 #' @export
 setMethod(f = "plot",
           signature = c(x="resultsSeeds",y="missing"),
