@@ -314,7 +314,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       yMax <- max(max(y[,i]),max(yhat[,i]),max(yNom[,i]))
       yMin <- min(min(y[,i]),min(yhat[,i]),min(yNom[,i]))
       #plot(x = measureTimes, y = y[,i], type = 'p', pch = 20, col = 'black', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
-      Hmisc::errbar(x = measureTimes, y = y[,i], yplus = y[,i]+STD[,i], yminus = y[,i]-STD[,i], add = FALSE)
+      Hmisc::errbar(x = measureTimes, y = y[,i], yplus = y[,i]+STD[,i], yminus = y[,i]-STD[,i], ylim = c(yMin, yMax), add = FALSE)
       par(new=T)
       plot(x = tPlot, y = yhat[,i], type='l', col = 'red', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
       par(new=T)
