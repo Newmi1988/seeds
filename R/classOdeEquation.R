@@ -10,6 +10,7 @@
 #' @slot costFunction a string containing the cost function
 #' @slot hamiltonian a string representing the Hamilton function of the model
 #' @slot dynamicElasticNet boolean that indicates if the system equation should be calculated for the dynamic elastic net
+#' @slot parameters parameters of the model
 #' 
 #' @export odeEquations
 #' @exportClass odeEquations

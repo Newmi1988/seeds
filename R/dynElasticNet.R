@@ -288,10 +288,10 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     
   }
 
-  showEstimates <- function(measureTimes,AUCs,input, alpha2, J, nomSol){
+  showEstimates <- function(measureTimes,AUCs,input, alpha2, J, nomSol, STD){
     tPlot <- seq(from=measureTimes[1], to = measureTimes[length(measureTimes)], length.out = 50)
 
-    y <- sapply(input$interpY, mapply, tPlot)
+    y <- sapply(input$interpY, mapply, measureTimes)
     yhat <- sapply(input$interpyHat, mapply, tPlot)
     w <- sapply(input$w, mapply, tPlot)
     yNom <- sapply(nomSol, mapply, tPlot)
@@ -313,11 +313,12 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       yLab <- paste0('y',as.character(i))
       yMax <- max(max(y[,i]),max(yhat[,i]),max(yNom[,i]))
       yMin <- min(min(y[,i]),min(yhat[,i]),min(yNom[,i]))
-      matplot(x = tPlot, y = y[,i], type = 'l', col = 'black', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
+      #plot(x = measureTimes, y = y[,i], type = 'p', pch = 20, col = 'black', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
+      Hmisc::errbar(x = measureTimes, y = y[,i], yplus = y[,i]+STD[,i], yminus = y[,i]-STD[,i], add = FALSE)
       par(new=T)
-      matplot(x = tPlot, y = yhat[,i], type='l', col = 'red', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
+      plot(x = tPlot, y = yhat[,i], type='l', col = 'red', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
       par(new=T)
-      matplot(x = tPlot, y = yNom[,i], type='l', col = 'blue', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
+      plot(x = tPlot, y = yNom[,i], type='l', col = 'blue', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
     }
     plot(J, type = 'l', xlab = 'iteration', ylab = 'J[w]', lwd = width)
     matplot(x = tPlot, y = w, type='l', col = 'red', lwd = width)
@@ -525,7 +526,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
 
     if(plotEsti == TRUE) {
-      showEstimates(measureTimes,AUCs,input,alpha2,J, yNominal)
+      showEstimates(measureTimes,AUCs,input,alpha2,J, yNominal,STD)
     }
     # if the change in the cost function is smaller that epsilon the algorithmus stops
     if (( abs(J[i+1]/J[i]) > 1-(eps/100)) && i>1) {

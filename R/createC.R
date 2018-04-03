@@ -67,7 +67,7 @@ createCFile <- function(parameters, inputs,Eq){
 
 #' Create compilable c-code of a model
 #' 
-#' Writes a c file that can be compiled for faster solution with the \code{\link[deSolver]{ode}} solver.
+#' Writes a c file that can be compiled for faster solution with the \code{\link[deSolve]{ode}} solver.
 #' The file created is formated to be used with the dynamic elastic net. A hidden input is 
 #' added to every component of the state vector.
 #' 
@@ -83,7 +83,6 @@ createCFile <- function(parameters, inputs,Eq){
 #'                   
 #' @return None
 #'                   
-#' @example examples/transformC.R
 #' @export
 createCompModel <- function(modelFunc, parameters){
   odeEq <- new("odeEquations")

@@ -1,5 +1,3 @@
-devtools::load_all()
-
 modelJakStat  <- function(t, x, parameters, input) {
   with (as.list(parameters),{
     

@@ -16,6 +16,7 @@
 #' @exportClass resultsSeeds
 #' 
 #' @import methods
+#' @importFrom graphics plot
 resultsSeeds <- setClass(
   'resultsSeeds',
   slots = c(
@@ -42,8 +43,9 @@ resultsSeeds <- setClass(
   )
 )
 
-#' @export
-plot.resultsSeeds  <- function(obj) {
+plotResultsSeeds  <- function(x,y) {
+  
+  seedsobj = x
   
   # added formating for plotting the states in the right order
   reformatOrder <- function(df){
@@ -52,28 +54,41 @@ plot.resultsSeeds  <- function(obj) {
     return(df)
   }
   
-  plot1 <- ggplot2::ggplot(reformatOrder(tidyr::gather(obj@stateEstimates,state, value, -1)), ggplot2::aes(x=t, y=value, colour="red"))+ 
+  plot1 <- ggplot2::ggplot(reformatOrder(tidyr::gather(seedsobj@stateEstimates,state, value, -1)), ggplot2::aes(x=t, y=value, colour="red"))+ 
     ggplot2::geom_line()+
-    ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(obj@stateUnscertainUpper, state, value, -1), tidyr::gather(obj@stateUnscertainLower, state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+    ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(seedsobj@stateUnscertainUpper, state, value, -1), tidyr::gather(seedsobj@stateUnscertainLower, state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
     ggplot2::scale_color_discrete()+
     ggplot2::facet_wrap(~facet)
   
   
-  plot2 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(obj@hiddenInputEstimates,state,value,-1)), ggplot2::aes(x=t,y=value, colour="red"))+
+  plot2 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(seedsobj@hiddenInputEstimates,state,value,-1)), ggplot2::aes(x=t,y=value, colour="red"))+
     ggplot2::geom_line()+
-    ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(obj@hiddenInputUncertainUpper, state, value, -1), tidyr::gather(obj@hiddenInputUncertainLower, state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+    ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(seedsobj@hiddenInputUncertainUpper, state, value, -1), tidyr::gather(seedsobj@hiddenInputUncertainLower, state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
     ggplot2::scale_color_discrete()+
     ggplot2::facet_wrap(~facet)
   
   
-  plot3 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(obj@outputEstimates,state,value, -1)), ggplot2::aes(x=t, y=value, colour="red"))+
+  plot3 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(seedsobj@outputEstimates,state,value, -1)), ggplot2::aes(x=t, y=value, colour="red"))+
     ggplot2::geom_line()+
-    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(obj@Data, state,value, -1), tidyr::gather(obj@DataError,state,value, -1), by=c("t","state"))), ggplot2::aes(x=t, ymin= value.x - value.y , ymax = value.x + value.y), inherit.aes = FALSE)+
-    ggplot2::geom_point(data =reformatOrder(tidyr::gather(obj@Data,state,value,-1)), ggplot2::aes(x=t, y=value), colour="black") +
+    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(seedsobj@Data, state,value, -1), tidyr::gather(seedsobj@DataError,state,value, -1), by=c("t","state"))), ggplot2::aes(x=t, ymin= value.x - value.y , ymax = value.x + value.y), inherit.aes = FALSE)+
+    ggplot2::geom_point(data =reformatOrder(tidyr::gather(seedsobj@Data,state,value,-1)), ggplot2::aes(x=t, y=value), colour="black") +
     ggplot2::scale_color_discrete()+
     ggplot2::facet_wrap(~facet)
   
   return(list(plot1,plot2, plot3))
   
 }
+
+
+setMethod(f = "plot",
+          signature = c(x="resultsSeeds",y="missing"),
+          definition = function(x,y)
+          {
+            plotList <- plotResultsSeeds(x,y)
+            
+            return(plotList)
+          }
+)
+
+
 

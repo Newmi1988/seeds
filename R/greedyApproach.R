@@ -49,7 +49,6 @@
 #'
 #' @return returns a results-object with default plot function. The plot shows the estimated best sparse fit
 #'
-#' @example examples/uvb.R
 #' 
 #' @export
 

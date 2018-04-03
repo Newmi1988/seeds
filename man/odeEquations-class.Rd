@@ -30,5 +30,7 @@ A S4 class used to handle formating ODE-Equation and calculate the needed functi
 \item{\code{hamiltonian}}{a string representing the Hamilton function of the model}
 
 \item{\code{dynamicElasticNet}}{boolean that indicates if the system equation should be calculated for the dynamic elastic net}
+
+\item{\code{parameters}}{parameters of the model}
 }}
 
