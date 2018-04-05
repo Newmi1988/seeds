@@ -26,7 +26,7 @@ stateUp <- cbind(t=resStates[,1],resStates[,2:ncol(resStates)]+1)
 # stateUp[,2:ncol(stateUp)] = NaN
 
 
-### Benutzung der 'resultsSeeds'-Classe
+### Benutzung der 'resultsSeeds'-Klasse
 resObj <- resultsSeeds(stateEstimates = resStates, 
                        stateUnscertainLower = stateLow,
                        stateUnscertainUpper = stateUp,
