@@ -42,8 +42,10 @@ getPara <- function(model){
   dpTestModel <- deparse(model,width.cutoff = 500)
   functionHead <- strsplit(dpTestModel[1], split = ",")[[1]]
   paraInd <- trimSpace(functionHead[grepl("para",functionHead)])
+  paraInd = gsub(pattern = "[^a-zA-Z]", replacement = "", x = paraInd)
   
   paras <- dpTestModel[grepl(paste0(paraInd,"\\[[0-9]*"),dpTestModel)]
+  
   paras = strsplit(x = trimSpace(paras), split = "=|<-")
   paras = unlist(lapply(paras, '[[',1))
   
@@ -51,6 +53,7 @@ getPara <- function(model){
 }
 
 paras <- as.character(getPara(model))
+
 if(class(model)=="function"){
   modelStr <- formatModelEq(extractModel(model))
   return(list(strM = modelStr, strP = paras))

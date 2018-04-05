@@ -239,14 +239,14 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
                              modelInput = systemInput, conjGrad = conjGrad)
   }
 
-  if (!greedyLogical) {
-    return(results)
-  }
-  else {
+  resAlg <- list()
+  if (!greedyLogical || (sum(optW)==1)) {
+    resAlg[[1]] <- results
+    i = 2
+  } else {
     orgOptW <- optW <- results$optW
     orgAUC <- results$AUC
     optWs <- list()
-    resAlg <- list()
     costError <- cbind(rep(0,length(optW)),rep(0,length(optW)))
     colnames(costError) <- c('sum(MSE)','cost')
 
@@ -289,6 +289,8 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       resAlg$measurements <- measData
     }
     
+  }
+    
     states <- as.data.frame(resAlg[[i-1]]$x[])
     colnames(states)[1] <- "t"
     stateUnsc <- states
@@ -301,8 +303,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     
     outputMeas <- as.data.frame(resAlg[[i-1]]$y)
     
-    cat('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    
     if(is.null(std)) {
       emptyStd <- matrix(rep(0,length(measData[,-1])), ncol=ncol(measData[,-1]))
       dataError <- data.frame(t=measData[,1],emptyStd)
@@ -311,6 +311,8 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       dataError <- cbind(t=measData[,1],std) 
       colnames(dataError) <- c("t",paste0('y',1:(ncol(std))))
     }
+    
+    colnames(measData) <- c("t",paste0('y',1:(ncol(measData[,-1]))))
 
 
     res <- resultsSeeds(stateEstimates = states,
@@ -326,6 +328,5 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
 
     return(res)
-  }
 
 }
