@@ -143,7 +143,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   odeEq <- createModelEqClass(odeEq,modelFunc)
   odeEq <- setMeassureFunc(odeEq,measFunc)
 
-  
   numInputs = length(x0)+1
   createCFile(parameters = parameters,inputs = numInputs, odeEq)
   
@@ -302,8 +301,17 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     
     outputMeas <- as.data.frame(resAlg[[i-1]]$y)
     
-    dataError <- cbind(t=measData[,1],std) 
-    colnames(dataError) <- c("t",paste0('y',1:(ncol(std))))
+    cat('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    
+    if(is.null(std)) {
+      emptyStd <- matrix(rep(0,length(measData[,-1])), ncol=ncol(measData[,-1]))
+      dataError <- data.frame(t=measData[,1],emptyStd)
+      colnames(dataError) <- c("t",paste0('y',1:(ncol(emptyStd))))
+    } else {
+      dataError <- cbind(t=measData[,1],std) 
+      colnames(dataError) <- c("t",paste0('y',1:(ncol(std))))
+    }
+
 
     res <- resultsSeeds(stateEstimates = states,
                         stateUnscertainLower = stateUnsc, 
