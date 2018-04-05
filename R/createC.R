@@ -1,6 +1,7 @@
 createCFile <- function(parameters, inputs,Eq){
   
   StringC <- '#include <R.h>'
+  StringC = append(StringC,'#include <math.h>')
 
   
   # define parameters and inputs
@@ -44,14 +45,15 @@ createCFile <- function(parameters, inputs,Eq){
   # the ode function
   startStr <- "void derivsc(int *neq, double *t, double *x, double *dx, double *yout, int *ip)\n{"
   
+  
   eqC <- gsub(pattern = "(d*[x])([0-9]*)", replacement = "\\1[\\2]" , Eq@origEq)
-  eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^[0-9]*", replacement = "\\1*\\1", eqC)
   eqC = gsub(pattern = "(\\[[0-9]*)", replacement = "\\1 -1", eqC)
+  eqC = unlist(lapply(X = eqC, FUN = Deriv::Simplify))
+  eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^[0-9]*", replacement = "\\1*\\1", eqC)
+  eqC = gsub(pattern = "(t)([^a-z])", replacement = "*\\1\\2", eqC)
 
-  # eqC = gsub(pattern = "u*\\s*", replacement = "import0", eqC)
   eqC = paste0("\t",eqC,"+w",1:length(eqC),";")
-  
-  
+
   StringC = append(StringC, values = c(startStr,eqC,'}'))
   
   
