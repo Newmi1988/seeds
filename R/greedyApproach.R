@@ -249,6 +249,11 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     optWs <- list()
     costError <- cbind(rep(0,length(optW)),rep(0,length(optW)))
     colnames(costError) <- c('sum(MSE)','cost')
+    
+    if(sum(optW)!=length(optW)){
+      iter <- iter+1
+    }
+    
 
     for(i in 1:(iter-1)) {
       cat('_________________________________________\n')
@@ -259,8 +264,9 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       resAlg[[i]] <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, alpha1 = alpha1, alpha2 = alpha2,x0 = x0, optW = optW, eps=epsilon,
                                    times=times, measFunc= measFunc, measData = measData, STD = std, modelInput = systemInput, constStr = cString,
                                    parameters = parameters, modelFunc = modelFunc, origAUC = orgAUC, plotEsti = plotEstimates, conjGrad = conjGrad)
+      
 
-      # costError[i,] = c(sum(resAlg[[i]]$rmse),resAlg[[i]]$J)
+
       costError[i,] = c(mean(resAlg[[i]]$rmse),resAlg[[i]]$J)
 
 
@@ -271,7 +277,15 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
         cat('\n')
         break
       }
-      optW <- resAlg[[i]]$optW
+      
+      
+      #### solution for failed int  ####
+      if(sum(colSums(resAlg[[i]]$w[,-1])) == 0) {
+        orgAUC[which(optW>0)] = 0
+        print(orgAUC)
+        optW <- resAlg[[i]]$optW - optW
+      } 
+      
     }
     
     if(grepl("Rtools",Sys.getenv('PATH'))){
@@ -279,7 +293,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     }
 
 
-    if(length(resAlg)==(iter-1)) {
+    if((length(resAlg)==(iter-1)) || (sum(optW)!=length(x0))) {
       cat('The algorithm did stop at the last combination of hidden inputs. Returning last solution as best fit\n')
       resAlg$optimalSol <- i
       resAlg$measurements <- measData

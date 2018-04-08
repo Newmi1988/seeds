@@ -180,6 +180,10 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       x = solX[,-1, drop=FALSE]
 
       yHat = getMeassures(solX,measFunc)
+      if(sum(is.nan(colSums(x)))>0) {
+        warning("WARNING: Numerical solution of the ode system failed.\n\t This could result the observability of the system.\n")
+        break
+      }
       input$interpX = apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
       input$interpyHat = apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
       
@@ -228,6 +232,11 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       
       yHat <- getMeassures(solX,measFunc)
       
+      if(sum(is.nan(colSums(x)))>0) {
+        cat('Numeric Integration failed. Returning last working step.\n')
+        return(alphaA)
+      }
+      
       input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
       input$interpyHat <- apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
       
@@ -235,7 +244,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
       alphaT = alpha3 - (alphaB-alphaA)/4 * (jB - jA)/(jB-2*j3+jA)
       
-      if(is.nan(alphaT)){
+      if(is.nan(alphaT) || (length(alphaT)==0)){
         return(alphaA)
       } else {
         if(alphaT > 0 ){
@@ -247,8 +256,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
         }
       }
     }
-    
-    # return(alpha)
+
 
     #check if the cubicInterpolation gives a lower value as the last iteration
     # 
@@ -276,7 +284,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
     input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
     input$interpyHat <- apply(X = yHat[,-1], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
-
+    
     alphaCubicCOst = costFunction(measureTimes,input,alphaDynNet)
 
     if(alphaCubicCOst > arrayJ[i-1]){
@@ -488,6 +496,10 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     w = oldW + alpha*step
 
     # CALCULATION OF THE TRAJEKTORIES THAT RESULTS FROM THE NEW HIDDEN INPUT
+    if(sum(is.na(colSums(w)))>0) {
+      warning("WARNING: Numerical solution of the ode system failed.\n\t This could result the observability of the system.\n")
+      break
+    }
     inputState$wInterp <- apply(X = w, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
     
     if(grepl("Rtools",Sys.getenv('PATH'))){
@@ -532,7 +544,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       showEstimates(measureTimes,AUCs,input,alpha2,J, yNominal,STD)
     }
     # if the change in the cost function is smaller that epsilon the algorithmus stops
-    if (( abs(J[i+1]/J[i]) > 1-(eps/100)) && i>1) {
+    if (( abs(J[i+1]/J[i]) > 1-(eps/100))) {
       break
     }
   }
@@ -579,9 +591,6 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   results$x <- solX
   results$y <- yHat
   results$rmse <- rmse(measureTimes,input)
-  # lastJ <- unlist(J)
-  # lastJ = lastJ[lastJ>0]
-  # lastJ = lastJ[length(lastJ)]
   lastJ = J[J>0]
   lastJ = lastJ[length(lastJ)]
   results$J <- lastJ

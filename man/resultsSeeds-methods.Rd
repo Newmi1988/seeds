@@ -8,9 +8,9 @@
 \S4method{plot}{resultsSeeds,missing}(x, y)
 }
 \arguments{
-\item{x}{a}
+\item{x}{an object of type resultsSeeds which contains the results of the algorithms}
 
-\item{y}{b}
+\item{y}{...}
 }
 \description{
 A standardized plot function to display the results of the algorithms. Both
