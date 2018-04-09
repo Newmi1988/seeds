@@ -22,7 +22,7 @@ createCFile <- function(parameters, inputs,Eq){
   
   #define inputs
     defInputU <- paste0('#define u forc[',0,']')
-    defInputs <- paste0('#define w',1:(inputs),' forc[',1:(inputs),']')
+    defInputs <- paste0('#define w',1:(inputs-1),' forc[',1:(inputs-1),']')
     StringC = append(StringC, values = c('',para,'',defInputU,defInputs))
 
   
