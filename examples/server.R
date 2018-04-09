@@ -4,7 +4,7 @@ shiny::shinyServer(function(input,output, session){
   
   dataInput <- shiny::reactive({
     switch (input$dataset,
-                      "states" = list(data@stateEstimates, data@stateUnscertainLower, data@stateUnscertainUpper),
+                      "states" = list(data@stateEstimates, data@stateUnscertainLower, data@stateUnscertainUpper, data@stateNominal),
                       "hidden inputs" = list(data@hiddenInputEstimates, data@hiddenInputUncertainLower, data@hiddenInputUncertainUpper),
                       "measurements" = list(data@outputEstimates, data@Data, data@DataError)
           
@@ -52,9 +52,17 @@ shiny::shinyServer(function(input,output, session){
         ggplot2::scale_color_discrete()+
         ggplot2::theme(legend.position="none")+
         ggplot2::facet_wrap(~facet)
-    } else {
+    } else if(input$dataset=="hidden inputs") {
       ggplot2::ggplot(reformatOrder(tidyr::gather(data[[1]],state, value, -1)), ggplot2::aes(x=t, y=value, colour="red"))+ 
         ggplot2::geom_line()+
+        ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(data[[3]], state, value, -1), tidyr::gather(data[[2]], state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+        ggplot2::scale_color_discrete()+
+        ggplot2::theme(legend.position="none")+
+        ggplot2::facet_wrap(~facet)
+    } else{
+      ggplot2::ggplot(reformatOrder(tidyr::gather(data[[1]],state, value, -1)), ggplot2::aes(x=t, y=value, colour="red"))+ 
+        ggplot2::geom_line()+
+        ggplot2::geom_line(data = reformatOrder(tidyr::gather(data[[4]],state, value, -1)), ggplot2::aes(x=t, y=value, colour="blue"))+ 
         ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(data[[3]], state, value, -1), tidyr::gather(data[[2]], state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
         ggplot2::scale_color_discrete()+
         ggplot2::theme(legend.position="none")+

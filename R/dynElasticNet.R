@@ -588,6 +588,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   results$w <- cbind(Tp,w)
   results$AUC <- do.call(cbind,AUCs[1,])
   results$optW <- greedySelection(AUCs, optW, origAUC)
+  results$nomX <- solNominal
   results$x <- solX
   results$y <- yHat
   results$rmse <- rmse(measureTimes,input)
