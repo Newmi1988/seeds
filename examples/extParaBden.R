@@ -88,7 +88,7 @@ x3tf <- 3
 x4tf <- 4
 
 # erweitere den Vektor um diese Werte, damit diese bei t0 zugewiesen werden
-parametersW = c("t0"= 0,"w1t0"= x1tf, "w2t0"=x2tf, "w3t0"=x3tf, "w4t0"=x4tf)
+parametersW = c("t0"= evalTimes[1],"w1t0"= x1tf, "w2t0"=x2tf, "w3t0"=x3tf, "w4t0"=x4tf)
 # kombiniere vectoren
 parameters = c(parametersM, parametersW)
 
