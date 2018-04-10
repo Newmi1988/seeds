@@ -1,11 +1,20 @@
-createCFile <- function(parameters, inputs,Eq){
+createCFile <- function(parameters, inputs,Eq, bden){
+  
+  if(missing(bden)){
+    bden <- FALSE
+  }
   
   StringC <- '#include <R.h>'
   StringC = append(StringC,'#include <math.h>')
 
   
   # define parameters and inputs
-  paraStr <- paste0('static double parms[',length(parameters),'];')
+  if(bden){
+    paraStr <- paste0('static double parms[',length(parameters)+inputs,'];')
+  } else {
+    paraStr <- paste0('static double parms[',length(parameters),'];')
+  }
+
 
   inpStr <- paste0('static double forc[', inputs+1,'];')
 
@@ -20,9 +29,16 @@ createCFile <- function(parameters, inputs,Eq){
     para <- paste0('#define ',names(parameters),' parms[',1:length(parameters)-1,']')
   }
   
+  if(bden){
+    bdent0 = paste0("#define t0 parms[",length(parameters),"]")
+    bdenwt0 = paste0("#define w",1:(inputs-1),'t0 parms[',(length(parameters)+1):(length(parameters)+inputs-1),']')
+    bdenPara = append(bdent0,bdenwt0)
+    para = append(para,bdenPara)
+  }
+  
   #define inputs
     defInputU <- paste0('#define u forc[',0,']')
-    defInputs <- paste0('#define w',1:(inputs),' forc[',1:(inputs),']')
+    defInputs <- paste0('#define w',1:(inputs-1),' forc[',1:(inputs-1),']')
     StringC = append(StringC, values = c('',para,'',defInputU,defInputs))
 
   
@@ -30,7 +46,11 @@ createCFile <- function(parameters, inputs,Eq){
   # format the functions
   tStr[1] = "void parmsc(void (* odeparms)(int *, double *))"
   tStr[2] = "{"
-  tStr[3] = paste0("\tint N=",length(parameters),';')
+  if(bden){
+    tStr[3] = paste0("\tint N=",length(parameters)+inputs,';')
+  } else {
+    tStr[3] = paste0("\tint N=",length(parameters),';')
+  }
   tStr[4] = "\todeparms(&N, parms);"
   tStr[5] = "}"
   
@@ -44,6 +64,13 @@ createCFile <- function(parameters, inputs,Eq){
   
   # the ode function
   startStr <- "void derivsc(int *neq, double *t, double *x, double *dx, double *yout, int *ip)\n{"
+  if(bden){
+    conBden = "\tif(*t == t0){"
+    t0Bden = paste0('\t\tw',1:(inputs-1),' = w',1:(inputs-1),'t0;')
+    t0Bden = append(t0Bden,"\t}")
+    conBden = append(conBden,t0Bden)
+    startStr = append(startStr,conBden)
+  }
   
   
   eqC <- gsub(pattern = "(d*[x])([0-9]*)", replacement = "\\1[\\2]" , Eq@origEq)
@@ -83,13 +110,15 @@ createCFile <- function(parameters, inputs,Eq){
 #' @param parameters a vector describing the parameters of the system. If names are missing the function
 #'                   tries to extract the declared parameters from the model function. 
 #'                   
+#' @param bden a boolean that indicates if the c-file is used for the mcmc algorithm
+#'                   
 #' @return None
 #'                   
 #' @export
-createCompModel <- function(modelFunc, parameters){
+createCompModel <- function(modelFunc, parameters, bden){
   odeEq <- new("odeEquations")
   odeEq <- createModelEqClass(odeEq,modelFunc)
   
   numInputs = length(odeEq@origEq)+1
-  createCFile(parameters = parameters,inputs = numInputs, odeEq)
+  createCFile(parameters = parameters,inputs = numInputs, odeEq, bden)
 }

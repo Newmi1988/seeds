@@ -278,13 +278,14 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
         break
       }
       
-      
-      #### solution for failed int  ####
+      ### solution for failed int  ####
       if(sum(colSums(resAlg[[i]]$w[,-1])) == 0) {
         orgAUC[which(optW>0)] = 0
         print(orgAUC)
         optW <- resAlg[[i]]$optW - optW
-      } 
+      } else {
+        optW <- resAlg[[i]]$optW
+      }
       
     }
     
@@ -293,7 +294,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     }
 
 
-    if((length(resAlg)==(iter-1)) || (sum(optW)!=length(x0))) {
+    if((length(resAlg)==(iter-1))) {
       cat('The algorithm did stop at the last combination of hidden inputs. Returning last solution as best fit\n')
       resAlg$optimalSol <- i
       resAlg$measurements <- measData
@@ -327,10 +328,13 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     }
     
     colnames(measData) <- c("t",paste0('y',1:(ncol(measData[,-1]))))
+    
+    nomStates <- as.data.frame(resAlg[[i-1]]$nomX)
+    colnames(nomStates)[1] = "t"
 
-
-    res <- resultsSeeds(stateEstimates = states,
-                        stateUnscertainLower = stateUnsc, 
+    res <- resultsSeeds(stateNominal = nomStates,
+                        stateEstimates = states,
+                        stateUnscertainLower = stateUnsc,
                         stateUnscertainUpper = stateUnsc,
                         hiddenInputEstimates = hiddenInp,
                         hiddenInputUncertainLower = hiddenInpUnsc,

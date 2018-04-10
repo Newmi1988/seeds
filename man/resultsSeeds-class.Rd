@@ -11,6 +11,8 @@ A S4 class that collects the results of the two algorithms
 \section{Slots}{
 
 \describe{
+\item{\code{stateNominal}}{data.frame containing the states of the nominal model}
+
 \item{\code{stateEstimates}}{data.frame containing the state estimates}
 
 \item{\code{stateUnscertainLower}}{lower bound of the estimated states as calculated by the baysian method}

@@ -30,12 +30,13 @@ N = 10^0.31
 x0 = c(N, 0, 0, 0)
 y <- c(X = x0)
 
-parameters = 10^c("k1"=0.31, "k2"=-1, "k3"=-0.49, "k4"= 0.42, "s1"=-0.21, "s2"=-0.34)
+# parameter des modells
+parametersM = 10^c("k1"=0.31, "k2"=-1, "k3"=-0.49, "k4"= 0.42, "s1"=-0.21, "s2"=-0.34)
 evalTimes <- c( 0.0208,  0.1098,   0.2696,    0.4999,    0.8002,    1.1697,    1.6077,    2.1129,    2.6843,    3.3205,    4.0200,    4.7811,    5.6020,    6.4808,    7.4154,    8.4035,    9.4429,   10.5310, 11.6653,   12.8431,   14.0616,   15.3179,   16.6090,   17.9319,   19.2834,   20.6603,   22.0594,   23.4773,   24.9107,   26.3561,   27.8102,   29.2695,   30.7305,   32.1898,   33.6439,   35.0893, 36.5227,   37.9406,   39.3397,   40.7166,   42.0681,   43.3910,   44.6821,   45.9384,   47.1569,   48.3347,   49.4690,   50.5571,   51.5965,   52.5846,   53.5192,   54.3980,   55.2189,   55.9800, 56.6795,   57.3157,   57.8871,   58.3923,   58.8303,   59.1998,   59.5001,   59.7304,   59.8902,   59.9792)
 
 
 #### Function welche die C files erstellt. ####
-createCompModel(modelFunc = modelJakStat, parameters = parameters)
+createCompModel(modelFunc = modelJakStat, parameters = parametersM, bden = TRUE)
 ext <- .Platform$dynlib.ext #erkenne plattform um die shared libary unter Linux und Windoes laden zu können
 
 # name des shared library objects
@@ -61,20 +62,17 @@ times <- inputData[,1]
 ## Beispiel mit keinen Input auf den ws (nominales Modell)
 # w werden alle mit 0 initialisiert
 w <- matrix(rep(0,length(x0)*length(times)), ncol = length(x0))
-# w können natürlich auch andere Werte zugewiesen werden
-# hier ein konstanter hidden input w_1 = 1
-# folgende Zeile auskommentieren zum testen
-#w[,1] = 1
 
+
+# konstante hidden inputs über die Zeit
+w[,1] = 0
+w[,2] = 0
+w[,3] = 0
+w[,4] = 0
 
 # aufteilung der hidden input Matrix in einzelene vectoren; Spalten sind die Werte von w_i zu bestimmten Zeitpunkten
 wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
-# die einzelnen Forcings werden als liste an deSolve::ode übergeben
-# ist ein externer Input gegeben (wie bei JakStat u) so muss der als erstes in der Liste stehen
-# Einträge der liste sind Matrizen
-
-# Inputs können linear interpoliert werden, hier behalten sie jedoch die Zeitpunkte des Inputfiles
-# Verwendung von approx nur Beispielhaft ändert hier nichts an den Daten
+# interpolation der Inputs
 u <- apply(X = inputData[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approx(x = inputData[,1], y = x, xout = times, rule = 2))
 uList = list(cbind(times,u$V2$y))
 
@@ -83,9 +81,21 @@ wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
 # kombinere gelistete input matrix mit gelisteten hidden input matrizen
 forcings <- c(uList, wList)
 
+# Beispielhaft zustände aus letzten Interval
+x1tf <- 1
+x2tf <- 2
+x3tf <- 3
+x4tf <- 4
+
+# erweitere den Vektor um diese Werte, damit diese bei t0 zugewiesen werden
+parametersW = c("t0"= evalTimes[1],"w1t0"= x1tf, "w2t0"=x2tf, "w3t0"=x3tf, "w4t0"=x4tf)
+# kombiniere vectoren
+parameters = c(parametersM, parametersW)
+
 solJakStat <- deSolve::ode(y = y, evalTimes, func = "derivsc",
-                          parms = parameters, dllname = "model", initforc="forcc",
-                          forcings = forcings, initfunc = "parmsc")
+                           parms = parameters, dllname = "model", initforc="forcc",
+                           forcings = forcings, initfunc = "parmsc")
 
 solJakStat
 plot(solJakStat)
+#file.edit("model.c")

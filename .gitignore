@@ -9,3 +9,6 @@ stateHiddenInput.R
 model.c
 model.dll
 model.o
+js.dll
+js.o
+js.c
