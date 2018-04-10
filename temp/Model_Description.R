@@ -18,10 +18,10 @@ nom_ode  <- function(t,x,parameter,inputD,w,TIME_W,name = 'JAKSTAT'){
 
 
 #objective
-objective  <- function(index,y,parameter,NAME = 'JAKSTAT'){
+objective  <- function(index,y,parameter){
   
 
-  if (NAME == 'JAKSTAT'){ 
+
     if (index == 1){
       return(y[1])
     }
@@ -34,5 +34,5 @@ objective  <- function(index,y,parameter,NAME = 'JAKSTAT'){
     if (index == 4){
       return(y[4])
     }
-  }
+
 }

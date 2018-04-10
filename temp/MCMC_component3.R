@@ -1,11 +1,13 @@
 MCMC_component <- function(LOGLIKELIHOOD_func, STEP_SIZE, STEP_SIZE_INNER , EPSILON, JUMP_SCALE,
-                           STEP,OBSERVATIONS,Y0,PARAMETER,EPSILON_ACT,INPUTFUNCTION,SIGMA,DIAG,GIBBS_par, N, BURNIN,nom_ode,name='JAKSTAT'){
+                           STEP,OBSERVATIONS,Y0,INPUTDATA,PARAMETER,EPSILON_ACT,SIGMA,DIAG,GIBBS_par, N, BURNIN){
 
   number_species = N
   epsilon_container=matrix(rep(0,number_species*(STEP_SIZE+1)*(STEP_SIZE_INNER+1)),((STEP_SIZE+1)*(STEP_SIZE_INNER+1)))
 
     
     rbind(rep(0,number_species),rep(0,number_species));
+    
+    
     epsilon_container[2,]=EPSILON_ACT[2,]
     
   
@@ -28,9 +30,9 @@ for (ii in 2:STEP_SIZE+1){
 {
 
         ratio_new <- sapply(eps1[,k],LOGLIKELIHOOD_func,Step=STEP,OBSERVATIONS=OBSERVATIONS,x_0=Y0,parameters=PARAMETER,EPS_inner=EPSILON_ACT[1,],
-                        INPUT=INPUTFUNCTION,D=DIAG,GIBBS_PAR=GIBBS_par,NAME=name,k=k,MU_JUMP=MU_jump,SIGMA_JUMP=JUMP_SCALE,nom_ode=nom_ode,eps_new=eps1[1,])
+                        D=DIAG,GIBBS_PAR=GIBBS_par,k=k,MU_JUMP=MU_jump,SIGMA_JUMP=JUMP_SCALE,eps_new=eps1[1,],INPUT=INPUTDATA)
     
-        ratio_old <- LOGLIKELIHOOD_func(epsilon_container[ii-1,k],STEP,OBSERVATIONS,Y0,PARAMETER,EPSILON_ACT[1,],INPUTDATA,DIAG,GIBBS_par,name,k,MU_jump,JUMP_SCALE,nom_ode,eps_new=epsilon_container[ii-1,])
+        ratio_old <- LOGLIKELIHOOD_func(epsilon_container[ii-1,k],STEP,OBSERVATIONS,Y0,PARAMETER,EPSILON_ACT[1,],INPUTDATA,DIAG,GIBBS_par,k,MU_jump,JUMP_SCALE,eps_new=epsilon_container[ii-1,])
 
         ratio     <- exp(ratio_new-ratio_old-dnorm(eps1[,k],MU_jump,JUMP_SCALE,log=TRUE)+dnorm(epsilon_container[ii-1,k],MU_jump,JUMP_SCALE,log=TRUE))
 

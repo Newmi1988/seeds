@@ -1,34 +1,3 @@
-
-source('./temp/Init_BDEN.R')
-COUNTER = 1
-COUNTER2 = 1
-
-
-DATA <- Data_Model()
-
-
-##################################################################################
-
-
-#BDEN(observation_time = as.matrix(DATA$observations[["time"]]),
-#observations     = DATA$observations,
-#initialvalues    = DATA$X_0,
-#parameters       = DATA$parameters,
-#inputData        = as.matrix(DATA$inputData),
-#numberstates     = DATA$N,
-#std=DATA$variance,
-#settings= SETTINGS,
-#mcmc_component = MCMC_component,
-#loglikelihood_func =LOGLIKELIHOOD_func,
-#gibbs_update = GIBBS_update,
-#ode_sol=ode_solv,
-
-#numbertrialsstep = 8,
-#numbertrialseps  = 500,
-#numbertrialinner = 15,
-#lambda           = .001)
-
-
 BDEN <- function(observation_time,
                  observations,
                  initialvalues,
@@ -68,7 +37,8 @@ if(grepl("Rtools",Sys.getenv('PATH'))){
   cat('No installation of Rtools detected. Rtools is requiered for method BDEN.\n')
 }
 
-  ##################################################################################
+##################################################################################
+  
   X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*numberstates),2),0)
   
   X_ERROR        <- cbind(abs(abs(observations["STAT5"])-abs(X_MODEL["x1"])),abs(abs(observations["STAT5ptot_cyt"])-parameters["s1"]*abs(X_MODEL["x2"]+2*X_MODEL["x3"])),abs(abs(observations["STAT5p_cyt"])-parameters["s2"]*abs(X_MODEL["x1"]+X_MODEL["x2"]+2*X_MODEL["x3"])))

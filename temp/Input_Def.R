@@ -1,5 +1,5 @@
 
-http://jeti.uni-freiburg.de/PNAS_Swameye_Data/
+read.csv('http://jeti.uni-freiburg.de/PNAS_Swameye_Data/DATA1_hall')   
 
 
 if(is.function(input)) {

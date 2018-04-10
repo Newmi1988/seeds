@@ -1,5 +1,5 @@
-SETTINGS <- function(VARIANCE,N,BETA_LAMDBA,NAME='JAKSTAT'){
-  if (NAME == 'JAKSTAT') {
+SETTINGS <- function(VARIANCE,N,BETA_LAMDBA){
+
     R     <- rep(0,2)
     ROH   <- rep(0,2)
     PHI   <- MASS::fitdistr(1/(c(VARIANCE[["sd_STAT5p_cyt"]],VARIANCE[["sd_STAT5ptot_cyt"]])), "gamma")
@@ -17,5 +17,5 @@ SETTINGS <- function(VARIANCE,N,BETA_LAMDBA,NAME='JAKSTAT'){
     LIST <- list(R,ROH,ALPHA,BETA,TAU,LAMBDA1,LAMBDA2)
     names(LIST) <- c("R","ROH","ALPHA","BETA","TAU","LAMBDA1","LAMBDA2")
     return(LIST)
-  }
+
 }
