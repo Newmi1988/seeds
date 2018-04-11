@@ -137,7 +137,7 @@ for (STEP in 2:length(EPS_TIME)){
   EPSILON[STEP,]              <- colMeans(EPSILON_IT$CONT[-1,])
   SOLUTION                    <- ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),])
   
-    SIGMA[[STEP]]               <- VAR$SIGMA
+  SIGMA[[STEP]]               <- VAR$SIGMA
 }
 
 }

@@ -28,7 +28,7 @@ PARTIALLIKELIHOOD_func <- function(STEP,OBSERVATIONS,x_0,parameters,input,W,BETA
   
   X <- ode_solv(TIME,x_0,parameters,input,W)
   
-print(X)
+
 
   if(is.na(X)) return(NA)
   
