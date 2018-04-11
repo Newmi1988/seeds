@@ -36,7 +36,8 @@ for (ii in 2:STEP_SIZE+1){
 
         ratio     <- exp(ratio_new-ratio_old-dnorm(eps1[,k],MU_jump,JUMP_SCALE,log=TRUE)+dnorm(epsilon_container[ii-1,k],MU_jump,JUMP_SCALE,log=TRUE))
 
-     if (sum(is.na(ratio))==STEP_SIZE_INNER){print('Internal Error; BREAK')}
+        
+     if (sum(is.na(ratio))==STEP_SIZE_INNER){print(paste0('Internal Error; BREAK;',ii))}
     else{
       if (0.95 < max((ratio),na.rm=T)){
 

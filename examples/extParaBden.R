@@ -1,7 +1,10 @@
 #### clear workspace, load package, remove graphics ####
+
 rm(list=ls())
 devtools::load_all()
 graphics.off()
+
+source('./temp/Init_BDEN.R')
 
 #### Model definieren ####
 modelJakStat  <- function(t, x, parameters, input) {
@@ -99,3 +102,24 @@ solJakStat <- deSolve::ode(y = y, evalTimes, func = "derivsc",
 solJakStat
 plot(solJakStat)
 #file.edit("model.c")
+
+
+
+
+BDEN(observation_time   = as.matrix(DATA$observations[["time"]]),
+     observations       = DATA$observations,
+     initialvalues      = DATA$X_0,
+     parameters         = DATA$parameters,
+     inputData          = as.matrix(DATA$inputData),
+     numberstates       = DATA$N,
+     std                = DATA$variance,
+     settings           = SETTINGS,
+     mcmc_component     = MCMC_component,
+     loglikelihood_func = LOGLIKELIHOOD_func,
+     gibbs_update       = GIBBS_update,
+     ode_sol            = ode_solv,
+     
+     numbertrialsstep   = 8,
+     numbertrialseps    = 500,
+     numbertrialinner   = 15,
+     lambda             = .001)

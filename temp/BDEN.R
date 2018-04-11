@@ -36,10 +36,11 @@ if(grepl("Rtools",Sys.getenv('PATH'))){
 } else {
   cat('No installation of Rtools detected. Rtools is requiered for method BDEN.\n')
 }
-
+  COUNTER = 1
+  COUNTER2 = 1
 ##################################################################################
   
-  X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*numberstates),2),0)
+  X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*numberstates),2))
   
   X_ERROR        <- cbind(abs(abs(observations["STAT5"])-abs(X_MODEL["x1"])),abs(abs(observations["STAT5ptot_cyt"])-parameters["s1"]*abs(X_MODEL["x2"]+2*X_MODEL["x3"])),abs(abs(observations["STAT5p_cyt"])-parameters["s2"]*abs(X_MODEL["x1"]+X_MODEL["x2"]+2*X_MODEL["x3"])))
   
@@ -105,7 +106,7 @@ for (STEP in 2:length(EPS_TIME)){
     GIBBS_PAR_IT$TAU            <- G_U$TAU 
   }
   EPSILON[STEP,]              <- colMeans(EPSILON_IT$CONT[-1,])
-  SOLUTION                    <- ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),],EPS_TIME[c(STEP-1,STEP)])
+  SOLUTION                    <- ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),])
   
   YINIT                       <- setNames(SOLUTION[2,seq(2,dim(SOLUTION)[2],1)],c("x1","x2","x3","x4"))
   SIGMA[[STEP]]               <- VAR$SIGMA

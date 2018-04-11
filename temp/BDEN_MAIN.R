@@ -10,23 +10,23 @@ DATA <- Data_Model()
 ##################################################################################
 
 
-#BDEN(observation_time = as.matrix(DATA$observations[["time"]]),
-#observations     = DATA$observations,
-#initialvalues    = DATA$X_0,
-#parameters       = DATA$parameters,
-#inputData        = as.matrix(DATA$inputData),
-#numberstates     = DATA$N,
-#std=DATA$variance,
-#settings= SETTINGS,
-#mcmc_component = MCMC_component,
-#loglikelihood_func =LOGLIKELIHOOD_func,
-#gibbs_update = GIBBS_update,
-#ode_sol=ode_solv,
+BDEN(observation_time = as.matrix(DATA$observations[["time"]]),
+observations     = DATA$observations,
+initialvalues    = DATA$X_0,
+parameters       = DATA$parameters,
+inputData        = as.matrix(DATA$inputData),
+numberstates     = DATA$N,
+std=DATA$variance,
+settings= SETTINGS,
+mcmc_component = MCMC_component,
+loglikelihood_func =LOGLIKELIHOOD_func,
+gibbs_update = GIBBS_update,
+ode_sol=ode_solv,
 
-#numbertrialsstep = 8,
-#numbertrialseps  = 500,
-#numbertrialinner = 15,
-#lambda           = .001)
+numbertrialsstep = 8,
+numbertrialseps  = 500,
+numbertrialinner = 15,
+lambda           = .001)
 
 
 BDEN <- function(observation_time,
@@ -69,7 +69,7 @@ if(grepl("Rtools",Sys.getenv('PATH'))){
 }
 
   ##################################################################################
-  X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*numberstates),2),0)
+  X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*numberstates)))
   
   X_ERROR        <- cbind(abs(abs(observations["STAT5"])-abs(X_MODEL["x1"])),abs(abs(observations["STAT5ptot_cyt"])-parameters["s1"]*abs(X_MODEL["x2"]+2*X_MODEL["x3"])),abs(abs(observations["STAT5p_cyt"])-parameters["s2"]*abs(X_MODEL["x1"]+X_MODEL["x2"]+2*X_MODEL["x3"])))
   
@@ -135,10 +135,9 @@ for (STEP in 2:length(EPS_TIME)){
     GIBBS_PAR_IT$TAU            <- G_U$TAU 
   }
   EPSILON[STEP,]              <- colMeans(EPSILON_IT$CONT[-1,])
-  SOLUTION                    <- ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),],EPS_TIME[c(STEP-1,STEP)])
+  SOLUTION                    <- ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),])
   
-  YINIT                       <- setNames(SOLUTION[2,seq(2,dim(SOLUTION)[2],1)],c("x1","x2","x3","x4"))
-  SIGMA[[STEP]]               <- VAR$SIGMA
+    SIGMA[[STEP]]               <- VAR$SIGMA
 }
 
 }

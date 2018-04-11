@@ -1,8 +1,7 @@
 
 
 source('./temp/Init_BDEN.R')
-COUNTER = 1
-COUNTER2 = 1
+
 
 
 DATA <- Data_Model()

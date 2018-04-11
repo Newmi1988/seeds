@@ -15,7 +15,7 @@ Data_Model <- function(NAME = 'JAKSTAT'){
     
     VARIANCE <- cbind(OUTPUTDATA['time'],OUTPUTDATA['sd_STAT5p_cyt'],OUTPUTDATA['sd_STAT5ptot_cyt'])
     
-    OBSERVATIONS <- cbind(OUTPUTDATA['time'],((OUTPUTDATA['STAT5ptot_cyt']/PARAMETERS['s2'])-(OUTPUTDATA['STAT5p_cyt']/PARAMETERS['s1'])),OUTPUTDATA['STAT5ptot_cyt'],OUTPUTDATA['STAT5p_cyt'],(X_0['x1_0']-(OUTPUTDATA['STAT5ptot_cyt']/PARAMETERS['s2']))/2/(1400/450))
+    OBSERVATIONS <- cbind(OUTPUTDATA['time'],((OUTPUTDATA['STAT5ptot_cyt']/PARAMETERS['s2'])-(OUTPUTDATA['STAT5p_cyt']/PARAMETERS['s1'])),OUTPUTDATA['STAT5ptot_cyt'],OUTPUTDATA['STAT5p_cyt'],(X_0[1]-(OUTPUTDATA['STAT5ptot_cyt']/PARAMETERS['s2']))/2/(1400/450))
     OBSERVATIONS[OBSERVATIONS<0] <- 0
     colnames(OBSERVATIONS) <- c("time", "STAT5" ,"STAT5p_cyt","STAT5ptot_cyt","STAT5_n")
     N <- length(OBSERVATIONS)-1
