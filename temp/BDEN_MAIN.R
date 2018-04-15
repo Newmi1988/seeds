@@ -1,10 +1,13 @@
 
 source('./temp/Init_BDEN.R')
-COUNTER = 1
-COUNTER2 = 1
 
 
 DATA <- Data_Model()
+
+
+
+
+
 
 
 ##################################################################################
@@ -37,10 +40,13 @@ BDEN <- function(observation_time,
                  numberstates,
                  std,
                  settings,
+                 model,
                  mcmc_component,
                  loglikelihood_func,
                  gibbs_update,
                  ode_sol,
+                 model,
+                 measFunc, 
                  
                  numbertrialsstep = 8,
                  numbertrialseps  = 500,
@@ -48,28 +54,28 @@ BDEN <- function(observation_time,
                  lambda           = .001){
 
 
-if(grepl("Rtools",Sys.getenv('PATH'))){
-  cat('Rtools found. Using compiled code for more performance.\n')
-
-  # check system format for dynamic library
-  ext <- .Platform$dynlib.ext
+  #### Function welche die C files erstellt. ####
+  
+  
+  createCompModel(modelFunc = model, parameters = parameter, bden = TRUE)
+  ext <- .Platform$dynlib.ext #erkenne plattform um die shared libary unter Linux und Windoes laden zu können
+  
+  # name des shared library objects
   compiledModel <- paste0('model',ext)
-
-  # unload dynlib if is already loaded make rewriting enable
+  
+  # falls die shared library schon geladen ist muss diese wieder "entladen" werden,
+  # damit der compiler diese neu schreiben kann (falls Änderungen gemacht wurden am Modell usw.)
   if(is.loaded('derivsc')){
     dyn.unload(compiledModel)
   }
-
+  # kompilieren des modells
   system("R CMD SHLIB model.c")
-
-
+  # laden der shared lib.
   dyn.load(compiledModel)
-} else {
-  cat('No installation of Rtools detected. Rtools is requiered for method BDEN.\n')
-}
+  
 
   ##################################################################################
-  X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*numberstates)))
+  X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*4),2))
   
   X_ERROR        <- cbind(abs(abs(observations["STAT5"])-abs(X_MODEL["x1"])),abs(abs(observations["STAT5ptot_cyt"])-parameters["s1"]*abs(X_MODEL["x2"]+2*X_MODEL["x3"])),abs(abs(observations["STAT5p_cyt"])-parameters["s2"]*abs(X_MODEL["x1"]+X_MODEL["x2"]+2*X_MODEL["x3"])))
   
@@ -78,6 +84,9 @@ if(grepl("Rtools",Sys.getenv('PATH'))){
   GRADIENT       <- cbind(abs(diff(X_ERROR[,1])/diff(observation_time)),abs(diff(X_ERROR[,2])/diff(observation_time)),abs(diff(X_ERROR[,3])/diff(observation_time)))
   
 ##################################################################################
+  COUNTER = 1
+  COUNTER2 = 1
+  
 MCMC_SET                  <- list()
 GIBBS_PAR_IT              <- list()
 EPSILON_IT                <- list()
@@ -119,7 +128,7 @@ for (STEP in 2:length(EPS_TIME)){
     VAR$DIAG                    <- diag((GIBBS_PAR_IT$TAU+GIBBS_PAR_IT$LAMBDA2)^-1)
    
      MCMC_RESULTS                 <- mcmc_component(loglikelihood_func, MCMC_SET$EPS_step_size, MCMC_SET$EPS_step_size_inner, EPSILON_IT$CONT[TRIALS-1,],S,
-                                     STEP,observations,EPSILON_IT$Y0,inputData,parameters,EPSILON_IT$ACT,VAR$SIGMA,VAR$DIAG,GIBBS_PAR,numberstates,MCMC_SET$BURNIN_inner)
+                                     STEP,observations,EPSILON_IT$Y0,inputData,parameters,EPSILON_IT$ACT,VAR$SIGMA,VAR$DIAG,GIBBS_PAR,numberstates,MCMC_SET$BURNIN_inner,measFunc)
   
      MCMC_RESULT_THIN            <- coda::mcmc(MCMC_RESULTS, start = MCMC_SET$BURNIN,end=dim(MCMC_RESULTS)[1],thin=10)
     
