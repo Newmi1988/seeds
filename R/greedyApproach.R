@@ -180,28 +180,38 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     error <- matrix(rep(0,2),ncol=2)
     colnames(error) <- c('alpha','MSE')
 
-    noCores <- parallel::detectCores() -1
-    if(noCores > 1){
+    numCores <- parallel::detectCores() -1
+    if(numCores > 1){
+      
+      
+      worker.init <- function() {
+        dyn.load(compiledModel)
+      }
 
       cat('More than 1 core detected, using parallel computing.\n')
-      exportVars <- c('dynElasticNet','measFunc', 'y', 'costate')
+      exportVars <- c('dynElasticNet', 'y', 'costate')
 
-      cl <- parallel::makeCluster(noCores)
+      cl <- parallel::makeCluster(numCores)
+      if(grepl("Rtools",Sys.getenv('PATH'))){
+        parallel::clusterCall(cl, worker.init)
+      }
       doParallel::registerDoParallel(cl)
 
-      estiAlpha2 <- foreach::foreach(i = 1:steps, .export = exportVars) %dopar% {
+      estiAlpha2 <- foreach::foreach(i = 1:steps, .export = exportVars) 
+      estiAlpha2 = foreach::'%dopar%'(estiAlpha2,
         dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta,x0 = x0, optW = optW, eps = epsilon,
                       times=times, measFunc= measFunc, measData = measData, STD = std, constStr = cString,
                       alpha1 = 0, alpha2 = alpha2Start*10^(1-i), modelInput = systemInput,
                       parameters = parameters, modelFunc = modelFunc,maxIteration=100, plotEsti = FALSE, conjGrad = conjGrad)
-      }
+      )
       parallel::stopCluster(cl)
+      closeAllConnections()
       error[1,] = c( 10^(1-1),mean(estiAlpha2[[1]]$rmse))
       for( i in 2:steps) {
         error = rbind(error,c( alpha2Start*10^(1-i),mean(estiAlpha2[[i]]$rmse)))
       }
+      
       print(error)
-
 
     } else {
 
@@ -223,12 +233,14 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       }
     }
 
-    slopeErr <- diff(error[,1]) / diff(error[,2])
-    slopeErr = slopeErr[which(slopeErr >0 )]
-    changeTresh <- min(which(slopeErr <0.5)) + 1
+    slopeErr <- abs(diff(error[,1]) / diff(error[,2]))
+    #slopeErr = slopeErr[which(slopeErr >0 )]
+    changeTresh <- min(which(slopeErr <0.5))
 
-    alpha2 = alpha2Start*10^(-changeTresh)  # alpha2 is selected based on the squared error at the given measurement times
-    results <- estiAlpha2[[changeTresh-1]]     # use the estimated results of the estimation for saving time
+    alpha2 = error[changeTresh+1,1]  # alpha2 is selected based on the squared error at the given measurement times
+    results <- estiAlpha2[[changeTresh+1]]     # use the estimated results of the estimation for saving time
+
+    cat('Conservativ estimated alpha2=',alpha2)
 
 
   } else {
