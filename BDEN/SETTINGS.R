@@ -2,7 +2,7 @@ SETTINGS <- function(VARIANCE,N,BETA_LAMDBA){
 
     R     <- rep(0,2)
     ROH   <- rep(0,2)
-    PHI   <- MASS::fitdistr(1/(c(VARIANCE[["sd_STAT5p_cyt"]],VARIANCE[["sd_STAT5ptot_cyt"]])), "gamma")
+    PHI   <- MASS::fitdistr(1/(c(VARIANCE[[1]],VARIANCE[[2]])), "gamma")
     ALPHA <- rep(1,N)*PHI[[1]][1]
     BETA  <- c(1,1,1,.1)*(PHI[[1]][2])*BETA_LAMDBA
     R[2]      <- 1000
