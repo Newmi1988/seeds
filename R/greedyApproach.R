@@ -331,7 +331,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     outputMeas <- as.data.frame(resAlg[[i-1]]$y)
     
     if(is.null(std)) {
-      emptyStd <- matrix(rep(0,length(measData[,-1])), ncol=ncol(measData[,-1]))
+      emptyStd <- matrix(rep(0,length(measData[,-1, drop=FALSE])), ncol=ncol(measData[,-1, drop=FALSE]))
       dataError <- data.frame(t=measData[,1],emptyStd)
       colnames(dataError) <- c("t",paste0('y',1:(ncol(emptyStd))))
     } else {
@@ -339,7 +339,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       colnames(dataError) <- c("t",paste0('y',1:(ncol(std))))
     }
     
-    colnames(measData) <- c("t",paste0('y',1:(ncol(measData[,-1]))))
+    colnames(measData) <- c("t",paste0('y',1:(ncol(measData[,-1, drop=FALSE]))))
     
     nomStates <- as.data.frame(resAlg[[i-1]]$nomX)
     colnames(nomStates)[1] = "t"
