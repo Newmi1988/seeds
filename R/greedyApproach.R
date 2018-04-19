@@ -256,16 +256,21 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     resAlg[[1]] <- results
     i = 2
   } else {
+    
+    if(sum(optW)!=length(optW)){
+      cat('sum(optW)=',sum(optW))
+      cat('length(optW)=',length(optW))
+      iter <- iter+1
+    }
     orgOptW <- optW <- results$optW
     orgAUC <- results$AUC
     optWs <- list()
     costError <- cbind(rep(0,length(optW)),rep(0,length(optW)))
     colnames(costError) <- c('sum(MSE)','cost')
     
-    if(sum(optW)!=length(optW)){
-      iter <- iter+1
-    }
-    
+
+
+    print(paste0('iter:',iter))
 
     for(i in 1:(iter-1)) {
       cat('_________________________________________\n')
