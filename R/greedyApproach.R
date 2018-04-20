@@ -149,9 +149,12 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   odeEq <- isDynElaNet(odeEq)
   odeEq <- calculateCostate(odeEq)
   createFunctions(odeEq)
-  if(grepl("Rtools",Sys.getenv('PATH')) || (.Platform$OS.type=="unix")){
-    cat('Rtools found. Using compiled code for more performance.\n')
-    
+  if(grepl("Rtools",Sys.getenv('PATH')) || (.Platform$OS.type!="windows")){
+    if(.Platform$OS.type != "windows"){
+      cat('Using compiled code for more speed.')
+    } else {
+      cat('Rtools found. Using compiled code for more performance.\n')
+    }
     # check system format for dynamic library
     ext <- .Platform$dynlib.ext
     compiledModel <- paste0('model',ext)
