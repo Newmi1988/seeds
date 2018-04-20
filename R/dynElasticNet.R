@@ -106,7 +106,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     inputApprox <- list(cbind(times,rep(0,length(times))))
   }
   
-  if(grepl("Rtools",Sys.getenv('PATH'))){
+  if(grepl("Rtools",Sys.getenv('PATH'))|| (.Platform$OS.type=="unix")){
     w <- matrix(rep(0,length(x0)*length(times)), ncol = length(x0))
     wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
     wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
@@ -161,7 +161,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     for (i in 1:iter) {
       newW = oldW + alpha*gradStep
       
-      if(grepl("Rtools",Sys.getenv('PATH'))){
+      if(grepl("Rtools",Sys.getenv('PATH'))|| (.Platform$OS.type=="unix")){
         wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
         wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
         forcings <- c(inputApprox, wList)
@@ -210,7 +210,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       alpha3 <- 0.5*(alphaA+alphaB)
       newW = oldW + alpha3*gradStep
       
-      if(grepl("Rtools",Sys.getenv('PATH'))){
+      if(grepl("Rtools",Sys.getenv('PATH'))|| (.Platform$OS.type=="unix")){
         wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
         wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
         forcings <- c(inputApprox, wList)
@@ -263,7 +263,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     alphaTemp <- cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2)
     newW = oldW + alphaTemp*gradStep
     
-    if(grepl("Rtools",Sys.getenv('PATH'))){
+    if(grepl("Rtools",Sys.getenv('PATH'))|| (.Platform$OS.type=="unix")){
       wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
       wList <- lapply(wSplit, FUN = function(x) cbind(time,x))
       forcings <- c(inputApprox, wList)
@@ -502,7 +502,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     }
     inputState$wInterp <- apply(X = w, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
     
-    if(grepl("Rtools",Sys.getenv('PATH'))){
+    if(grepl("Rtools",Sys.getenv('PATH'))|| (.Platform$OS.type=="unix")){
     ### c solver
     wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
     wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
