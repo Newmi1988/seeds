@@ -57,3 +57,10 @@ results <- greedyApproach(alphaStep = 0.01, alpha2 = 0.4, Beta = 0.8, epsilon = 
                modelFunc = modelJakStat, plotEstimates = TRUE, conjGrad = FALSE, cString = JakStatConst))
 
 
+plot(results)
+
+statesAnno <- c("STAT5 cyt.", "STAT5p cyt.", "STAT5p-d cyt.", "stat5-d nucl")
+measurAnno <- c("total STAT5p", "total STAT5")
+
+plotAnno(results,stateAnno = statesAnno, measAnno =  measurAnno)
+
