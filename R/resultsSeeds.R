@@ -54,6 +54,14 @@ plotResultsSeeds  <- function(x,y) {
   if(!missing(y)){
     annoX <- y[[1]]
     annoY <- y[[2]]
+    if(length(annoX) != length(names(seedsobj@stateEstimates[,-1]))){
+      stop('Number of names has to be be equal to the number of states')
+    }
+    
+    if(length(annoY) != length(names(seedsobj@outputEstimates[,-1]))){
+      stop('Length of measurement annotations character vector has to be equal to the number of states')
+    }
+    
   } else {
     annoX <- names(seedsobj@stateEstimates[,-1])
     annoY <- names(seedsobj@outputEstimates[,-1])
