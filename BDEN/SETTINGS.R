@@ -1,17 +1,30 @@
-SETTINGS <- function(VARIANCE,N,BETA_LAMDBA){
-
+SETTINGS <- function(VARIANCE,N,BETA_LAMDBA,alpha,beta){
+  
+    if (length(alpha!=N)) alpha = rep(1,N)
+    if (length(beta!=N))  beta  = rep(1,N)
+    
     R     <- rep(0,2)
     ROH   <- rep(0,2)
-    PHI   <- MASS::fitdistr(1/(c(VARIANCE[[1]],VARIANCE[[2]])), "gamma")
-    ALPHA <- rep(1,N)*PHI[[1]][1]
-    BETA  <- c(1,1,1,.1)*(PHI[[1]][2])*BETA_LAMDBA
+    
+    CONTAINER  <- VARIANCE[,2]
+    
+    for (i in 3:length(VARIANCE[1,]-1)){
+      CONTAINER= c(CONTAINER,VARIANCE[,i])
+    }
+    
+
+    PHI   <- MASS::fitdistr(1/CONTAINER, "gamma")
+    
+    
+    ALPHA <- rep(1,N)*PHI[[1]][1]*alpha
+    BETA  <- rep(1,N)*(PHI[[1]][2])*BETA_LAMDBA*beta
     R[2]      <- 1000
     ROH[2]    <- 10
     R[1]      <- 1000
     ROH[1]    <- 10
     
-    TAU     <- c(1,1,1,1)
-    LAMBDA1 <- c(1,1,1,1)
+    TAU     <- rep(1,N)
+    LAMBDA1 <- rep(1,N)
     LAMBDA2 <- 1 
     
     LIST <- list(R,ROH,ALPHA,BETA,TAU,LAMBDA1,LAMBDA2)

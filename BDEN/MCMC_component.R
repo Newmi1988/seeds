@@ -2,10 +2,8 @@ MCMC_component <- function(LOGLIKELIHOOD_func, STEP_SIZE, STEP_SIZE_INNER , EPSI
                            STEP,OBSERVATIONS,Y0,INPUTDATA,PARAMETER,EPSILON_ACT,SIGMA,DIAG,GIBBS_par, N, BURNIN,objective){
 
   number_species = N
-  epsilon_container=matrix(rep(0,number_species*(STEP_SIZE+1)*(STEP_SIZE_INNER+1)),((STEP_SIZE+1)*(STEP_SIZE_INNER+1)))
+  epsilon_container=matrix(rep(0,(STEP_SIZE+1)*number_species),((STEP_SIZE+1)))
 
-    
-    rbind(rep(0,number_species),rep(0,number_species));
     
     
     epsilon_container[2,]=EPSILON_ACT[2,]

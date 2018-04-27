@@ -68,7 +68,7 @@ if (index == 1){
 }
 
 
-BDEN(observation_time   = measure[['time']],
+A <- BDEN(observation_time   = measure[['time']],
      observations       = y,
      initialvalues      = x0,
      parameters         = parameters,
@@ -81,4 +81,8 @@ BDEN(observation_time   = measure[['time']],
      gibbs_update       = GIBBS_update,
      ode_sol            = ode_solv,
      model              = modelJakStat,
-     measFunc           = objectiveJakStat)
+     measFunc           = objectiveJakStat),
+     
+     numbertrialsstep = 3,
+     numbertrialseps  = 500,
+     numbertrialinner = 3)

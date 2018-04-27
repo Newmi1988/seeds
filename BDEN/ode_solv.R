@@ -19,6 +19,8 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
                                      "w3t0" = w_estimate[1,3], 
                                      "w4t0" = w_estimate[1,4])
   w <- matrix(rep(0,length(x_0)*length(times)), ncol = length(x_0))
+
+  #print(x_0)
   # konstante hidden inputs über die Zeit
   w[,1] = w_estimate[2,1]
   w[,2] = w_estimate[2,2]
@@ -37,9 +39,29 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
   
   parameters = c(parameter, parametersW)
 
-  sol = deSolve::ode(y = x_0, time=times, func = "derivsc",
-                      parms = parameters, dllname = "model", initforc="forcc",
-                      forcings = forcings, initfunc = "parmsc")
+runSilent <- function() {
+   options(warn = -1)
+  on.exit(options(warn = 0))
+   capture.output(sol <- deSolve::ode(y = x_0, time=times, func = "derivsc",
+                                     parms = parameters, dllname = "model", initforc="forcc",
+                                     forcings = forcings, initfunc = "parmsc"))
+  sol
+}
+
+sol <- runSilent()
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+
   
    if (!is.null(sol)) sol[sol> -0.00001&sol<0] <-0
     
