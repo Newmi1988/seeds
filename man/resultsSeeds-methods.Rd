@@ -3,17 +3,29 @@
 \docType{methods}
 \name{plot,resultsSeeds,missing-method}
 \alias{plot,resultsSeeds,missing-method}
+\alias{plotAnno,resultsSeeds-method}
 \title{Plot method for the S4 class resultsSeeds}
 \usage{
 \S4method{plot}{resultsSeeds,missing}(x, y)
+
+\S4method{plotAnno}{resultsSeeds}(x, stateAnno, measAnno)
 }
 \arguments{
 \item{x}{an object of type resultsSeeds which contains the results of the algorithms}
 
 \item{y}{...}
+
+\item{stateAnno}{a character vector describing the names of the states}
+
+\item{measAnno}{a character vector describing the names of the measurements}
+
+\item{x}{an object of type resultsSeeds which contains the results of the algorithms}
 }
 \description{
 A standardized plot function to display the results of the algorithms. Both
 algorithms should result in objects of the class resultsSeeds. The results can
 be plotted using the \code{\link{plot}}-function.
+
+Create a annotated plot with given state and measurement names. The plots are
+equal to the output of the normal plot function.
 }
