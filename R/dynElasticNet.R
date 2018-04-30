@@ -324,7 +324,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       if(is.null(STD)){
         plot(x = measureTimes, y = y[,i], type = 'p', pch = 20, col = 'black', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
       } else {
-        Hmisc::errbar(x = measureTimes, y = y[,i], yplus = y[,i]+STD[,i], yminus = y[,i]-STD[,i], ylab = yLab, ylim = c(yMin, yMax), add = FALSE)
+        Hmisc::errbar(x = measureTimes, y = y[,i], yplus = y[,i]+STD[,i], yminus = y[,i]-STD[,i], ylab = yLab, xlab = 't', ylim = c(yMin, yMax), add = FALSE)
       }
       par(new=T)
       plot(x = tPlot, y = yhat[,i], type='l', col = 'red', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
@@ -332,7 +332,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
       plot(x = tPlot, y = yNom[,i], type='l', col = 'blue', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
     }
     plot(J, type = 'l', xlab = 'iteration', ylab = 'J[w]', lwd = width)
-    matplot(x = tPlot, y = w, type='l', col = 'red', lwd = width)
+    matplot(x = tPlot, y = w, type='l', col = 'red', xlab = 't', lwd = width)
   }
 
   createConst <- function(constString,needGrad) {
@@ -458,15 +458,13 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     oldW = w
 
     if(conjGrad){
+      gNeg = P + alpha2*w
       if(i==1){
-        gNeg = P - alpha2*w
         oldGrad = -gNeg
         step = gNeg
       }
       else {
-        gNeg = P - alpha2*w
-        
-        # newInt <- apply(X = -gNeg, MARGIN = 2, FUN = function(x) pracma::trapz(Tp, x^2))
+
         newGrad <- gNeg * (gNeg + oldGrad)
         newInt <- apply(X = newGrad, MARGIN = 2, FUN = function(x) pracma::trapz(Tp, x))
 
@@ -481,7 +479,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
 
       }
     } else {
-      step = P - alpha2*w
+      step = P + alpha2*w
     }
 
 
