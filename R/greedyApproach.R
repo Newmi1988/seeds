@@ -246,7 +246,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
       }
     
-    print(error)
+      print(error)
     slopeErr <- abs(diff(error[,1]) / diff(error[,2]))
     #slopeErr = slopeErr[which(slopeErr >0 )]
     changeTresh <- min(which(slopeErr <0.5))
@@ -282,9 +282,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     costError <- cbind(rep(0,length(optW)),rep(0,length(optW)))
     colnames(costError) <- c('sum(MSE)','cost')
     
-
-
-    print(paste0('iter:',iter))
 
     for(i in 1:(iter-1)) {
       cat('_________________________________________\n')
