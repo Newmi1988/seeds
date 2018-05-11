@@ -4,7 +4,6 @@
 #' @param armijoBeta  scaling of the alphaStep to find a approximatly optimal value for the stepsize
 #' @param x0 initial state of the ode system
 #' @param parameters parameters of the ODE-system
-#' @param times measurement times at which the estimations will be evaluated
 #' @param alpha1 L1 cost term skalar
 #' @param alpha2 L2 cost term skalar
 #' @param measData measured values of the experiment
@@ -22,7 +21,7 @@
 #'
 #' @return A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the costfunction
 #' @export
-dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2,measData, constStr,
+dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measData, constStr,
                           STD,modelFunc,measFunc,modelInput,optW,origAUC,maxIteration,plotEsti, conjGrad, eps) {
 
   source('stateHiddenInput.R')
@@ -51,6 +50,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   optInit <- sum(optW)  # Anzahl der zu optimierenden Inputs
 
   N <- 100
+  times <- measData[,1]
   t0 <- times[1]
   tf <- utils::tail(times, n=1)
   times <- seq(from = t0, to = tf, length.out = N)
@@ -346,7 +346,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
     }
     eq <- trim(gsub(pattern = 'list\\(||\\)\\)', replacement = "", x = eqs))
     eq = gsub(pattern = '==', replacement = '=', x = eq)
-    eq = gsub(pattern = "(x)([0-9])", replacement = 'P[,\\2]', x = eq)
+    eq = gsub(pattern = "(x)([0-9]*)", replacement = 'P[,\\2]', x = eq)
     eq = gsub(pattern = cont, replacement = '', x = eq)
     return(eq)
   }
@@ -424,7 +424,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,times,alpha1,alpha2
   J <- rep(0,maxIter)
   J[1] = costFunction(measureTimes,input,alphaDynNet)
   cat('\n')
-  cat(paste0('nominal cost J[w]= ',J[1],'\n'))
+  cat(paste0('Cost nominal model J[w]= ',J[1],'\n'))
   
   #initialize objects (testing for speed)
   lT <- rep(0,ncol(x))
