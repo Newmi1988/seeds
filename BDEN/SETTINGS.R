@@ -1,3 +1,5 @@
+#' calculation of best intial settings
+
 SETTINGS <- function(VARIANCE,N,BETA_LAMDBA,alpha,beta){
   
     if (length(alpha!=N)) alpha = rep(1,N)

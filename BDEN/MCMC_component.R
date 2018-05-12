@@ -1,3 +1,5 @@
+#' mcmc sampler
+
 MCMC_component <- function(LOGLIKELIHOOD_func, STEP_SIZE, STEP_SIZE_INNER , EPSILON, JUMP_SCALE,
                            STEP,OBSERVATIONS,Y0,INPUTDATA,PARAMETER,EPSILON_ACT,SIGMA,DIAG,GIBBS_par, N, BURNIN,objective){
 
@@ -35,7 +37,7 @@ for (ii in 2:STEP_SIZE+1){
         ratio     <- exp(ratio_new-ratio_old-dnorm(eps1[,k],MU_jump,JUMP_SCALE,log=TRUE)+dnorm(epsilon_container[ii-1,k],MU_jump,JUMP_SCALE,log=TRUE))
 
         
-     if (sum(is.na(ratio))==STEP_SIZE_INNER){print(paste0('Internal Error; BREAK;',ii))}
+     if (sum(is.na(ratio))==STEP_SIZE_INNER){}#{print(paste0('Internal Error; BREAK;',ii))}
     else{
       if (0.95 < max((ratio),na.rm=T)){
 

@@ -1,3 +1,38 @@
+#' Bayesian Dynamic Elastic Net
+#'
+#' Full Bayesian algortihm to detect hidden inputs in ODE based models.The algortihm 
+#' is an extention of the Dynamic Elastic Net algorithm (Engelhardt et al. 2016) inpiered by the Elastic-Net Regression.
+#'
+#' @param observation_time     observed time points
+#' @param observations         observed state dynamics e.g. protein concentrations
+#' @param initialvalues        initial values
+#' @param parameters           model parameters 
+#' @param inputData            discrete input function e.g. stimuli
+#' @param numberstates         number of modeled states
+#' @param std                  standard error
+#' @param settings             initial model specific settings
+#' @param model                ODE system
+#' @param mcmc_component       used sampling algorithm
+#' @param loglikelihood_func   used likelihood function
+#' @param gibbs_update         used gibbs algorithm
+#' @param ode_sol              used ode solver
+#' @param measFunc             link function to match observations with modeled states
+#' @param numbertrialsstep     number of sampels per timepoint
+#' @param numbertrialseps      number of samples per mcmc step
+#' @param numbertrialinner     number of inner samples
+#' @param lambda               inital shrinkage parameter
+#' @param Grad_correct         used for intial mcmc step size calculation 
+#' @param alpha                mcmc tuning paramter
+#' @param beta                 mcmc tunig parameter
+#'
+#' @return                     returns a results-object with default plot function
+#'
+#' @example /examples/exampleBDEN.R
+#' 
+#' @export
+#' 
+#' 
+
 BDEN <- function(observation_time,
                  observations,
                  initialvalues,
@@ -20,6 +55,23 @@ BDEN <- function(observation_time,
                  Grad_correct     = 0,
                  alpha            = c(1,1,1,1  ),
                  beta             = c(1,1,1,0.1)){
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
 
@@ -142,11 +194,10 @@ BDEN <- function(observation_time,
     
     
 
-    print(EPSILON[c(STEP-1,STEP),])
+    print(EPSILON_IT$Y0)
     print(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),]))
     EPSILON_IT$NEW              <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),]),1))
-    print(EPSILON_IT$NEW)            
-
+ 
 
     
     SOLUTION                    <- rbind(SOLUTION,EPSILON_IT$Y0)
@@ -163,7 +214,7 @@ BDEN <- function(observation_time,
   }
   
   hiddenInpUnsclower <- EPSILONLOW
-  colnames(hiddenInpUnscLower)[1] <- "t"
+  colnames(hiddenInpUnsclower)[1] <- "t"
   
   hiddenInpUnscupper <- EPSILONUP
   colnames(hiddenInpUnscupper)[1] <- "t"

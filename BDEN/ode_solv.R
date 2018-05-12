@@ -1,3 +1,6 @@
+#' wrapper for the ode solver
+
+
 ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
 
   times = TIME

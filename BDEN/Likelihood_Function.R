@@ -1,4 +1,5 @@
-#log[L(G|x)P(G)]
+#' calculates the log likelihood log[L(G|x)P(G)]
+
 LOGLIKELIHOOD_func  <- function(pars,Step,OBSERVATIONS,x_0,parameters,EPS_inner,INPUT,D,GIBBS_PAR,k,MU_JUMP,SIGMA_JUMP,eps_new,objectivfunc){
   
 
