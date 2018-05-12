@@ -123,7 +123,7 @@ plotResultsSeeds  <- function(x,y) {
                   panel.border = ggplot2::element_blank(),
                   panel.grid.major = ggplot2::element_blank(),
                   panel.grid.minor = ggplot2::element_blank())+
-    ggplot2::facet_wrap(~facet, labeller = labelY)
+    ggplot2::facet_wrap(~facet, drop = TRUE, labeller = labelY)
   
   return(list(plot1,plot2, plot3))
   

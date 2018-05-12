@@ -3,11 +3,19 @@ getEquations <- function(model){
   extractModel <- function(model) {
     dpTestModel <- deparse(model,width.cutoff = 500)
     matches <- grepl("\\b[dx,dy][1-9]*",dpTestModel)
+    #matches <- grepl("\\bdx[1-9]*||\\bdy[1-9]*",dpTestModel)
     eq <- dpTestModel[matches] 
+    
+    ## error exstraxting the ode function because of parameter name ####
+    paraBoo <- grepl("para", eq)
+    eq <- eq[!paraBoo]
+    
+    
     listBoo <- grepl("list",eq)
     eq <- eq[!listBoo]
     listBoo = grepl("function", eq)
     eq <- eq[!listBoo]
+    
     return(eq) #return equation without a list statement if present
   }
 
