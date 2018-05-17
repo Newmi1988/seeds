@@ -27,31 +27,8 @@ uvbParameter = c(  ks1=0.23,
 x0 = c(0.2,10,2,0,0,20,0,0,0,4.2,0.25,20,0)
 
 uvbModel <- function(t,x,parameters) {
-  ks1 = parameters[1]
-  ks2 = parameters[2]
-  kdr1 = parameters[3]
-  kdr2 = parameters[4]
-  k1 = parameters[5]
-  k2 = parameters[6]
-  ka1 = parameters[7]
-  ka2 = parameters[8]
-  ka3 = parameters[9]
-  kd1 = parameters[10]
-  kd2 = parameters[11]
-  kd3 = parameters[12]
-  ks3 = parameters[13]
-  kdr3 = parameters[14]
-  uv = parameters[15]
-  ka4 = parameters[16]
-  kd4 = parameters[17]
-  n1 = parameters[18]
-  n2 = parameters[19]
-  n3 = parameters[20]
-  kdr3a = parameters[21]
-  kdr3b = parameters[22]
-  ksr = parameters[23]
-  fhy3_s = parameters[24]
-  
+  with (as.list(parameters),{
+
   dx1 = ((-2) * ((ka1 * (x[1]^2) * (x[4]^2)) - (kd1 * x[5])) + (-2) * ((ka2 * (x[1]^2) * x[2]) - (kd2 * x[3])) + ((ks1 *((1) + (uv * n3 * (x[11] + fhy3_s))))  - (kdr1 * ((1) + (n1 * uv)) * x[1])))
   dx2 = ((-1) * ((ka2*(x[1]^2) * x[2]) - (kd2 * x[3])) +(-1) * ((ka4 * x[2] * x[12]) - (kd4 * x[13])))
   dx3 = (((ka2 * (x[1]^2) * x[2]) - (kd2*  x[3]))) 
@@ -66,7 +43,8 @@ uvbModel <- function(t,x,parameters) {
   dx12 = ((-1) * (ka4 * x[2] * x[12]) + (kd4 * x[13]))
   dx13 =((ka4 * x[2] * x[12]) - (kd4 * x[13]))
   
-  return(list(c(dx1,dx2,dx3,dx4,dx5,dx6,dx7,dx8,dx9,dx10,dx11,dx12,dx13)))
+  list(c(dx1,dx2,dx3,dx4,dx5,dx6,dx7,dx8,dx9,dx10,dx11,dx12,dx13))
+  })
 }
 
 
