@@ -26,8 +26,6 @@ set to NULL for a approximation of alpha2 - will results in a longer runtime}
 
 \item{optW}{a vector that indicates for which knots of the network a input should be calculated}
 
-\item{times}{time sequence for which output is wanted; the first value of times must be the initial time}
-
 \item{measFunc}{a R-Function that is used for measurement of the states if the system is not completly
 measurable; an empty argument will result in the assumption that the complete system is
 measurable}
@@ -44,7 +42,7 @@ measurable}
 
 \item{modelFunc}{a R-Function that states the ODE system for which the hidden inputs should be calculated}
 
-\item{greedyLogical}{a boolean that states if the greedy approach should be used; if set to FALSE the algorithm
+\item{greedyLogical}{a boolean that states if the greedy approach should be used;if set to FALSE the algorithm
 will only use perform a calculation of the inputs for all knots without a sparse solution}
 
 \item{plotEstimates}{boolean that indicated if the current estimate should be shown}
@@ -149,10 +147,11 @@ y <- uvbData[,1:6]
 t <- uvbData$t
 sd <- uvbData[,7:11]
 system.time(
-res <- greedyApproach(alphaStep = 200, alpha2 = 0.0001, optW = rep(1,13), x0 = x0, std = sd,
-               measFunc = uvbMeasure,times = t, measData = y, epsilon = 0.1, Beta = 0.8,
+res <- greedyApproach(alphaStep = 200, alpha2 = 0.0002, optW = rep(1,13), x0 = x0, std = sd,
+               measFunc = uvbMeasure, measData = y, epsilon = 0.1, Beta = 0.8,
                parameters = uvbParameter, modelFunc = uvbModel, plotEstimates = TRUE, conjGrad = TRUE)
 )
 
 plot(res)
+
 }
