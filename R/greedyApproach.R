@@ -309,7 +309,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       ### solution for failed int  ####
       if(sum(colSums(resAlg[[i]]$w[,-1])) == 0) {
         orgAUC[which(optW>0)] = 0
-        print(orgAUC)
         optW <- resAlg[[i]]$optW - optW
       } else {
         optW <- resAlg[[i]]$optW

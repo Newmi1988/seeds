@@ -47,7 +47,8 @@ createFunctions <- function(odeEq){
 
       #check if additional variables are defined in model-function
       formatStr = sub(pattern = "d",replacement = "",formatStr)
-      addInputs = trimAddInputs(odeEq,addInputs,paraInput, formatStr)
+      
+      #addInputs = trimAddInputs(odeEq,addInputs,paraInput, formatStr)
 
       funcStartStr <- paste0(funcType," <-function(t,p,parameters,input) {")
       # funcStartStr <- append(funcStartStr,paste0("\twith (as.list(",paste(paraInput, collapse = ","),") {\n"),after = length(funcStartStr)+1)
@@ -130,46 +131,6 @@ createFunctions <- function(odeEq){
     return(arrayUniqueEntries)
   }
   
-  # function to check for setting variables
-  trimAddInputs <- function(odeEq,addInputs,paraInput, formatStr) {
-    
-    # get the definitions from the head of the eq
-    linesDef <- tolower(trimSpace(trim(odeEq@modelStr[grepl("<-|[=]",odeEq@modelStr)]))) #models with
-    eq <- trimSpace(odeEq@origEq)
-    # subsetting to get rid of model equation
-    defines <- linesDef[!linesDef %in% eq]
-    # split the variable 'devines' to get the defined variables
-    #definedPara
-    defines = unlist(strsplit(defines,split = "<-|="))
-    
-    
-    if(!is.null(defines)) {
-      
-      #remove the input
-      
-      definedPara <- defines[seq(from = 1, to = 2*length(defines), by = 2)]
-      paraInputEq <- defines[seq(from = 2, to = 2*length(defines), by = 2)]
-      
-      definedPara = definedPara[!is.na(definedPara)]
-      paraInputEq = paraInputEq[!is.na(paraInputEq)]
-      
-      
-      definedPara = unique(gsub(pattern = "[0-9]*",replacement = "", x = definedPara))
-      paraInputEq = unique(gsub(pattern = "\\[[a-z]*[0-9]*\\]",replacement = "", x = paraInputEq))
-
-      addInputs <- addInputs[!addInputs %in% definedPara]
-      addInputs = append(paraInputEq,addInputs)
-    } else {
-      addInputs = ""
-    }
-
-    if(sum(as.numeric(grepl(pattern = formatStr, addInputs)))>0) {
-      return(addInputs)
-    } 
-    else {
-      return(append(addInputs,formatStr))
-    }
-  }
   
   wrapperCreateFunc <- function(odeEq) {
     createCostate(formatFuncString(odeEq,"costate"))
