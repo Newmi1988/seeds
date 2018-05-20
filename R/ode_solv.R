@@ -7,13 +7,12 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
   
 
   if(!is.null(input)){
-    inputApprox <- apply(X = input[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approx(x = input[,1], y = x, xout = times, rule = 2))
+    inputApprox <- apply(X = input[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approx(x = input[,2], y = x, xout = times, rule = 2))
 
     inputApprox = list(cbind(times,inputApprox$u$y))
   } else {
     inputApprox <- list(cbind(times,rep(0,length(times))))
   }
-
   
   newW <- as.matrix(w_estimate[2,],1)
   
@@ -54,26 +53,10 @@ runSilent <- function() {
 
 sol <- runSilent()
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-  
-
-  
-   if (!is.null(sol)){
-     sol[sol> -0.00001&sol<0] <-0
-   } 
+   if (!is.null(sol)) sol[sol> -0.00001&sol<0] <-0
     
     
    if (is.null(sol)|((sum(sol< 0)!=0))){
-     print('N2')
     return(NA)}
     
     return(as.data.frame(sol[,1:length(x_0)+1]))
