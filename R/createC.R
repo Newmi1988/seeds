@@ -25,8 +25,10 @@ createCFile <- function(parameters, inputs,Eq, bden){
   #define parameters
   if(is.null(names(parameters))){
     para <- paste0('#define ',Eq@parameters,' parms[',1:length(Eq@parameters)-1,']')
+    paraStringList <- Eq@parameters
   } else {
     para <- paste0('#define ',names(parameters),' parms[',1:length(parameters)-1,']')
+    paraStringList <- names(parameters)
   }
   
   if(bden){
@@ -76,7 +78,10 @@ createCFile <- function(parameters, inputs,Eq, bden){
   eqC <- gsub(pattern = "(d*[x])([0-9]*)", replacement = "\\1[\\2]" , Eq@origEq)
   eqC = gsub(pattern = "(\\[[0-9]*)", replacement = "\\1 -1", eqC)
   eqC = unlist(lapply(X = eqC, FUN = Deriv::Simplify))
-  eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^[0-9]*", replacement = "\\1*\\1", eqC)
+  eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([a-z]+[0-9])+", replacement = "pow(\\1,\\2)", eqC)
+  eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([0-9]+)+", replacement = "pow(\\1,\\2)", eqC)
+  eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([a-z]+)", replacement = "pow(\\1,\\2)", eqC)
+  eqC = gsub(pattern = "([a-zA-Z]*[1-9]*)\\^([a-z]+[0-9])+", replacement = "pow(\\1,\\2)", eqC)
   eqC = gsub(pattern = "(t)([^a-z])", replacement = "*\\1\\2", eqC)
 
   eqC = paste0("\t",eqC,"+w",1:length(eqC),";")

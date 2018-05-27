@@ -19,7 +19,7 @@ modelJakStat  <- function(t, x, parameters, input) {
     u <- input$u(t)
 
     dx1 = -k1 * x[1]  * u
-    dx2 = k1 *  x[1]  * u - k2 * x[2]*x[2]
+    dx2 = k1 *  x[1]  * u - k2 * x[2]^2
     dx3 = -k3*x[3] + 0.5*k2*x[2]*x[2]
     dx4 = k3 * x[3]
 
