@@ -271,11 +271,9 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     i = 2
   } else {
     
-    if(sum(optW)!=length(optW)){
-      cat('sum(optW)=',sum(optW))
-      cat('length(optW)=',length(optW))
-      iter <- iter+1
-    }
+    # if(sum(optW)!=length(optW)){
+    #   iter <- iter+1
+    # }
     orgOptW <- optW <- results$optW
     orgAUC <- results$AUC
     optWs <- list()
@@ -305,7 +303,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
         cat('\n')
         break
       }
-      
+
       ### solution for failed int  ####
       if(sum(colSums(resAlg[[i]]$w[,-1])) == 0) {
         orgAUC[which(optW>0)] = 0
@@ -319,10 +317,14 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     if(grepl("Rtools",Sys.getenv('PATH'))){
       dyn.unload(compiledModel)
     }
-
+    
 
     if((length(resAlg)==(iter-1))) {
-      cat('The algorithm did stop at the last combination of hidden inputs. Returning last solution as best fit\n')
+      cat('Best solution for the given Problem.\n Returning solution with best fit\n')
+      costError <- costError[,2]
+      costError <- costError[costError>0]
+      i <- which(costError == min(costError))
+      cat('Best solution in interation: ',i)
       resAlg$optimalSol <- i
       resAlg$measurements <- measData
       i = i+1
@@ -332,7 +334,8 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     }
     
   }
-    
+
+  
     states <- as.data.frame(resAlg[[i-1]]$x[])
     colnames(states)[1] <- "t"
     stateUnsc <- states

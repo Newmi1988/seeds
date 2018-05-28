@@ -482,7 +482,6 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
   
   #### MAIN LOOP ####
   for (i in 1:maxIter) {
-    solCostate = deSolve::ode(y = lT, times = timesCostate, func = costate, parms = parameters, input=input)
     tryCatch(
       {
         R.utils::captureOutput(
