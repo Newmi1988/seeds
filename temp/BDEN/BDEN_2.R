@@ -48,9 +48,9 @@ BDEN <- function(observation_time,
                  ode_sol,
                  measFunc, 
                  
-                 numbertrialsstep = 10,
-                 numbertrialseps  = 500,
-                 numbertrialinner = 30,
+                 numbertrialsstep = 15,
+                 numbertrialseps  = 500*4,
+                 numbertrialinner = 15,
                  lambda           = .001,
                  Grad_correct     = 0,
                  alpha            = c(1,1,1,1  ),
@@ -133,7 +133,7 @@ BDEN <- function(observation_time,
   SIGMA            <- vector("list",dim(X_MODEL)[1]) 
   S                <- mean(GRADIENT)*2
   for (i in 1:length(SIGMA)){
-    SIGMA[[i]]      <- max(abs(diff(GRADIENT)))
+    SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.1
   }
   BETA_LAMBDA      <- lambda
   GIBBS_PAR        <- SETTINGS(std,numberstates,BETA_LAMBDA,alpha,beta)
@@ -145,6 +145,11 @@ BDEN <- function(observation_time,
   SOLUTIONLOW      <- YINIT*0
   SOLUTIONUP       <- YINIT*0
   EPSILON_IT$NEW   <- YINIT
+  print('S')
+  print(S)
+  print('SIGMA')
+  print(SIGMA)
+
   ##################################################################################
   
   
@@ -193,7 +198,7 @@ BDEN <- function(observation_time,
     
     LOW                         <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILONLOW[c(STEP-1,STEP),]),1))
     
-
+print(EPSILON[c(STEP-1,STEP),])
     EPSILON_IT$NEW              <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),]),1))
  
 

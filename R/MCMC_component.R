@@ -30,9 +30,9 @@ for (ii in 2:STEP_SIZE+1){
 {
 
         ratio_new <- sapply(eps1[,k],LOGLIKELIHOOD_func,Step=STEP,OBSERVATIONS=OBSERVATIONS,x_0=Y0,parameters=PARAMETER,EPS_inner=EPSILON_ACT[1,],
-                        D=DIAG,GIBBS_PAR=GIBBS_par,k=k,MU_JUMP=MU_jump,SIGMA_JUMP=JUMP_SCALE,eps_new=eps1[1,],INPUT=INPUTDATA,objectivfunc=objective)
+                        D=DIAG*SIGMA,GIBBS_PAR=GIBBS_par,k=k,MU_JUMP=MU_jump,SIGMA_JUMP=JUMP_SCALE,eps_new=eps1[1,],INPUT=INPUTDATA,objectivfunc=objective)
     
-        ratio_old <- LOGLIKELIHOOD_func(epsilon_container[ii-1,k],STEP,OBSERVATIONS,Y0,PARAMETER,EPSILON_ACT[1,],INPUTDATA,DIAG,GIBBS_par,k,MU_jump,JUMP_SCALE,eps_new=epsilon_container[ii-1,],objective)
+        ratio_old <- LOGLIKELIHOOD_func(epsilon_container[ii-1,k],STEP,OBSERVATIONS,Y0,PARAMETER,EPSILON_ACT[1,],INPUTDATA,DIAG*SIGMA,GIBBS_par,k,MU_jump,JUMP_SCALE,eps_new=epsilon_container[ii-1,],objective)
 
         ratio     <- exp(ratio_new-ratio_old-dnorm(eps1[,k],MU_jump,JUMP_SCALE,log=TRUE)+dnorm(epsilon_container[ii-1,k],MU_jump,JUMP_SCALE,log=TRUE))
 
