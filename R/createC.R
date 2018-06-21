@@ -115,7 +115,7 @@ createCFile <- function(parameters, inputs,Eq, bden){
 #' @param parameters a vector describing the parameters of the system. If names are missing the function
 #'                   tries to extract the declared parameters from the model function. 
 #'                   
-#' @param bden a boolean that indicates if the c-file is used for the mcmc algorithm
+#' @param bden a boolean that indicates if the c-file is used for the mcmc algorithm, default value is 'FALSE'
 #'                   
 #' @return None
 #'                   

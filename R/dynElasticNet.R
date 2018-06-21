@@ -7,7 +7,7 @@
 #' @param alpha1 L1 cost term skalar
 #' @param alpha2 L2 cost term skalar
 #' @param measData measured values of the experiment
-#' @param STD standard deviation of the experiment; leave empty if unknown
+#' @param SD standard deviation of the experiment; leave empty if unknown
 #' @param modelFunc function that describes the ODE-system of the model
 #' @param measFunc function that maps the states to the outputs
 #' @param optW vector that indicated at which knots of the network the alogrithm should estimate the hidden inputs
@@ -22,7 +22,7 @@
 #' @return A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the costfunction
 #' @export
 dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measData, constStr,
-                          STD,modelFunc,measFunc,modelInput,optW,origAUC,maxIteration,plotEsti, conjGrad, eps) {
+                          SD,modelFunc,measFunc,modelInput,optW,origAUC,maxIteration,plotEsti, conjGrad, eps) {
   
   source('stateHiddenInput.R')
   source('costate.R')
@@ -30,10 +30,16 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
   costate <- get('costate', envir = environment())
   hiddenInputState <- get('hiddenInputState', envir = environment())
   
-  
+  #### initialization ####
+  # optW 
+  # startOptW     vectors that indicates states that should be optimized
+  #         
+  # N             number of equidistant points the numerical solver evaluetes the model function
+  # t0, tf        limits of the interval the model is evaluated on
+  #               saved in tInt
+  # measureTimes  time values of the given measurements
+  # measureData   values of the measured data
   startOptW <- optW
-  
-  # Check for the optW vector, only states with an index of 1 will be calclated to enable the 'greedy' approach
   if (missing(optW)) {
     optW <- rep(1,length(x0))
   }
@@ -42,13 +48,6 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     plotEsti <- FALSE
   }
   
-  
-  
-  
-  
-  # Initial Options
-  optInit <- sum(optW)  # Anzahl der zu optimierenden Inputs
-  
   N <- 100
   times <- measData[,1]
   t0 <- times[1]
@@ -56,40 +55,51 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
   times <- seq(from = t0, to = tf, length.out = N)
   tInt <- c(t0,tf)
   
-  measureTimes <- measData[,1] # select the time points of the given data
-  measureData <- measData[,-1] # select the data
+  measureTimes <- measData[,1]
+  measureData <- measData[,-1]
   
-  # setting alpha1 = 0 for this approach
-  alphaDynNet <- list(a1 = alpha1, a2 = alpha2) # list of the alpha_1 and alpha_2 values
+  alphaDynNet <- list(a1 = alpha1, a2 = alpha2)
   
-  # interpolation of the standard deviations
-  if(is.null(STD)) {
-    # if the standard deviations are missing the weights are set to 1 for every point of measurement, no weights will be applied
+  #### interpolation of the data ####
+  # Q   matrix of weights based on a given standard deviation
+  #     Two cases
+  #     1. No standard deviation is given:
+  #         weights scales the measurements in order to eliminate bias from
+  #         extrem differences in measurements
+  #         (as suggested by Dominik Kahl)
+  #
+  #     2. Weights are calculated on given standard deviation (sd)
+  #         measurementpoints with high sd are given lower weights to include the
+  #         uncertainty of the measurement when estimating the trajectories
+  #
+
+  if(is.null(SD)) {
+    # Case 1
     measureData <- as.matrix(measureData)
     Q <- matrix(data = rep(1,length(measureData)), ncol = ncol(measureData))
-    ## normalization of the weights based on the meassured data as suggested by Dominik Kahl
-    Q <- Q / abs(measureData)
-    Q[is.infinite(Q)] = 0
-    Q[is.na(Q)] = 0
+      Q = Q / abs(measureData)
+      Q[is.infinite(Q)] = 0
+      Q[is.na(Q)] = 0
+      
     interpQ <- apply(X = Q, MARGIN = 2, FUN = function(t) stats::approx(x=measureTimes, y=t, xout = times))
     interpQ = do.call(cbind, lapply(interpQ, FUN = function(t) cbind(t$y)) )
     Q <- interpQ
   }
   else {
-    # interpolating the given standard deviations to be used as weights in the costete equation
-    interpSTD <- apply(X = STD, MARGIN = 2, FUN = function(t) stats::approx(x = measData[,1], y = t, xout = times))
-    interpSTD = do.call(cbind, lapply(interpSTD, FUN = function(t) cbind(t$y)))
-    Q <- apply(X = interpSTD, MARGIN = 2, FUN = function(t)  (1/t^2)/length(t) )
+    # Case 2
+    interpSD <- apply(X = SD, MARGIN = 2, FUN = function(t) stats::approx(x = measData[,1], y = t, xout = times))
+    interpSD = do.call(cbind, lapply(interpSD, FUN = function(t) cbind(t$y)))
+    Q <- apply(X = interpSD, MARGIN = 2, FUN = function(t)  (1/t^2)/length(t) )
   }
   
-  # get the trajectories of the nominal mondel without inputs
-  # using deSolve 'ode' function
-  # the first evaluation of the costfunction is based on the nominal model with hidden inputs constant at zero for all times
   if(all(is.null(names(x0)))) {
     names(x0) <- paste0(rep("x",length(x0)),1:length(x0))
   }
   
+  #### solve the nominal model ####
+  # calculate the trajektories and cost of the nominal model
   if(!is.null(modelInput)){
+    # with external input
     inputInterp <- list()
     inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
     solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))  
@@ -335,7 +345,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     
   }
   
-  showEstimates <- function(measureTimes,AUCs,input, alpha2, J, nomSol, STD){
+  showEstimates <- function(measureTimes,AUCs,input, alpha2, J, nomSol, SD){
     tPlot <- seq(from=measureTimes[1], to = measureTimes[length(measureTimes)], length.out = 50)
     
     y <- sapply(input$interpY, mapply, measureTimes)
@@ -360,10 +370,10 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
       yLab <- paste0('y',as.character(i))
       yMax <- max(max(y[,i]),max(yhat[,i]),max(yNom[,i]))
       yMin <- min(min(y[,i]),min(yhat[,i]),min(yNom[,i]))
-      if(is.null(STD)){
+      if(is.null(SD)){
         plot(x = measureTimes, y = y[,i], type = 'p', pch = 20, col = 'black', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
       } else {
-        Hmisc::errbar(x = measureTimes, y = y[,i], yplus = y[,i]+STD[,i], yminus = y[,i]-STD[,i], ylab = yLab, xlab = 't', ylim = c(yMin, yMax), add = FALSE)
+        Hmisc::errbar(x = measureTimes, y = y[,i], yplus = y[,i]+SD[,i], yminus = y[,i]-SD[,i], ylab = yLab, xlab = 't', ylim = c(yMin, yMax), add = FALSE)
       }
       par(new=T)
       plot(x = tPlot, y = yhat[,i], type='l', col = 'red', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
@@ -630,7 +640,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     
     
     if(plotEsti == TRUE) {
-      showEstimates(measureTimes,AUCs,input,alpha2,J, yNominal,STD)
+      showEstimates(measureTimes,AUCs,input,alpha2,J, yNominal,SD)
     }
     # if the change in the cost function is smaller that epsilon the algorithmus stops
     if (( abs(J[i+1]/J[i]) > 1-(eps/100))) {
@@ -643,6 +653,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     origAUC <- AUCs
   }
   
+  #### Selection of AUC and return ####
   greedySelection <- function(AUC, optW,origAUC) {
     orderAUCs <- order(-do.call(cbind,as.list(origAUC[1,])))
     tempOptW = rep(0,ncol(AUC))
