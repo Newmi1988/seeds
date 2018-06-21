@@ -97,26 +97,17 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
   }
   
   #### solve the nominal model ####
-  # calculate the trajektories and cost of the nominal model
-  if(!is.null(modelInput)){
-    # with external input
-    inputInterp <- list()
-    inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
-    solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))  
-  } else {
-    solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters))
-  }
-  
-  
-  ### with c code #########################################################
-  if(!is.null(modelInput)){
-    inputApprox <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approx(x = modelInput[,1], y = x, xout = times, rule = 2))
-    inputApprox = list(cbind(times,inputApprox$u$y))
-  } else {
-    inputApprox <- list(cbind(times,rep(0,length(times))))
-  }
-  
+  #   Case
+  #   1   use compiled code
+  #   2   use standard deSolve ode function
   if(grepl("Rtools",Sys.getenv('PATH'))|| (.Platform$OS.type!="windows")){
+    if(!is.null(modelInput)){
+      inputApprox <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approx(x = modelInput[,1], y = x, xout = times, rule = 2))
+      inputApprox = list(cbind(times,inputApprox$u$y))
+    } else {
+      inputApprox <- list(cbind(times,rep(0,length(times))))
+    }
+    
     w <- matrix(rep(0,length(x0)*length(times)), ncol = length(x0))
     wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
     wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
@@ -125,14 +116,18 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     solNominal = deSolve::ode(y = x0, times, func = "derivsc",
                               parms = parameters, dllname = "model", initforc="forcc",
                               forcings = forcings, initfunc = "parmsc")
+  } else {
+    if(!is.null(modelInput)){
+      # with external input
+      inputInterp <- list()
+      inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
+      solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))  
+    } else {
+      solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters))
+    }
   }
   
-  
-  
-  
-  # Tx the timepoints of the solution of the nominal model
   Tx <- solNominal[,1]
-  # X trajectories of the states
   x <- solNominal[,-1, drop=FALSE]
   
   w = matrix(rep(0,nrow(x)*ncol(x)), nrow = nrow(x)) # is initialized as constant zero
