@@ -1,4 +1,4 @@
-#' Greedy Approach Algorithm
+#' Greedy method for estimating a sparse solution
 #'
 #' calculates controls based on a first optimisation with gradient descent; should result in a sparse vector
 #' of hidden inputs.

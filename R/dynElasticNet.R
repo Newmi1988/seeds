@@ -96,6 +96,12 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     names(x0) <- paste0(rep("x",length(x0)),1:length(x0))
   }
   
+  if(!is.null(modelInput)){
+    # with external input
+    inputInterp <- list()
+    inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
+  }
+  
   #### solve the nominal model ####
   #   Case
   #   1   use compiled code
@@ -119,8 +125,6 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
   } else {
     if(!is.null(modelInput)){
       # with external input
-      inputInterp <- list()
-      inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
       solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))  
     } else {
       solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters))
@@ -310,37 +314,41 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     #check if the cubicInterpolation gives a lower value as the last iteration
     #   cubic interpolation can result in an rise of the cost function
     #   check if the calculated alpha is an descent
-    alphaTemp <- cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2)
-    newW = oldW + alphaTemp*gradStep
-    input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
     
-    time <- seq(from = tInt[1], to = tInt[2], length.out = 100)
-    if(grepl("Rtools",Sys.getenv('PATH'))|| (.Platform$OS.type!="windows")){
-      wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
-      wList <- lapply(wSplit, FUN = function(x) cbind(time,x))
-      forcings <- c(inputApprox, wList)
-      solX = deSolve::ode(y = x0, time, func = "derivsc",
-                          parms = parameters, dllname = "model", initforc="forcc",
-                          forcings = forcings, initfunc = "parmsc")
-    } else {
-      input$optW <- optW
-      solX <- deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
-    }
-
-    Tx <- solX[,1]
-    x <- solX[,-1, drop=FALSE]
-
-    yHat <- getMeassures(solX,measFunc)
-
-    input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
-    input$interpyHat <- apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
-    alphaCubicCOst = costFunction(measureTimes,input,alphaDynNet)
-
-    if(alphaCubicCOst > arrayJ[i-1]){
-      return(alpha)
-    } else {
-      return(alphaTemp)
-    }
+    alphaTemp <- cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2)
+    
+    return(alphaTemp)
+    
+    # newW = oldW + alphaTemp*gradStep
+    # input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
+    # 
+    # time <- seq(from = tInt[1], to = tInt[2], length.out = 100)
+    # if(grepl("Rtools",Sys.getenv('PATH'))|| (.Platform$OS.type!="windows")){
+    #   wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
+    #   wList <- lapply(wSplit, FUN = function(x) cbind(time,x))
+    #   forcings <- c(inputApprox, wList)
+    #   solX = deSolve::ode(y = x0, time, func = "derivsc",
+    #                       parms = parameters, dllname = "model", initforc="forcc",
+    #                       forcings = forcings, initfunc = "parmsc")
+    # } else {
+    #   input$optW <- optW
+    #   solX <- deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
+    # }
+    # 
+    # Tx <- solX[,1]
+    # x <- solX[,-1, drop=FALSE]
+    # 
+    # yHat <- getMeassures(solX,measFunc)
+    # 
+    # input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
+    # input$interpyHat <- apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
+    # alphaCubicCOst = costFunction(measureTimes,input,alphaDynNet)
+    # 
+    # if(alphaCubicCOst > arrayJ[i-1]){
+    #   return(alpha)
+    # } else {
+    #   return(alphaTemp)
+    # }
   }
   
   # function that plots the current estimates for each iteration
