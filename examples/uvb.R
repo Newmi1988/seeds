@@ -71,3 +71,5 @@ res <- greedyApproach(alphaStep = 500, alpha2 = 0.0001, optW = rep(1,13), x0 = x
 
 plot(res)
 
+# plot the solution for the first selected variable
+plot(res[[1]])

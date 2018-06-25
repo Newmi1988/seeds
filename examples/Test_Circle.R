@@ -100,9 +100,9 @@ optW <- c(1,1,1,1)
 STD <- NULL
 
 
-results <- greedyApproach(alphaStep = 1, alpha2 = 0.1, 
+results <- greedyApproach(alphaStep = 1, alpha2 = 0.05, 
                           x0 = x0, optW = optW , times=times, 
-                          measFunc= testMessure,  measData = y, std = NULL,
+                          measFunc= testMessure,  measData = y, sd = NULL,
                           parameters = parameters, 
                           modelFunc = testModel, plotEstimates = T)
 

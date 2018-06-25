@@ -343,19 +343,24 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     }
     
   }
-
+  
+  res <- list()
+  resLength <- i-1
+  
   #### reformating and return####
-  states <- as.data.frame(resAlg[[i-1]]$x[])
+  for(i in 1:resLength) {
+    
+  states <- as.data.frame(resAlg[[i]]$x[])
   colnames(states)[1] <- "t"
   stateUnsc <- states
   stateUnsc[,2:ncol(stateUnsc)] = NaN
   
-  hiddenInp <- as.data.frame(resAlg[[i-1]]$w)
+  hiddenInp <- as.data.frame(resAlg[[i]]$w)
   colnames(hiddenInp)[1] <- "t"
   hiddenInpUnsc <- hiddenInp
   hiddenInpUnsc[,2:ncol(hiddenInpUnsc)] = NaN
   
-  outputMeas <- as.data.frame(resAlg[[i-1]]$y)
+  outputMeas <- as.data.frame(resAlg[[i]]$y)
   
   if(is.null(sd)) {
     emptyStd <- matrix(rep(0,length(measData[,-1, drop=FALSE])), ncol=ncol(measData[,-1, drop=FALSE]))
@@ -368,10 +373,10 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   
   colnames(measData) <- c("t",paste0('y',1:(ncol(measData[,-1, drop=FALSE]))))
   
-  nomStates <- as.data.frame(resAlg[[i-1]]$nomX)
+  nomStates <- as.data.frame(resAlg[[i]]$nomX)
   colnames(nomStates)[1] = "t"
   
-  res <- resultsSeeds(stateNominal = nomStates,
+  res[[i]] <- resultsSeeds(stateNominal = nomStates,
                       stateEstimates = states,
                       stateUnscertainLower = stateUnsc,
                       stateUnscertainUpper = stateUnsc,
@@ -382,6 +387,8 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
                       Data = measData,
                       DataError = dataError
   )
+  
+  }
 
 
     return(res)

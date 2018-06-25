@@ -50,7 +50,7 @@ resultsSeeds <- setClass(
 plotResultsSeeds  <- function(x,y) {
   
   seedsobj = x
-  
+
   if(!missing(y)){
     annoX <- y[[1]]
     annoY <- y[[2]]
@@ -135,7 +135,8 @@ plotResultsSeeds  <- function(x,y) {
 #' algorithms should result in objects of the class resultsSeeds. The results can
 #' be plotted using the \code{\link{plot}}-function.
 #' 
-#' @param x an object of type resultsSeeds which contains the results of the algorithms
+#' @param x an object of type resultsSeeds or a list of these objects. If a list
+#' is given the last entry will be plotted.
 #' @param y ...
 #' 
 #' @rdname resultsSeeds-methods
@@ -147,6 +148,17 @@ setMethod(f = "plot",
           signature = c(x="resultsSeeds",y="missing"),
           definition = function(x,y)
           {
+            plotList <- plotResultsSeeds(x,y)
+            
+            return(plotList)
+          }
+)
+
+setMethod(f = "plot",
+          signature = c(x="list",y="missing"),
+          definition = function(x,y)
+          {
+            x <- x[[length(x)]]
             plotList <- plotResultsSeeds(x,y)
             
             return(plotList)
@@ -172,6 +184,18 @@ setMethod(f = "plotAnno",
           signature = "resultsSeeds",
           definition = function(x,stateAnno,measAnno)
           {
+            y <- list(stateAnno,measAnno)
+            plotList <- plotResultsSeeds(x,y)
+            
+            return(plotList)
+          }
+)
+
+setMethod(f = "plotAnno",
+          signature = "list",
+          definition = function(x,stateAnno,measAnno)
+          {
+            x <- x[[length(x)]]
             y <- list(stateAnno,measAnno)
             plotList <- plotResultsSeeds(x,y)
             
