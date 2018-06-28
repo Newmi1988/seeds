@@ -1,4 +1,4 @@
-#' Greedy Approach Algorithm
+#' Greedy method for estimating a sparse solution
 #'
 #' calculates controls based on a first optimisation with gradient descent; should result in a sparse vector
 #' of hidden inputs.
@@ -35,7 +35,7 @@
 #' @param Beta          skaling parameter for the backtracking to approximate the stepsize of the gradient descent. Is set to  0.8
 #'                 if no value is given to the function
 #'
-#' @param std     standard deviation of the measurement; used to weight the errors of the estimates in the cost function
+#' @param sd     standard deviation of the measurement; used to weight the errors of the estimates in the cost function
 #' 
 #' @param conjGrad boolean that indicates the usage of conjugate gradient method over the normal steepest descent
 #' 
@@ -51,7 +51,7 @@
 #' 
 #' @export
 
-greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measFunc, measData, std, epsilon,
+greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measFunc, measData, sd, epsilon,
                            parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString) {
 
   if(missing(systemInput)) {
@@ -62,8 +62,8 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     epsilon <- 0.25
   }
   
-  if(missing(std)){
-    std <- NULL
+  if(missing(sd)){
+    sd <- NULL
   }
   
   if(missing(cString)) {
@@ -148,42 +148,52 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   
 
 
-  # create the needed files
+  #### Creation of C-files for use with deSolve ####
+  # extract the equations of the model and save them in an odeEq object
   odeEq <- new("odeEquations")
   odeEq <- createModelEqClass(odeEq,modelFunc)
   odeEq <- setMeassureFunc(odeEq,measFunc)
 
   numInputs = length(x0)+1
+  
+  # the model equations will be written wo a C file
   createCFile(parameters = parameters,inputs = numInputs, odeEq)
   
   odeEq <- isDynElaNet(odeEq)
   odeEq <- calculateCostate(odeEq)
   createFunctions(odeEq)
+  
+  # check the operating system
+  #   Windows uses Rtools for compilation
+  #   Unix systems should be distributed with a C compiler
   if(grepl("Rtools",Sys.getenv('PATH')) || (.Platform$OS.type!="windows")){
     if(.Platform$OS.type != "windows"){
       cat('Using compiled code for more speed.')
     } else {
       cat('Rtools found. Using compiled code for more performance.\n')
     }
-    # check system format for dynamic library
+    # check the compiled file extensions
+    #   Platform    filename extension
+    #   Windoes     .dll
+    #   Unix        .so 
     ext <- .Platform$dynlib.ext
     compiledModel <- paste0('model',ext)
     
-    # unload dynlib if is already loaded make rewriting enable
+    # check if the library is loaded, so changes can be applied
     if(is.loaded('derivsc')){
       dyn.unload(compiledModel)
     }
     
+    # compile the C function of the system
     system("R CMD SHLIB model.c")
-
-
+    # load the dynamic link library
     dyn.load(compiledModel)
   } else {
     cat('No installation of Rtools detected using the normal solver.\n')
   }
   iter <- (sum(optW))
   
-  # initialize start of alpha2 estimation ####
+  #### initialize start of alpha2 estimation ####
   estiAlpha2 <- list()
   alpha2Start <- 1  # starting value for estimating alpha2
   steps <- 6        # number of values that are valuated for best fit
@@ -191,10 +201,11 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   error <- matrix(rep(0,2),ncol=2)
   colnames(error) <- c('alpha','MSE')
   
+  #### parallel estimation of a fitting alpha2 value ####
   if(is.null(alpha2) && requireNamespace('parallel', quietly = TRUE) && requireNamespace('doParallel', quietly = TRUE) && requireNamespace('foreach', quietly = TRUE) && numCores > 1) {
 
 
-
+      # load the dynamic linked shared object library
       worker.init <- function() {
         dyn.load(compiledModel)
       }
@@ -211,7 +222,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       estiAlpha2 <- foreach::foreach(i = 1:steps, .export = exportVars) 
       estiAlpha2 = foreach::'%dopar%'(estiAlpha2,
         dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta,x0 = x0, optW = optW, eps = epsilon,
-                      measFunc= measFunc, measData = measData, STD = std, constStr = cString,
+                      measFunc= measFunc, measData = measData, SD = sd, constStr = cString,
                       alpha1 = 0, alpha2 = alpha2Start*10^(1-i), modelInput = systemInput,
                       parameters = parameters, modelFunc = modelFunc,maxIteration=100, plotEsti = FALSE, conjGrad = conjGrad)
       )
@@ -234,7 +245,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
         alpha2 = alpha2Start*10^(1-i)
         cat('\nOptimization with alpha2=', alpha2, '\n')
         estiAlpha2[[i]] <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta,x0 = x0, optW = optW, eps = epsilon,
-                                         measFunc= measFunc, measData = measData, STD = std,
+                                         measFunc= measFunc, measData = measData, SD = sd,
                                          alpha1 = alpha1, alpha2 = alpha2, constStr = cString,
                                          parameters = parameters, modelFunc = modelFunc, modelInput = systemInput,
                                          maxIteration=100, plotEsti = plotEstimates, conjGrad = conjGrad)
@@ -259,7 +270,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
   } else {
     results <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, x0 = x0, optW = optW, eps = epsilon,
-                             measFunc= measFunc, measData = measData, STD = std,
+                             measFunc= measFunc, measData = measData, SD = sd,
                              alpha1 = alpha1, alpha2 = alpha2, constStr = cString,
                              parameters = parameters, modelFunc = modelFunc, plotEsti = plotEstimates,
                              modelInput = systemInput, conjGrad = conjGrad)
@@ -271,9 +282,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     i = 2
   } else {
     
-    # if(sum(optW)!=length(optW)){
-    #   iter <- iter+1
-    # }
     orgOptW <- optW <- results$optW
     orgAUC <- results$AUC
     optWs <- list()
@@ -288,7 +296,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       cat(which(optW > 0))
       optWs[[i]] <- optW
       resAlg[[i]] <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, alpha1 = alpha1, alpha2 = alpha2,x0 = x0, optW = optW, eps=epsilon,
-                                   measFunc= measFunc, measData = measData, STD = std, modelInput = systemInput, constStr = cString,
+                                   measFunc= measFunc, measData = measData, SD = sd, modelInput = systemInput, constStr = cString,
                                    parameters = parameters, modelFunc = modelFunc, origAUC = orgAUC, plotEsti = plotEstimates, conjGrad = conjGrad)
       
 
@@ -296,7 +304,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       costError[i,] = c(mean(resAlg[[i]]$rmse),resAlg[[i]]$J)
 
 
-      ## use best fit inteads last iteration
+      # use best fit inteads last iteration
       if(i > 1 && ( costError[i,1] > costError[i-1,1])  ) {
         cat('hidden inputs on knots:\n')
         cat(which(optWs[[i-1]] %in% 1))
@@ -304,7 +312,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
         break
       }
 
-      ### solution for failed int  ####
       if(sum(colSums(resAlg[[i]]$w[,-1])) == 0) {
         orgAUC[which(optW>0)] = 0
         optW <- resAlg[[i]]$optW - optW
@@ -314,7 +321,9 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       
     }
     
-    if(grepl("Rtools",Sys.getenv('PATH'))){
+    # unload the dynamic linked shared object library
+    # has to be unleaded to makes changes
+    if(grepl("Rtools",Sys.getenv('PATH')) || (.Platform$OS.type!="windows")){
       dyn.unload(compiledModel)
     }
     
@@ -334,45 +343,52 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     }
     
   }
-
   
-    states <- as.data.frame(resAlg[[i-1]]$x[])
-    colnames(states)[1] <- "t"
-    stateUnsc <- states
-    stateUnsc[,2:ncol(stateUnsc)] = NaN
+  res <- list()
+  resLength <- i-1
+  
+  #### reformating and return####
+  for(i in 1:resLength) {
     
-    hiddenInp <- as.data.frame(resAlg[[i-1]]$w)
-    colnames(hiddenInp)[1] <- "t"
-    hiddenInpUnsc <- hiddenInp
-    hiddenInpUnsc[,2:ncol(hiddenInpUnsc)] = NaN
-    
-    outputMeas <- as.data.frame(resAlg[[i-1]]$y)
-    
-    if(is.null(std)) {
-      emptyStd <- matrix(rep(0,length(measData[,-1, drop=FALSE])), ncol=ncol(measData[,-1, drop=FALSE]))
-      dataError <- data.frame(t=measData[,1],emptyStd)
-      colnames(dataError) <- c("t",paste0('y',1:(ncol(emptyStd))))
-    } else {
-      dataError <- cbind(t=measData[,1],std) 
-      colnames(dataError) <- c("t",paste0('y',1:(ncol(std))))
-    }
-    
-    colnames(measData) <- c("t",paste0('y',1:(ncol(measData[,-1, drop=FALSE]))))
-    
-    nomStates <- as.data.frame(resAlg[[i-1]]$nomX)
-    colnames(nomStates)[1] = "t"
-
-    res <- resultsSeeds(stateNominal = nomStates,
-                        stateEstimates = states,
-                        stateUnscertainLower = stateUnsc,
-                        stateUnscertainUpper = stateUnsc,
-                        hiddenInputEstimates = hiddenInp,
-                        hiddenInputUncertainLower = hiddenInpUnsc,
-                        hiddenInputUncertainUpper = hiddenInpUnsc,
-                        outputEstimates = outputMeas,
-                        Data = measData,
-                        DataError = dataError
-                        )
+  states <- as.data.frame(resAlg[[i]]$x[])
+  colnames(states)[1] <- "t"
+  stateUnsc <- states
+  stateUnsc[,2:ncol(stateUnsc)] = NaN
+  
+  hiddenInp <- as.data.frame(resAlg[[i]]$w)
+  colnames(hiddenInp)[1] <- "t"
+  hiddenInpUnsc <- hiddenInp
+  hiddenInpUnsc[,2:ncol(hiddenInpUnsc)] = NaN
+  
+  outputMeas <- as.data.frame(resAlg[[i]]$y)
+  
+  if(is.null(sd)) {
+    emptyStd <- matrix(rep(0,length(measData[,-1, drop=FALSE])), ncol=ncol(measData[,-1, drop=FALSE]))
+    dataError <- data.frame(t=measData[,1],emptyStd)
+    colnames(dataError) <- c("t",paste0('y',1:(ncol(emptyStd))))
+  } else {
+    dataError <- cbind(t=measData[,1],sd) 
+    colnames(dataError) <- c("t",paste0('y',1:(ncol(sd))))
+  }
+  
+  colnames(measData) <- c("t",paste0('y',1:(ncol(measData[,-1, drop=FALSE]))))
+  
+  nomStates <- as.data.frame(resAlg[[i]]$nomX)
+  colnames(nomStates)[1] = "t"
+  
+  res[[i]] <- resultsSeeds(stateNominal = nomStates,
+                      stateEstimates = states,
+                      stateUnscertainLower = stateUnsc,
+                      stateUnscertainUpper = stateUnsc,
+                      hiddenInputEstimates = hiddenInp,
+                      hiddenInputUncertainLower = hiddenInpUnsc,
+                      hiddenInputUncertainUpper = hiddenInpUnsc,
+                      outputEstimates = outputMeas,
+                      Data = measData,
+                      DataError = dataError
+  )
+  
+  }
 
 
     return(res)
