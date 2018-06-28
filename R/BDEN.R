@@ -17,10 +17,10 @@
 #' @param gibbs_update         used gibbs algorithm
 #' @param ode_sol              used ode solver
 #' @param measFunc             link function to match observations with modeled states
-#' @param numbertrialsstep     number of sampels per timepoint
-#' @param numbertrialseps      number of samples per mcmc step
-#' @param numbertrialinner     number of inner samples
-#' @param lambda               inital shrinkage parameter
+#' @param numbertrialsstep     number of sampels per timepoint. This should be at least 10.
+#' @param numbertrialseps      number of samples per mcmc step. This should be greater than numberStates*500.
+#' @param numbertrialinner     number of inner samples. This should be greater 15. High values have direct influnce on the runtime.
+#' @param lambda               inital shrinkage parameter.
 #' @param Grad_correct         used for intial mcmc step size calculation 
 #' @param alpha                mcmc tuning paramter
 #' @param beta                 mcmc tunig parameter
@@ -50,11 +50,11 @@ BDEN <- function(observation_time,
                  
                  numbertrialsstep = 15,
                  numbertrialseps  = 500*4,
-                 numbertrialinner = 30,
+                 numbertrialinner = 10,
                  lambda           = .001,
                  Grad_correct     = 0,
                  alpha            = c(1,1,1,1  ),
-                 beta             = c(1,1,1,0.1)){
+                 beta_init             = c(1,1,1,0.1)){
   
   
   
@@ -131,12 +131,15 @@ BDEN <- function(observation_time,
   EPSILONLOW       <- matrix(0, nrow = dim(X_MODEL)[1]  , ncol = numberstates)
   EPSILONUP        <- matrix(0, nrow = dim(X_MODEL)[1]  , ncol = numberstates)
   SIGMA            <- vector("list",dim(X_MODEL)[1]) 
-  S                <- mean(GRADIENT)*2
+  S                <- mean(GRADIENT)*10
   for (i in 1:length(SIGMA)){
-    SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.1
+    SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.5
   }
   BETA_LAMBDA      <- lambda
-  GIBBS_PAR        <- SETTINGS(std,numberstates,BETA_LAMBDA,alpha,beta)
+  print(numberstates)
+  print(BETA_LAMBDA)
+  print(beta_init)
+  GIBBS_PAR        <- SETTINGS(std,numberstates,BETA_LAMBDA,alpha,beta_init)
   EPS_TIME         <- observation_time
   YINIT            <- initialvalues
   EPSILON_IT$CONT  <- matrix(0, nrow = MCMC_SET$STEP_trials  , ncol = numberstates)
@@ -149,7 +152,8 @@ BDEN <- function(observation_time,
   print(S)
   print('SIGMA')
   print(SIGMA)
-  print(  GIBBS_PAR)
+  print(GIBBS_PAR)
+  print
   ##################################################################################
   
   
@@ -170,7 +174,15 @@ BDEN <- function(observation_time,
       print('DIAGONAL')
       VAR$DIAG                    <- diag((GIBBS_PAR_IT$TAU+GIBBS_PAR_IT$LAMBDA2)^-1)
       print(VAR$DIAG)
-      
+      print('TAU')
+      print(GIBBS_PAR_IT$TAU)
+      print('LAMBDA')
+      print(GIBBS_PAR_IT$LAMBDA2)
+      print('DIFF EPSILON')
+      print(EPSILON_IT$ACT[2,]-EPSILON_IT$ACT[1,])
+      print(paste0('SIGMA'))
+      print(VAR$SIGMA)     
+      print('#####################################################################')
       
       MCMC_RESULTS                 <- mcmc_component(loglikelihood_func, MCMC_SET$EPS_step_size, MCMC_SET$EPS_step_size_inner, EPSILON_IT$CONT[TRIALS-1,],S,
                                                      STEP,observations,EPSILON_IT$Y0,inputData,parameters,EPSILON_IT$ACT,VAR$SIGMA,VAR$DIAG,GIBBS_PAR,numberstates,MCMC_SET$BURNIN_inner,measFunc)
@@ -179,7 +191,7 @@ BDEN <- function(observation_time,
       
       
       
-      EPSILON_IT$CONT[TRIALS,]    <- colMeans(MCMC_RESULT_THIN[-1,])
+      EPSILON_IT$CONT[TRIALS,]    <- colMeans(MCMC_RESULT_THIN[-1,]) 
       EPSILON_IT$ACT[2,]          <- EPSILON_IT$CONT[TRIALS,] 
       
       G_U                         <- gibbs_update(VAR$DIAG,EPSILON_IT$ACT,
@@ -189,7 +201,8 @@ BDEN <- function(observation_time,
       GIBBS_PAR_IT$LAMBDA2        <- G_U$LAMBDA2 
       GIBBS_PAR_IT$LAMBDA1        <- G_U$LAMBDA1 
       GIBBS_PAR_IT$TAU            <- G_U$TAU 
-      print(paste0('SIGMA: ', VAR$SIGMA ))
+      
+      
 
     }
     
@@ -204,8 +217,10 @@ BDEN <- function(observation_time,
     LOW                         <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILONLOW[c(STEP-1,STEP),]),1))
     
     print(EPSILON[c(STEP-1,STEP),])
+    print(EPSILON_IT$Y0)
+    print(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),]))
     EPSILON_IT$NEW              <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),]),1))
-    
+    print(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),]))
     
     
     SOLUTION                    <- rbind(SOLUTION,EPSILON_IT$Y0)
@@ -215,41 +230,44 @@ BDEN <- function(observation_time,
     SIGMA[[STEP]]               <- VAR$SIGMA
   }
   
+
+
+  
+
+  hiddenInpUnsclower <- as.data.frame(cbind(observation_time,EPSILONLOW))
+  colnames(hiddenInpUnsclower) = c('t','w1','w2','w3','w4')
+  
+  hiddenInpUnscupper <- as.data.frame(cbind(observation_time,EPSILONUP))
+  colnames(hiddenInpUnscupper) = c('t','w1','w2','w3','w4')
+  
+  stateUnscertainlower <- as.data.frame(cbind(observation_time,SOLUTIONLOW))
+  colnames(stateUnscertainlower)= c('t','x1','x2','x3','x4')
+  
+  
+  stateUnscertainupper <- as.data.frame(cbind(observation_time,SOLUTIONUP))
+  colnames(stateUnscertainupper)= c('t','x1','x2','x3','x4')
+  
+  states <- as.data.frame(cbind(observation_time,SOLUTION))
+  colnames(states)= c('t','x1','x2','x3','x4')
+  
+  hiddenInp <- as.data.frame(cbind(observation_time,EPSILON))
+  colnames(hiddenInp)= c('t','x1','x2','x3','x4')
+  
   
   X_OUTPUT <- matrix(0,length(observation_time),numberstates)
   for (i in 1:length(observation_time)){
     X_OUTPUT [i,] <- as.numeric(sapply(1:4,measFunc,y=SOLUTION[i,],parameter=parameters[5:6],USE.NAMES = TRUE))
   }
   
-  print(EPSILONLOW)
-  print(EPSILONUP)
-  hiddenInpUnsclower <- EPSILONLOW
-  colnames(hiddenInpUnsclower)[1] <- "t"
-  
-  hiddenInpUnscupper <- EPSILONUP
-  colnames(hiddenInpUnscupper)[1] <- "t"
-  
-  stateUnscertainlower <- SOLUTIONLOW 
-  colnames(stateUnscertainlower)[1] <- "t"
-  
-  stateUnscertainupper <- SOLUTIONUP 
-  colnames(stateUnscertainupper)[1] <- "t"
-  
-  states <- as.data.frame(cbind(observation_time,SOLUTION))
-  colnames(states)[1] <- "t"
-  
-  hiddenInp <- as.data.frame(cbind(observation_time,EPSILON))
-  colnames(hiddenInp)[1] <- "t"
-  
   outputMeas <- as.data.frame(cbind(observation_time,X_OUTPUT))
-  colnames(outputMeas)[1] <- "t"
+  colnames(outputMeas) = c('t','y1','y2','y3','y4')
   
   nomStates <- as.data.frame(cbind(observation_time,X_MODEL))
-  colnames(nomStates)[1] = "t"
-  
+  colnames(nomStates) = c('t','x1','x2','x3','x4')
+
   dataError <- std
-  colnames(dataError) <- c("t",paste0('y',1:(ncol(sd)-1)))
-  
+  colnames(dataError) <- c("t",paste0('s',1:(ncol(sd)-1)))
+  print(observations)
   measData <- observations
   colnames(measData) <- c("t",paste0('y',1:(ncol(measData[,-1]))))
   
@@ -265,7 +283,7 @@ BDEN <- function(observation_time,
                              DataError = dataError
   )
   
-  print(res)
+
   return(res)
   
 }

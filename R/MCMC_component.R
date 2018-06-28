@@ -25,7 +25,9 @@ for (ii in 2:STEP_SIZE+1){
   MU_jump = EPSILON_ACT[1,k]
   
   eps1[,k] = rnorm(STEP_SIZE_INNER,MU_jump,JUMP_SCALE)
-
+  
+  
+  
 
 {
 

@@ -1,9 +1,9 @@
 #' calculation of best intial settings
 
-SETTINGS <- function(VARIANCE,N,BETA_LAMDBA,alpha,beta){
+SETTINGS <- function(VARIANCE,N,BETA_LAMDBA,alphainit,betainit){
   
-    if (length(alpha!=N)) alpha = rep(1,N)
-    if (length(beta!=N))  beta  = rep(1,N)
+    if (length(alphainit)!=N) alphainit = rep(1,N)
+    if (length(betainit)!=N)  {betainit  = rep(1,N)}
     
     R     <- rep(0,2)
     ROH   <- rep(0,2)
@@ -17,9 +17,10 @@ SETTINGS <- function(VARIANCE,N,BETA_LAMDBA,alpha,beta){
 
     PHI   <- MASS::fitdistr(1/CONTAINER, "gamma")
     
-    
-    ALPHA <- rep(1,N)*PHI[[1]][1]*alpha
-    BETA  <- rep(1,N)*(PHI[[1]][2])*BETA_LAMDBA*beta
+
+    ALPHA <- rep(1,N)*PHI[[1]][1]*alphainit
+    BETA  <- rep(1,N)*(PHI[[1]][2])*BETA_LAMDBA*betainit
+
     R[2]      <- 1000
     ROH[2]    <- 10
     R[1]      <- 1000
