@@ -84,11 +84,18 @@ plotResultsSeeds  <- function(x,y) {
     
     return(df)
   }
+
   
-  plot1 <- ggplot2::ggplot(reformatOrder(tidyr::gather(seedsobj@stateEstimates,state, value, -1)), ggplot2::aes(x=t, y=value, colour='red'))+ 
+  smoothRes <- function(df) {
+    omitNan <- df[, !is.nan(colSums(df)), drop=FALSE]
+    df[,!is.nan(colSums(df))] = apply(X = omitNan, MARGIN = 2, FUN = function(x) smooth(x = x))
+    return(df)
+  }
+  
+  plot1 <- ggplot2::ggplot(reformatOrder(tidyr::gather(smoothRes(seedsobj@stateEstimates),state, value, -1)), ggplot2::aes(x=t, y=value, colour='red'))+ 
     ggplot2::geom_line()+
-    ggplot2::geom_line(data = reformatOrder(tidyr::gather(seedsobj@stateNominal,state, value, -1)), ggplot2::aes(x=t, y=value, colour='blue'))+ 
-    ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(seedsobj@stateUnscertainUpper, state, value, -1), tidyr::gather(seedsobj@stateUnscertainLower, state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+    ggplot2::geom_line(data = reformatOrder(tidyr::gather(smoothRes(seedsobj@stateNominal),state, value, -1)), ggplot2::aes(x=t, y=value, colour='blue'))+ 
+    ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@stateUnscertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@stateUnscertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
     ggplot2::labs(x= 't', y='value',color = "states")+
     ggplot2::scale_color_manual(breaks= c("red","blue"), labels = c("estimate","nominal"), values = c("blue","red"))+
     ggplot2::theme(strip.background = ggplot2::element_blank(),
@@ -100,9 +107,9 @@ plotResultsSeeds  <- function(x,y) {
 
   
   
-  plot2 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(seedsobj@hiddenInputEstimates,state,value,-1)), ggplot2::aes(x=t,y=value, colour="red"))+
+  plot2 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(smoothRes(seedsobj@hiddenInputEstimates),state,value,-1)), ggplot2::aes(x=t,y=value, colour="red"))+
     ggplot2::geom_line()+
-    ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(seedsobj@hiddenInputUncertainUpper, state, value, -1), tidyr::gather(seedsobj@hiddenInputUncertainLower, state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+    ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
     ggplot2::theme(legend.position = "none",
                    strip.background = ggplot2::element_blank(),
                    panel.background = ggplot2::element_blank(),
@@ -111,7 +118,7 @@ plotResultsSeeds  <- function(x,y) {
                    panel.grid.minor = ggplot2::element_blank())+
     ggplot2::facet_wrap(~facet)
   
-  plot3 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(seedsobj@outputEstimates,state,value, -1)), ggplot2::aes(x=t, y=value, colour=state))+
+  plot3 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(smoothRes(seedsobj@outputEstimates),state,value, -1)), ggplot2::aes(x=t, y=value, colour=state))+
     ggplot2::geom_line()+
     ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(seedsobj@Data, state,value, -1), tidyr::gather(seedsobj@DataError,state,value, -1), by=c("t","state"))), ggplot2::aes(x=t, ymin= value.x - value.y , ymax = value.x + value.y), inherit.aes = FALSE)+
     ggplot2::geom_point(data =reformatOrder(tidyr::gather(seedsobj@Data,state,value,-1)), ggplot2::aes(x=t, y=value), colour="black") +
