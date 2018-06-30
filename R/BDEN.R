@@ -101,12 +101,7 @@ BDEN <- function(observation_time,
   for (i in 1:length(observation_time)){
     X_ERROR [i,] <- abs(abs(as.numeric(observations[i,-1]))-abs(as.numeric(sapply(1:4,measFunc,y=X_MODEL[i,],parameter=parameters[5:6],USE.NAMES = TRUE))))
   }
-  
-  #  X_ERROR_SMOOTH   <-        predict(smooth.spline(observation_time,X_ERROR[,1]),observation_time)[["y"]]
-  #  for (i in 2:(numberstates-1)){
-  #   X_ERROR_SMOOTH <- cbind(X_ERROR_SMOOTH,predict(smooth.spline(observation_time,X_ERROR[,i]),observation_time)[["y"]])
-  # }
-  
+
   GRADIENT        <- matrix(0,length(observation_time)-1,numberstates-1)
   
   for (i in 1:(numberstates-(1+Grad_correct))){   
@@ -216,11 +211,9 @@ BDEN <- function(observation_time,
     
     LOW                         <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILONLOW[c(STEP-1,STEP),]),1))
     
-    print(EPSILON[c(STEP-1,STEP),])
-    print(EPSILON_IT$Y0)
-    print(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),]))
-    EPSILON_IT$NEW              <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),]),1))
-    print(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),]))
+
+
+     EPSILON_IT$NEW              <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),]),1))
     
     
     SOLUTION                    <- rbind(SOLUTION,EPSILON_IT$Y0)
@@ -267,7 +260,7 @@ BDEN <- function(observation_time,
 
   dataError <- std
   colnames(dataError) <- c("t",paste0('s',1:(ncol(sd)-1)))
-  print(observations)
+
   measData <- observations
   colnames(measData) <- c("t",paste0('y',1:(ncol(measData[,-1]))))
   
