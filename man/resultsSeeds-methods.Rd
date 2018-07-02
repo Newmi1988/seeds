@@ -11,7 +11,8 @@
 \S4method{plotAnno}{resultsSeeds}(x, stateAnno, measAnno)
 }
 \arguments{
-\item{x}{an object of type resultsSeeds which contains the results of the algorithms}
+\item{x}{an object of type resultsSeeds or a list of these objects. If a list
+is given the last entry will be plotted.}
 
 \item{y}{...}
 

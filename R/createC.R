@@ -74,19 +74,63 @@ createCFile <- function(parameters, inputs,Eq, bden){
     startStr = append(startStr,conBden)
   }
   
+  formatIndeces <- function(eqC){
+    eqC = gsub(pattern = "(\\[[0-9]*)", replacement = "\\1 -1", eqC)
+    eqC = unlist(lapply(X = eqC, FUN = Deriv::Simplify))
+    eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([a-z]+[0-9])+", replacement = "pow(\\1,\\2)", eqC)
+    eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([0-9]+)+", replacement = "pow(\\1,\\2)", eqC)
+    eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([a-z]+)", replacement = "pow(\\1,\\2)", eqC)
+    eqC = gsub(pattern = "([a-zA-Z]*[1-9]*)\\^([a-z]+[0-9])+", replacement = "pow(\\1,\\2)", eqC)
+    eqC = gsub(pattern = "(t)([^a-z])", replacement = "*\\1\\2", eqC)
+    
+    return(eqC)
+  }
   
+  if(length(Eq@cond)>0){
+    # correct the indeces
+    # test <- lapply(X = Eq@cond, FUN = function(x) gsub(pattern = "(\\[[0-9]*)", replacement = "\\1 -1", x))
+    # test = lapply(X = test, FUN = Deriv::Simplify)
+    
+    reformCond <- function(x){
+      Str <- c(x[1],paste0(x[-1]),'}\n')
+      return(Str)
+    }
+    
+    conditions <- unlist(lapply(Eq@cond, function(x) reformCond(x)))
+    # conditions = gsub(pattern = "(\\[[0-9]*)", replacement = "\\1 -1", conditions)
+    ifCond <- conditions[grepl(pattern = 'if', conditions)]
+    ifId <- which(conditions %in% ifCond)
+    
+    
+    # reformat the if statement
+    ifCond = gsub(pattern = "if", replacement = "", x = ifCond)
+    ifCond = formatIndeces(ifCond)
+    ifCond = paste0('if(',ifCond,'){')
+    
+    # reformat the rest
+    consq <- conditions[!grepl(pattern = 'if', conditions)]
+    consq = consq[!grepl(pattern = "\\}",consq)]
+    consqId <- which(conditions %in% consq)
+    
+    consq = formatIndeces(consq)
+    consq = paste0('\t',consq,';')
+    
+    conditions[ifId] = ifCond
+    conditions[consqId] = consq
+    conditions = paste0('\t', conditions)
+
+  }
+
   eqC <- gsub(pattern = "(d*[x])([0-9]*)", replacement = "\\1[\\2]" , Eq@origEq)
-  eqC = gsub(pattern = "(\\[[0-9]*)", replacement = "\\1 -1", eqC)
-  eqC = unlist(lapply(X = eqC, FUN = Deriv::Simplify))
-  eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([a-z]+[0-9])+", replacement = "pow(\\1,\\2)", eqC)
-  eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([0-9]+)+", replacement = "pow(\\1,\\2)", eqC)
-  eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([a-z]+)", replacement = "pow(\\1,\\2)", eqC)
-  eqC = gsub(pattern = "([a-zA-Z]*[1-9]*)\\^([a-z]+[0-9])+", replacement = "pow(\\1,\\2)", eqC)
-  eqC = gsub(pattern = "(t)([^a-z])", replacement = "*\\1\\2", eqC)
-
+  eqC = formatIndeces(eqC)
   eqC = paste0("\t",eqC,"+w",1:length(eqC),";")
-
-  StringC = append(StringC, values = c(startStr,eqC,'}'))
+  
+  if(length(Eq@cond)>0){
+    StringC = append(StringC, values = c(startStr,conditions," ",eqC,'}'))
+  } else {
+    StringC = append(StringC, values = c(startStr,eqC,'}'))
+  }
+  
   
   
   writeFileC <- function(string){

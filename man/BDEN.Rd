@@ -6,9 +6,9 @@
 \usage{
 BDEN(observation_time, observations, initialvalues, parameters, inputData,
   numberstates, std, settings, model, mcmc_component, loglikelihood_func,
-  gibbs_update, ode_sol, measFunc, numbertrialsstep = 8,
-  numbertrialseps = 500, numbertrialinner = 15, lambda = 0.001,
-  Grad_correct = 0, alpha = c(1, 1, 1, 1), beta = c(1, 1, 1, 0.1))
+  gibbs_update, ode_sol, measFunc, numbertrialsstep = 15,
+  numbertrialseps = 500 * 4, numbertrialinner = 10, lambda = 0.001,
+  Grad_correct = 0, alpha = c(1, 1, 1, 1), beta_init = c(1, 1, 1, 0.1))
 }
 \arguments{
 \item{observation_time}{observed time points}
@@ -39,13 +39,13 @@ BDEN(observation_time, observations, initialvalues, parameters, inputData,
 
 \item{measFunc}{link function to match observations with modeled states}
 
-\item{numbertrialsstep}{number of sampels per timepoint}
+\item{numbertrialsstep}{number of sampels per timepoint. This should be at least 10.}
 
-\item{numbertrialseps}{number of samples per mcmc step}
+\item{numbertrialseps}{number of samples per mcmc step. This should be greater than numberStates*500.}
 
-\item{numbertrialinner}{number of inner samples}
+\item{numbertrialinner}{number of inner samples. This should be greater 15. High values have direct influnce on the runtime.}
 
-\item{lambda}{inital shrinkage parameter}
+\item{lambda}{inital shrinkage parameter.}
 
 \item{Grad_correct}{used for intial mcmc step size calculation}
 
@@ -64,7 +64,7 @@ is an extention of the Dynamic Elastic Net algorithm (Engelhardt et al. 2016) in
 #### clear workspace, load package, remove graphics ####
 
 rm(list=ls())
-devtools::load_all('seeds')
+devtools::load_all()
 graphics.off()
 
 #### setze initialen zustand, parameter und Zeitpunkte der Auswertung durch deSolve ####
@@ -100,9 +100,26 @@ modelJakStat  <- function(t, x, parameters, input) {
     
     u <- input$u(t)
     
+    if((-k1*x[1]*u)<0) k1 = 0
+    
     dx1 = -k1 * x[1]  * u
+    
+    if((k1*x[1]*u-k2*x[2]*x[2])<0) {
+      k1 = 0
+      k2 = 0
+    }
+    
     dx2 = k1 *  x[1]  * u - k2 * x[2]*x[2]
+    
+    if((-k3*x[3]+0.5*k2*x[2]*x[2])<0) {
+      k2 = 0
+      k3 = 0
+    }
+    
     dx3 = -k3*x[3] + 0.5*k2*x[2]*x[2]
+    
+    if((k3 * x[3])<0) k3 = 0
+     
     dx4 = k3 * x[3]
     
     list(c(dx1 ,dx2 ,dx3 ,dx4 ))

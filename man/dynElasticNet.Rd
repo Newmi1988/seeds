@@ -5,7 +5,7 @@
 \title{estimating the optimal control using the dynamic elastic net}
 \usage{
 dynElasticNet(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2, measData,
-  constStr, STD, modelFunc, measFunc, modelInput, optW, origAUC, maxIteration,
+  constStr, SD, modelFunc, measFunc, modelInput, optW, origAUC, maxIteration,
   plotEsti, conjGrad, eps)
 }
 \arguments{
@@ -25,7 +25,7 @@ dynElasticNet(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2, measData,
 
 \item{constStr}{a string that represents constrains, can be used to calculate a hidden input for a komponent that gradient is zero}
 
-\item{STD}{standard deviation of the experiment; leave empty if unknown}
+\item{SD}{standard deviation of the experiment; leave empty if unknown}
 
 \item{modelFunc}{function that describes the ODE-system of the model}
 

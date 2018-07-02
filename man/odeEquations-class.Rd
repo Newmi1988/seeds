@@ -32,5 +32,7 @@ A S4 class used to handle formating ODE-Equation and calculate the needed functi
 \item{\code{dynamicElasticNet}}{boolean that indicates if the system equation should be calculated for the dynamic elastic net}
 
 \item{\code{parameters}}{parameters of the model}
+
+\item{\code{cond}}{a slot to save conditionals in equations, which are used for formating the c files}
 }}
 

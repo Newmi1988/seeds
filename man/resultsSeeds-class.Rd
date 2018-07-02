@@ -27,6 +27,10 @@ A S4 class that collects the results of the two algorithms
 
 \item{\code{outputEstimates}}{estimated measurements resulting from the control of the hidden inputs}
 
+\item{\code{outputEstimatesUncLower}}{lower bound of the confidence bands of the estimated output}
+
+\item{\code{outputEstimatesUncUpper}}{upper bound of the confidence bands of the estimated output}
+
 \item{\code{Data}}{the given measurements}
 
 \item{\code{DataError}}{standard deviation of the given measurements}

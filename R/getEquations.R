@@ -2,21 +2,55 @@ getEquations <- function(model){
 
   extractModel <- function(model) {
     dpTestModel <- deparse(model,width.cutoff = 500)
-    matches <- grepl("\\b[dx,dy][1-9]*",dpTestModel)
-    #matches <- grepl("\\bdx[1-9]*||\\bdy[1-9]*",dpTestModel)
-    eq <- dpTestModel[matches] 
+
     
-    ## error exstraxting the ode function because of parameter name ####
-    paraBoo <- grepl("para", eq)
-    eq <- eq[!paraBoo]
+    # see if conditional statements are present
+    condMatch <- grepl(pattern = "if", dpTestModel)
     
+    if(sum(as.numeric(condMatch))>0) {
+      matches <- grepl(pattern = "^[dx,dy][1-9]*", gsub(pattern = "\\s", replacement = "",dpTestModel))
+      eq <- dpTestModel[matches]
+      
+      # get the conditions
+      matchCond <- grepl(pattern = 'if', dpTestModel)
+      condStatem <- dpTestModel[matchCond]
+      closindCondInd <- which(grepl(pattern = "\\}", dpTestModel))
+      condList <- list()
+      
+      for(i in 1:length(condStatem)) {
+        if(grepl(pattern = "\\{",condStatem[i])){
+          begCondInd <- which(dpTestModel %in% condStatem[i])
+          endCondInd <- closindCondInd - begCondInd
+          endCondInd = begCondInd + min(endCondInd[endCondInd>0])
+          
+          cond <- gsub(pattern = "\\{", "", condStatem[i])
+          consq <- dpTestModel[(begCondInd+1):(endCondInd-1)]
+          conStr <- append(cond, consq, after = 1)
+          conStr <- gsub(pattern = "\\s",replacement = "",conStr)
+          
+        } else {
+          condId <- which(dpTestModel %in% condStatem[i])
+          consq <- dpTestModel[condId+1]
+          conStr <- append(condStatem[i], consq, after = 1)
+          conStr <- gsub(pattern = "\\s",replacement = "",conStr)
+          
+
+        }
+        condList[[i]] <- conStr
+      }
+      
+    } else {
     
-    listBoo <- grepl("list",eq)
-    eq <- eq[!listBoo]
-    listBoo = grepl("function", eq)
-    eq <- eq[!listBoo]
+      matches <-  grepl(pattern = "^[dx,dy][1-9]*", gsub(pattern = "\\s", replacement = "",dpTestModel))
+      eq <- dpTestModel[matches] 
+      condList <- list()
+    }
     
-    return(eq) #return equation without a list statement if present
+    res <- list()
+    res$eq <- eq
+    res$cond <- condList
+    
+    return(res) #return equation without a list statement if present
   }
 
 
@@ -61,16 +95,10 @@ getPara <- function(model){
 }
 
 paras <- as.character(getPara(model))
+exModel <- extractModel(model)
+modelStr <- formatModelEq(exModel$eq)
 
-if(class(model)=="function"){
-  modelStr <- formatModelEq(extractModel(model))
-  return(list(strM = modelStr, strP = paras))
-}
-else {
-  modelStr <- formatModelEq(model)
-  return(list(strM = modelStr, strP = paras))
-}
-
+return(list(strM = modelStr, strP = paras, cond = exModel$cond))
 
 }
 
