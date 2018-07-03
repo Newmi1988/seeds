@@ -102,3 +102,5 @@ solJakStat <- deSolve::ode(y = y, evalTimes, func = "derivsc",
 
 solJakStat
 plot(solJakStat)
+
+file.edit('model.c')
