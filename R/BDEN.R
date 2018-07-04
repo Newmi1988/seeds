@@ -50,11 +50,11 @@ BDEN <- function(observation_time,
                  
                  numbertrialsstep = 15,
                  numbertrialseps  = 500*4,
-                 numbertrialinner = 10,
+                 numbertrialinner = 5,
                  lambda           = .001,
                  Grad_correct     = 0,
-                 alpha            = c(1,1,1,1  ),
-                 beta_init             = c(1,1,1,0.1)){
+                 alpha            = c(1,1,1,1),
+                 beta_init        = c(1,1,1,0.1)){
   
   
   
@@ -95,7 +95,7 @@ BDEN <- function(observation_time,
   ##################################################################################
   X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*4),2))
   
-  
+  print(X_MODEL)
   X_ERROR        <- matrix(0,length(observation_time),numberstates)
   
   for (i in 1:length(observation_time)){
@@ -244,7 +244,7 @@ BDEN <- function(observation_time,
   colnames(states)= c('t','x1','x2','x3','x4')
   
   hiddenInp <- as.data.frame(cbind(observation_time,EPSILON))
-  colnames(hiddenInp)= c('t','x1','x2','x3','x4')
+  colnames(hiddenInp)= c('t','w1','w2','w3','w4')
   
   
   X_OUTPUT <- matrix(0,length(observation_time),numberstates)
@@ -280,7 +280,6 @@ BDEN <- function(observation_time,
   return(res)
   
 }
-
 
 
 
