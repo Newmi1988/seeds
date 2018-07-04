@@ -4,7 +4,7 @@
 \alias{SETTINGS}
 \title{calculation of best intial settings}
 \usage{
-SETTINGS(VARIANCE, N, BETA_LAMDBA, alpha, beta)
+SETTINGS(VARIANCE, N, BETA_LAMDBA, alphainit, betainit)
 }
 \description{
 calculation of best intial settings

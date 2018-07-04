@@ -10,6 +10,8 @@
 #' @slot hiddenInputUncertainLower lower bounds of the estimated hidden inputs
 #' @slot hiddenInputUncertainUpper uppper bounds of the estimated hidden inputs
 #' @slot outputEstimates estimated measurements resulting from the control of the hidden inputs
+#' @slot outputEstimatesUncLower lower bound of the confidence bands of the estimated output
+#' @slot outputEstimatesUncUpper upper bound of the confidence bands of the estimated output
 #' @slot Data the given measurements
 #' @slot DataError standard deviation of the given measurements
 #' 
@@ -29,6 +31,8 @@ resultsSeeds <- setClass(
     hiddenInputUncertainLower = "data.frame",
     hiddenInputUncertainUpper = "data.frame",
     outputEstimates = "data.frame",
+    outputEstimatesUncLower = "data.frame",
+    outputEstimatesUncUpper = "data.frame",
     Data = "data.frame",
     DataError = "data.frame"
   ),
@@ -41,6 +45,8 @@ resultsSeeds <- setClass(
     hiddenInputUncertainLower = data.frame(),
     hiddenInputUncertainUpper = data.frame(),
     outputEstimates = data.frame(),
+    outputEstimatesUncLower = data.frame(),
+    outputEstimatesUncUpper = data.frame(),
     Data = data.frame(),
     DataError = data.frame()
   )
@@ -120,6 +126,7 @@ plotResultsSeeds  <- function(x,y) {
   
   plot3 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(smoothRes(seedsobj@outputEstimates),state,value, -1)), ggplot2::aes(x=t, y=value, colour=state))+
     ggplot2::geom_line()+
+    ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@outputEstimatesUncUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@outputEstimatesUncLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
     ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(seedsobj@Data, state,value, -1), tidyr::gather(seedsobj@DataError,state,value, -1), by=c("t","state"))), ggplot2::aes(x=t, ymin= value.x - value.y , ymax = value.x + value.y), inherit.aes = FALSE)+
     ggplot2::geom_point(data =reformatOrder(tidyr::gather(seedsobj@Data,state,value,-1)), ggplot2::aes(x=t, y=value), colour="black") +
     ggplot2::labs(x= 't', y='value',color = "Estimated \n measurements")+

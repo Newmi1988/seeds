@@ -11,6 +11,7 @@
 #' @slot hamiltonian a string representing the Hamilton function of the model
 #' @slot dynamicElasticNet boolean that indicates if the system equation should be calculated for the dynamic elastic net
 #' @slot parameters parameters of the model
+#' @slot cond a slot to save conditionals in equations, which are used for formating the c files
 #' 
 #' @export odeEquations
 #' @exportClass odeEquations
@@ -28,7 +29,8 @@ odeEquations <- setClass(
     costFunction = "character",
     hamiltonian = "character",
     dynamicElasticNet = "logical",
-    parameters = "character"
+    parameters = "character",
+    cond = "list"
   ),
 
   prototype = list(
@@ -43,7 +45,8 @@ odeEquations <- setClass(
     costFunction = character(0),
     hamiltonian = character(0),
     dynamicElasticNet = FALSE,
-    parameters = character(0)
+    parameters = character(0),
+    cond = list()
   ),
   validity = function(object) {
     # ...some validation stuff...
@@ -157,6 +160,7 @@ setMethod(f = "createModelEqClass",
             tempList <- getEquations(theModel)
             theObject@origEq <- tempList$strM
             theObject@parameters <- tempList$strP
+            theObject@cond <- tempList$cond
             return(theObject)
           }
 

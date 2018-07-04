@@ -22,6 +22,9 @@ hInputUp <- cbind(t=resHidden[,1],resHidden[,2:ncol(resHidden)]+10)
 stateLow <- cbind(t=resStates[,1],resStates[,2:ncol(resStates)]-1)
 stateUp <- cbind(t=resStates[,1],resStates[,2:ncol(resStates)]+1)
 
+resLow <- cbind(t=resMeas[,1], resMeas[,2:ncol(resMeas)]-5)
+resUp <-  cbind(t=resMeas[,1], resMeas[,2:ncol(resMeas)]+5)
+
 # falls keine Konfidenzintervalle berechnet wurden einfach ein dummy mit gleicher Struktur und NaN übergeben
 # für testen ein und auskommentieren
 # stateLow[,2:ncol(stateLow)] = NaN
@@ -37,6 +40,8 @@ resObj <- resultsSeeds(stateNominal = nomStates,
                       hiddenInputUncertainLower = hInputLow,
                       hiddenInputUncertainUpper = hInputUp,
                       outputEstimates = resMeas,
+                      outputEstimatesUncLower = resLow,
+                      outputEstimatesUncUpper = resUp,
                       Data = resData,
                       DataError = resDataStd)
 

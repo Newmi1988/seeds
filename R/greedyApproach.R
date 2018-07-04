@@ -355,12 +355,16 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   stateUnsc <- states
   stateUnsc[,2:ncol(stateUnsc)] = NaN
   
+
+  
   hiddenInp <- as.data.frame(resAlg[[i]]$w)
   colnames(hiddenInp)[1] <- "t"
   hiddenInpUnsc <- hiddenInp
   hiddenInpUnsc[,2:ncol(hiddenInpUnsc)] = NaN
   
   outputMeas <- as.data.frame(resAlg[[i]]$y)
+  outPutUnsc <- outputMeas
+  outPutUnsc[,2:ncol(outPutUnsc)] = NaN
   
   if(is.null(sd)) {
     emptyStd <- matrix(rep(0,length(measData[,-1, drop=FALSE])), ncol=ncol(measData[,-1, drop=FALSE]))
@@ -384,6 +388,8 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
                       hiddenInputUncertainLower = hiddenInpUnsc,
                       hiddenInputUncertainUpper = hiddenInpUnsc,
                       outputEstimates = outputMeas,
+                      outputEstimatesUncLower = outPutUnsc,
+                      outputEstimatesUncUpper = outPutUnsc,
                       Data = measData,
                       DataError = dataError
   )
