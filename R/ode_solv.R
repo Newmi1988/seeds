@@ -50,19 +50,19 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
     
     capture.output(sol <- deSolve::ode(y = x_0, time=times, func = "derivsc",
                                        parms = parameters, dllname = "model", initforc="forcc",
-                                       forcings = forcings, initfunc = "parmsc"))
+                                       forcings = forcings, initfunc = "parmsc",atol = c(1e-6,1e-16,1e-6,1e-16)))
     sol
   }
   
 
   sol <- runSilent()
 
-  
+
   if (!is.null(sol)){
     sol[sol> -0.1&sol<0] <-0
   } 
   
-  if (is.null(sol)|((sum(sol< 0)!=0))){
+  if (any(is.na(sol))|is.null(sol)|((sum(sol< 0)!=0))){
     
     runSilent <- function() {
       options(warn = -1)
@@ -71,7 +71,7 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
       
       capture.output(sol <- deSolve::ode(y = x_0, time=times, func = "derivsc",
                                          parms = parameters, dllname = "model", initforc="forcc",
-                                         forcings = forcings, initfunc = "parmsc",method = 'euler'))
+                                         forcings = forcings, initfunc = "parmsc",method = 'euler',atol = c(1e-6,1e-16,1e-6,1e-16)))
       sol
     }
     
@@ -84,14 +84,13 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
   
 
 
-  
   if (!is.null(sol)){
     sol[sol> -0.1&sol<0] <-0
   } 
   
 
   
-  if (is.null(sol)|((sum(sol< 0)!=0))){
+  if (any(is.na(sol))|is.null(sol)|((sum(sol< 0)!=0))){
     
     runSilent <- function() {
       options(warn = -1)
@@ -100,7 +99,7 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
       
       capture.output(sol <- deSolve::ode(y = x_0, time=times, func = "derivsc",
                                          parms = parameters, dllname = "model", initforc="forcc",
-                                         forcings = forcings, initfunc = "parmsc",method = 'radau'))
+                                         forcings = forcings, initfunc = "parmsc",method = 'radau',atol = c(1e-6,1e-6,1e-6,1e-16)))
       sol
     }
     
@@ -110,15 +109,14 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
 
     
   }
+
   if (!is.null(sol)){
-    sol[sol<0] <-0
+    sol[sol<0&&sol>-1] <-0
   } 
   
   
 
-
-
-  if (is.null(sol)|((sum(sol< 0)!=0))){
+  if (any(is.na(sol))|is.null(sol)|((sum(sol< 0)!=0))){
     
     print('Euler method failed :: No success :: skip intergration')
     

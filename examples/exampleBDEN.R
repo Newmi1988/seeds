@@ -37,25 +37,14 @@ modelJakStat  <- function(t, x, parameters, input) {
     
     u <- input$u(t)
     
-    if((-k1*x[1]*u)<0) k1 = 0
     
     dx1 = -k1 * x[1]  * u
     
-    if((k1*x[1]*u-k2*x[2]*x[2])<0) {
-      k1 = 0
-      k2 = 0
-    }
     
     dx2 = k1 *  x[1]  * u - k2 * x[2]*x[2]
     
-    if((-k3*x[3]+0.5*k2*x[2]*x[2])<0) {
-      k2 = 0
-      k3 = 0
-    }
-    
     dx3 = -k3*x[3] + 0.5*k2*x[2]*x[2]
     
-    if((k3 * x[3])<0) k3 = 0
      
     dx4 = k3 * x[3]
     
@@ -95,4 +84,5 @@ A <- BDEN(observation_time   = measure[['time']],
      ode_sol            = ode_solv,
      model              = modelJakStat,
      measFunc           = objectiveJakStat)
-
+Error in `[<-`(`*tmp*`, , 2, value = w_estimate[2, 2]) : 
+  subscript out of bounds 

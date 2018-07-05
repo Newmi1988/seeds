@@ -31,7 +31,7 @@ PARTIALLIKELIHOOD_func <- function(STEP,OBSERVATIONS,x_0,parameters,input,W,BETA
   
 
 
-  if(is.na(X)) return(NA)
+  if(any(is.na(X))) return(NA)
   
   SUM <-  sum(-log((1+(1/(2*BETA))*(((OBSERVATIONS[2,-1]-sapply(1:4,objective,y=tail(X,1),parameter=parameters[5:6],USE.NAMES = TRUE))^2)))^(ALPHA+0.5)))
         
