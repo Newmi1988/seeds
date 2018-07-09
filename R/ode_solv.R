@@ -99,7 +99,7 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
       
       capture.output(sol <- deSolve::ode(y = x_0, time=times, func = "derivsc",
                                          parms = parameters, dllname = "model", initforc="forcc",
-                                         forcings = forcings, initfunc = "parmsc",method = 'radau',atol = c(1e-6,1e-6,1e-6,1e-16)))
+                                         forcings = forcings, initfunc = "parmsc",method = 'radau'))
       sol
     }
     
@@ -111,7 +111,7 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
   }
 
   if (!is.null(sol)){
-    sol[sol<0&&sol>-1] <-0
+    sol[sol<0] <-0
   } 
   
   

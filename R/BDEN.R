@@ -50,7 +50,7 @@ BDEN <- function(observation_time,
                  
                  numbertrialsstep = 15,
                  numbertrialseps  = 500*4,
-                 numbertrialinner = 5,
+                 numbertrialinner = 10,
                  lambda           = .001,
                  Grad_correct     = 0,
                  alpha            = c(1,1,1,1),
