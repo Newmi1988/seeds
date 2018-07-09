@@ -9,11 +9,9 @@ modelJakStat  <- function(t, x, parameters, input) {
     k2 = parameters[2]
     k3 = parameters[3]
     
-    #bla
-    
     u <- input$u(t)
     
-    if((-k1*x[1]*u)<0) k1 = 0
+    if((-k1*x[1]*u)<0) {k1 = 0}
     
     dx1 = -k1 * x[1]  * u
     
@@ -31,7 +29,7 @@ modelJakStat  <- function(t, x, parameters, input) {
     
     dx3 = -k3*x[3] + 0.5*k2*x[2]*x[2]
     
-    if((k3 * x[3])<0) k3 = 0
+    if((k3 * x[3])<0) {k3 = 0}
     
     dx4 = k3 * x[3]
     
