@@ -40,9 +40,9 @@ for (ii in 2:STEP_SIZE+1){
     else{
       if (0.95 < max((ratio),na.rm=T)){
         
-        #Dummy <- matrix(eps1[which(ratio==max((ratio),na.rm=T)),],ncol=number_species)
-        #epsilon_container[ii,] <- Dummy[which.min(Dummy[,k]),]
-        epsilon_container[ii,] <- eps1[which.min(ratio),]
+        Dummy <- matrix(eps1[which(ratio==max((ratio),na.rm=T)),],ncol=number_species)
+        epsilon_container[ii,] <- Dummy[which.min(Dummy[,k]),]
+        #epsilon_container[ii,] <- eps1[which.min(ratio),]
         
       }
       else{
