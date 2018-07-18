@@ -106,7 +106,42 @@ createFunctions <- function(odeEq){
         funcStartStr = append(funcStartStr,addiOper,after = length(funcStartStr)+2)
       }
       
+      #### log Transformation ####
+      logTransf <- c(0,0,0,0)
+      if(sum(logTransf)>0) {
+        # create  vector of substitutes for variables
+        variableOde <- trimSpace(formatStr)
+        variableOde = gsub(pattern = "d", replacement = "", trimSpace(formatStr))
+        logVariables <- paste0(variableOde,'\\[',which(logTransf > 0),'\\]')
+        replaceVar <- paste0(variableOde,'[',which(logTransf > 0),']')
+        subSelf <- paste0("1/",replaceVar)
+        subOther <- paste0("exp(",replaceVar,")")
+        variableName <- paste0(variableOde,which(logTransf > 0))
+        
+        transfMatrix <- cbind(logVariables,subSelf,subOther,variableName)
 
+        eq <- stringOde
+        formatSameLine <- function(eq,transId,transfMatrix) {
+
+          for(i in 1:nrow(transfMatrix)) {
+            selfId <- which(grepl(pattern = paste0("d",transfMatrix[i,4],'[^0-9]'), x = eq)>0)
+            
+            #substitute expression in same line
+            eq[selfId] = gsub(paste0('[^a-z]',transfMatrix[i,1]),
+                              replacement = transfMatrix[i,2], 
+                              x = eq[selfId])
+            
+            #substitute expression in other lines
+            eq[which(1:length(eq) != selfId)] = gsub(paste0('[^a-z]',transfMatrix[i,1]),
+                                                     replacement = transfMatrix[i,3],
+                                                     x = eq[which(1:length(eq) != selfId)])
+          }
+          return(eq)
+        }
+        stringOde <- formatSameLine(eq,logTransf,transfMatrix)
+      }
+      
+      
       stringOde <- paste0("\t\t",paste0(stringOde,paste0("+ optW[",1:length(stringOde),"] *w[",1:length(stringOde),"]")))
       funcMiddleStr = append(funcStartStr,stringOde, after = length(funcStartStr)+2)
       

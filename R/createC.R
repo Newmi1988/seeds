@@ -81,6 +81,12 @@ createCFile <- function(parameters, inputs,Eq, bden){
     eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([0-9]+)+", replacement = "pow(\\1,\\2)", eqC)
     eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([a-z]+)", replacement = "pow(\\1,\\2)", eqC)
     eqC = gsub(pattern = "([a-zA-Z]*[1-9]*)\\^([a-z]+[0-9])+", replacement = "pow(\\1,\\2)", eqC)
+    # add cases for exponent
+    # eqC = gsub(pattern = "exp\\(x\\[[0-9]*\\]\\)\\")
+    
+    
+    
+    
     eqC = gsub(pattern = "(t)([^a-z])", replacement = "*\\1\\2", eqC)
     
     return(eqC)
@@ -120,8 +126,50 @@ createCFile <- function(parameters, inputs,Eq, bden){
     conditions = paste0('\t', conditions)
 
   }
+  
+  #### log transf C-Code function ####
+  logTransfC <- function(eq,logTransfInd) {
 
+    if(grepl(pattern = 'x', unlist(strsplit(x = eq, "="))[[1]])) {
+      variableOde <- "x"
+    } else {
+      variableOde <- "y"
+    }
+
+
+    variableOde = gsub(pattern = "d", replacement = "", variableOde)
+    logVariables <- paste0(variableOde,'\\[',which(logTransf > 0),'\\]')
+    replaceVar <- paste0(variableOde,'[',which(logTransf > 0),']')
+    subSelf <- paste0("1/",replaceVar)
+    subOther <- paste0("exp(",replaceVar,")")
+    
+    transfMatrix <- cbind(logVariables,subSelf,subOther)
+    formatSameLine <- function(eq,transId,transfMatrix) {
+      for(i in 1:nrow(transfMatrix)) {
+        selfId <- which(grepl(pattern = paste0("d",transfMatrix[i,1],'[^0-9]'), x = eq)>0)
+        #substitute expression in same line
+        eq[selfId] = gsub(paste0('([^a-z])',transfMatrix[i,1]),
+                          replacement = paste0('\\1',transfMatrix[i,2]), 
+                          x = eq[selfId])
+        
+        #substitute expression in other lines
+        eq[which(1:length(eq) != selfId)] = gsub(paste0('([^a-z])',transfMatrix[i,1]),
+                                                 replacement = paste0('\\1',transfMatrix[i,3]), 
+                                                 x = eq[which(1:length(eq) != selfId)])
+      }
+      return(eq)
+    }
+    logOdeEq <- formatSameLine(eq,logTransf,transfMatrix)
+    return(logOdeEq)
+  }  
+  
   eqC <- gsub(pattern = "(d*[x])([0-9]*)", replacement = "\\1[\\2]" , Eq@origEq)
+
+  #### log transf cond####
+  logTransf <- c(0,0,0,0)
+  if(sum(logTransf)>0) {
+    eqC = logTransfC(eqC,logTransf)
+  }
   eqC = formatIndeces(eqC)
   eqC = paste0("\t",eqC,"+w",1:length(eqC),";")
   
