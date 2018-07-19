@@ -164,9 +164,6 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
     logTransf[unique(logTransfVar)] = 1
   } 
-  
-  print(logTransf)
-
 
   #### Creation of C-files for use with deSolve ####
   # extract the equations of the model and save them in an odeEq object
