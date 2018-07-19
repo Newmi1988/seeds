@@ -112,33 +112,33 @@ createFunctions <- function(odeEq){
         # create  vector of substitutes for variables
         variableOde <- trimSpace(formatStr)
         variableOde = gsub(pattern = "d", replacement = "", trimSpace(formatStr))
-        logVariables <- paste0(variableOde,'\\[',which(logTransf > 0),'\\]')
+        logVarRegex <- paste0(variableOde,'\\[',which(logTransf > 0),'\\]')
         replaceVar <- paste0(variableOde,'[',which(logTransf > 0),']')
-        subSelf <- paste0("1/",replaceVar)
         subOther <- paste0("exp(",replaceVar,")")
         variableName <- paste0(variableOde,which(logTransf > 0))
         
-        transfMatrix <- cbind(logVariables,subSelf,subOther,variableName)
+        transfMatrix <- cbind(logVarRegex,subOther,variableName, replaceVar)
+        print(transfMatrix)
 
         eq <- stringOde
         formatSameLine <- function(eq,transId,transfMatrix) {
 
           for(i in 1:nrow(transfMatrix)) {
-            selfId <- which(grepl(pattern = paste0("d",transfMatrix[i,4],'[^0-9]'), x = eq)>0)
-            
-            #substitute expression in same line
-            eq[selfId] = gsub(paste0('[^a-z]',transfMatrix[i,1]),
-                              replacement = transfMatrix[i,2], 
-                              x = eq[selfId])
+            selfId <- which(grepl(pattern = paste0("d",transfMatrix[i,3],'[^0-9]'), x = eq)>0)
+            eqStrSplit <- unlist(strsplit(eq[selfId], split = '='))
+            eqLogStr <- paste(trimSpace(eqStrSplit[1]),trimSpace(paste0('(',eqStrSplit[2],')/',transfMatrix[i,4])), sep = ' = ')
+            eq[selfId] = eqLogStr
+
             
             #substitute expression in other lines
             eq[which(1:length(eq) != selfId)] = gsub(paste0('[^a-z]',transfMatrix[i,1]),
-                                                     replacement = transfMatrix[i,3],
+                                                     replacement = transfMatrix[i,2],
                                                      x = eq[which(1:length(eq) != selfId)])
           }
           return(eq)
         }
         stringOde <- formatSameLine(eq,logTransf,transfMatrix)
+        print(stringOde)
       }
       
       

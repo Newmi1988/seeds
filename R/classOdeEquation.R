@@ -12,6 +12,7 @@
 #' @slot dynamicElasticNet boolean that indicates if the system equation should be calculated for the dynamic elastic net
 #' @slot parameters parameters of the model
 #' @slot cond a slot to save conditionals in equations, which are used for formating the c files
+#' @slot logInd a slot containing a vector which indicates state variables that should be log-transformed
 #' 
 #' @export odeEquations
 #' @exportClass odeEquations
@@ -30,7 +31,8 @@ odeEquations <- setClass(
     hamiltonian = "character",
     dynamicElasticNet = "logical",
     parameters = "character",
-    cond = "list"
+    cond = "list",
+    logInd = "numeric"
   ),
 
   prototype = list(
@@ -46,7 +48,8 @@ odeEquations <- setClass(
     hamiltonian = character(0),
     dynamicElasticNet = FALSE,
     parameters = character(0),
-    cond = list()
+    cond = list(),
+    logInd = numeric(0)
   ),
   validity = function(object) {
     # ...some validation stuff...
@@ -213,3 +216,20 @@ setMethod(f = "isDynElaNet",
             return(theObject)
           }
 )
+
+setGeneric(name = "setLogTransInd",
+          def = function(theObject,logIndVec) {
+            standardGeneric("setLogTransInd")
+          }
+)
+
+setMethod(f = "setLogTransInd",
+          signature = "odeEquations",
+          definition = function(theObject,logIndVec)
+          {
+            theObject@logInd <- logIndVec
+            return(theObject)
+          }
+)
+
+

@@ -4,6 +4,8 @@ createCFile <- function(parameters, inputs,Eq, bden){
     bden <- FALSE
   }
   
+  trimSpace <- function (x) gsub("\\s", "",x)
+  
   StringC <- '#include <R.h>'
   StringC = append(StringC,'#include <math.h>')
 
@@ -82,9 +84,9 @@ createCFile <- function(parameters, inputs,Eq, bden){
     eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([a-z]+)", replacement = "pow(\\1,\\2)", eqC)
     eqC = gsub(pattern = "([a-zA-Z]*[1-9]*)\\^([a-z]+[0-9])+", replacement = "pow(\\1,\\2)", eqC)
     # add cases for exponent
-    # eqC = gsub(pattern = "exp\\(x\\[[0-9]*\\]\\)\\")
-    
-    
+    eqC = gsub(pattern = "exp\\((x\\[[0-9]*\\])\\)\\^([a-z]+[0-9])+", replacement = "pow(exp(\\1),\\2)", eqC)
+    eqC = gsub(pattern = "exp\\((x\\[[0-9]*\\])\\)\\^([0-9]+)+", replacement = "pow(exp(\\1),\\2)", eqC)
+    eqC = gsub(pattern = "exp\\((x\\[[0-9]*\\])\\)\\^([a-z]+)", replacement = "pow(exp(\\1),\\2)", eqC)
     
     
     eqC = gsub(pattern = "(t)([^a-z])", replacement = "*\\1\\2", eqC)
@@ -136,25 +138,25 @@ createCFile <- function(parameters, inputs,Eq, bden){
       variableOde <- "y"
     }
 
-
     variableOde = gsub(pattern = "d", replacement = "", variableOde)
     logVariables <- paste0(variableOde,'\\[',which(logTransf > 0),'\\]')
     replaceVar <- paste0(variableOde,'[',which(logTransf > 0),']')
-    subSelf <- paste0("1/",replaceVar)
     subOther <- paste0("exp(",replaceVar,")")
+    replaceVar <- paste0(variableOde,'[',which(logTransf > 0),']')
     
-    transfMatrix <- cbind(logVariables,subSelf,subOther)
+    transfMatrix <- cbind(logVariables,subOther,replaceVar)
+    
     formatSameLine <- function(eq,transId,transfMatrix) {
       for(i in 1:nrow(transfMatrix)) {
         selfId <- which(grepl(pattern = paste0("d",transfMatrix[i,1],'[^0-9]'), x = eq)>0)
-        #substitute expression in same line
-        eq[selfId] = gsub(paste0('([^a-z])',transfMatrix[i,1]),
-                          replacement = paste0('\\1',transfMatrix[i,2]), 
-                          x = eq[selfId])
+
+        eqStrSplit <- unlist(strsplit(eq[selfId], split = '='))
+        eqLogStr <- paste(trimSpace(eqStrSplit[1]),trimSpace(paste0('(',eqStrSplit[2],')/',transfMatrix[i,3])), sep = ' = ')
+        eq[selfId] = eqLogStr
         
         #substitute expression in other lines
         eq[which(1:length(eq) != selfId)] = gsub(paste0('([^a-z])',transfMatrix[i,1]),
-                                                 replacement = paste0('\\1',transfMatrix[i,3]), 
+                                                 replacement = paste0('\\1',transfMatrix[i,2]), 
                                                  x = eq[which(1:length(eq) != selfId)])
       }
       return(eq)
@@ -166,7 +168,8 @@ createCFile <- function(parameters, inputs,Eq, bden){
   eqC <- gsub(pattern = "(d*[x])([0-9]*)", replacement = "\\1[\\2]" , Eq@origEq)
 
   #### log transf cond####
-  logTransf <- c(0,0,0,0)
+  # logTransf <- c(0,0,0,0)
+  logTransf <- Eq@logInd
   if(sum(logTransf)>0) {
     eqC = logTransfC(eqC,logTransf)
   }

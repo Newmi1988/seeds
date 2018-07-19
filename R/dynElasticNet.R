@@ -18,11 +18,12 @@
 #' @param constStr  a string that represents constrains, can be used to calculate a hidden input for a komponent that gradient is zero
 #' @param maxIteration a upper bound for the maximal number of iterations
 #' @param eps citeria for stopping the algorithm
+#' @param logTransf a vector indicating which state variables should be log transformed to force positive solutions for the states
 #'
 #' @return A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the costfunction
 #' @export
 dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measData, constStr,
-                          SD,modelFunc,measFunc,modelInput,optW,origAUC,maxIteration,plotEsti, conjGrad, eps) {
+                          SD,modelFunc,measFunc,modelInput,optW,origAUC,maxIteration,plotEsti, conjGrad, eps,logTransf) {
   
   source('stateHiddenInput.R')
   source('costate.R')
@@ -47,6 +48,14 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
   if (missing(plotEsti)) {
     plotEsti <- FALSE
   }
+  
+  if (missing(logTransf)) {
+    logTransf <- rep(0,length(x0))
+  }
+  
+  if(sum(logTransf)>0) {
+    x0[which(logTransf>0)] = log(x0[which(logTransf>0)])
+  } 
   
   N <- 100
   times <- measData[,1]
@@ -134,6 +143,10 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
   Tx <- solNominal[,1]
   x <- solNominal[,-1, drop=FALSE]
   
+  if(sum(logTransf)>0) {
+    x[,which(logTransf>0)] = exp(x[,which(logTransf>0)])
+  } 
+  
   # initialize the hidden inputs as matrix with columns representing the inputs for each state
   w = matrix(rep(0,nrow(x)*ncol(x)), nrow = nrow(x))
   colnames(w) <- paste0(rep("w",ncol(w)),1:ncol(w))
@@ -162,7 +175,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
   #   based on cubic interpolation of the last two values of the costfunction
   #   of the backtracking line search
   #   
-  getAlphaBacktracking <- function(oldW,W,Q,y,gradStep,J,currIter,alphaDynNet,alphaS,stepBeta,optW,para,tInt,Tp,measFunc,input,measureTimes) {
+  getAlphaBacktracking <- function(oldW,W,Q,y,gradStep,J,currIter,alphaDynNet,alphaS,stepBeta,optW,para,tInt,Tp,measFunc,input,measureTimes,logTransf) {
     
     
     iter = 500
@@ -235,6 +248,10 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
       Tx = solX[,1]
       x = solX[,-1, drop=FALSE]
       
+      if(sum(logTransf)>0) {
+        x[,which(logTransf>0)] = exp(x[,which(logTransf>0)])
+      } 
+      
       yHat = getMeassures(solX,measFunc)
       if(sum(is.nan(colSums(x)))>0  || sum(colSums(x))==0) {
         stop('\nThe numerical solution of the ode system failed. See above message.')
@@ -259,7 +276,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     costAlpha2 <- arrayJ[i]
     
     # recursive function to find the minimum
-    cubicInterpolMin <- function(alphaA,alphaB,jA,jB){
+    cubicInterpolMin <- function(alphaA,alphaB,jA,jB,logTransf){
       alpha3 <- 0.5*(alphaA+alphaB)
       newW = oldW + alpha3*gradStep
       
@@ -283,6 +300,10 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
       Tx <- solX[,1]
       x <- solX[,-1, drop=FALSE]
       
+      if(sum(logTransf)>0) {
+        x[,which(logTransf>0)] = exp(x[,which(logTransf>0)])
+      } 
+      
       yHat <- getMeassures(solX,measFunc)
       
       if(sum(is.nan(colSums(x)))>0) {
@@ -304,7 +325,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
           alpha = alphaT
           return(alpha)
         } else {
-          alpha <- cubicInterpolMin(alphaA = alphaA, alphaB = alpha3, jA = jA, jB = j3)
+          alpha <- cubicInterpolMin(alphaA = alphaA, alphaB = alpha3, jA = jA, jB = j3, logTransf = logTransf)
           return(alpha)
         }
       }
@@ -315,7 +336,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     #   cubic interpolation can result in an rise of the cost function
     #   check if the calculated alpha is an descent
     
-    alphaTemp <- cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2)
+    alphaTemp <- cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2, logTransf = logTransf)
     
     return(alphaTemp)
     
@@ -576,7 +597,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     alpha = getAlphaBacktracking(oldW = oldW,W = w,Q = Q,y = measData,
                                  gradStep = step,J = J,currIter = i,alphaDynNet = alphaDynNet,
                                  alphaS = alphaS,stepBeta = armijoBeta,optW = optW,para = parameters,
-                                 tInt = tInt,Tp = Tp,measFunc = measFunc,input = input,measureTimes = measureTimes)
+                                 tInt = tInt,Tp = Tp,measFunc = measFunc,input = input,measureTimes = measureTimes, logTransf = logTransf)
     
     # calculate the new hidden inputs
     w = oldW + alpha*step
@@ -641,6 +662,10 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     ####
     Tx = solX[,1]
     x = solX[,-1, drop=FALSE]
+    
+    if(sum(logTransf)>0) {
+      x[,which(logTransf>0)] = exp(x[,which(logTransf>0)])
+    } 
     
     
     yHat <- getMeassures(solX,measFunc)

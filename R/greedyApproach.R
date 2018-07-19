@@ -45,6 +45,8 @@
 #' 
 #' @param epsilon parameter that defines the stopping criteria for the algorithm, in this case percent change in cost function J[w]
 #'
+#' @param logTransfVar a vector indicating which state variables should be log transformed to force positive solutions for the states
+#'
 #' @return returns a results-object with default plot function. The plot shows the estimated best sparse fit
 #'
 #' @example /examples/uvb.R
@@ -52,7 +54,7 @@
 #' @export
 
 greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measFunc, measData, sd, epsilon,
-                           parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString) {
+                           parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString, logTransfVar) {
 
   if(missing(systemInput)) {
     systemInput <- NULL
@@ -97,7 +99,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   if(missing(parameters)) {
     parameters <- c()
   }
-
+  
   checkSkalar <- function(argSkalar) {
     if(length(argSkalar)>1) {
       argName <- toString(deparse(substitute(argSkalar)))
@@ -140,12 +142,30 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
   checkDimensions <- function() {
     if(length(x0)!= length(optW)) {
-      stop('The vectors x0 and optW must have the same dimensions')
+      stop('The vectors x0 and optW must have the same length')
     }
   }
 
   checkDimensions()
   
+  #### log transform init ####
+  if(missing(logTransfVar)) {
+    logTransfVar <- NULL
+  }
+  
+  logTransf <- rep(0,length(x0))
+  
+  if(!is.null(logTransfVar)){
+    if(min(logTransfVar)<0 || max(logTransfVar)>length(x0)) {
+      argName <- toString(deparse(substitute(logTransfVar)))
+      errorText <- paste0(' has to have values between 1 and ',length(x0))
+      stop(paste0(argName,errorText))
+    }
+
+    logTransf[unique(logTransfVar)] = 1
+  } 
+  
+  print(logTransf)
 
 
   #### Creation of C-files for use with deSolve ####
@@ -153,6 +173,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   odeEq <- new("odeEquations")
   odeEq <- createModelEqClass(odeEq,modelFunc)
   odeEq <- setMeassureFunc(odeEq,measFunc)
+  odeEq <- setLogTransInd(odeEq,logTransf)
 
   numInputs = length(x0)+1
   
@@ -161,6 +182,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
   
   odeEq <- isDynElaNet(odeEq)
   odeEq <- calculateCostate(odeEq)
+
   createFunctions(odeEq)
   
   # check the operating system
@@ -224,7 +246,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
         dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta,x0 = x0, optW = optW, eps = epsilon,
                       measFunc= measFunc, measData = measData, SD = sd, constStr = cString,
                       alpha1 = 0, alpha2 = alpha2Start*10^(1-i), modelInput = systemInput,
-                      parameters = parameters, modelFunc = modelFunc,maxIteration=100, plotEsti = FALSE, conjGrad = conjGrad)
+                      parameters = parameters, modelFunc = modelFunc,maxIteration=100, plotEsti = FALSE, conjGrad = conjGrad, logTransf = logTransf)
       )
       parallel::stopCluster(cl)
       closeAllConnections()
@@ -248,7 +270,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
                                          measFunc= measFunc, measData = measData, SD = sd,
                                          alpha1 = alpha1, alpha2 = alpha2, constStr = cString,
                                          parameters = parameters, modelFunc = modelFunc, modelInput = systemInput,
-                                         maxIteration=100, plotEsti = plotEstimates, conjGrad = conjGrad)
+                                         maxIteration=100, plotEsti = plotEstimates, conjGrad = conjGrad, logTransf = logTransf)
         if (i==1){
           error[i,] = c(alpha2,mean(estiAlpha2[[i]]$rmse))
         } else {
@@ -273,7 +295,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
                              measFunc= measFunc, measData = measData, SD = sd,
                              alpha1 = alpha1, alpha2 = alpha2, constStr = cString,
                              parameters = parameters, modelFunc = modelFunc, plotEsti = plotEstimates,
-                             modelInput = systemInput, conjGrad = conjGrad)
+                             modelInput = systemInput, conjGrad = conjGrad, logTransf = logTransf)
   }
 
   resAlg <- list()
@@ -297,7 +319,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
       optWs[[i]] <- optW
       resAlg[[i]] <- dynElasticNet(alphaStep = alphaStep,armijoBeta = Beta, alpha1 = alpha1, alpha2 = alpha2,x0 = x0, optW = optW, eps=epsilon,
                                    measFunc= measFunc, measData = measData, SD = sd, modelInput = systemInput, constStr = cString,
-                                   parameters = parameters, modelFunc = modelFunc, origAUC = orgAUC, plotEsti = plotEstimates, conjGrad = conjGrad)
+                                   parameters = parameters, modelFunc = modelFunc, origAUC = orgAUC, plotEsti = plotEstimates, conjGrad = conjGrad, logTransf = logTransf)
       
 
 
