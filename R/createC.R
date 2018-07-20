@@ -211,13 +211,36 @@ createCFile <- function(parameters, inputs,Eq, bden){
 #'                   tries to extract the declared parameters from the model function. 
 #'                   
 #' @param bden a boolean that indicates if the c-file is used for the mcmc algorithm, default value is 'FALSE'
+#' 
+#' @param logTransfVar a vector indicating which state variables should be log transformed to force positive solutions for the states
 #'                   
 #' @return None
 #'                   
 #' @export
-createCompModel <- function(modelFunc, parameters, bden){
+createCompModel <- function(modelFunc, parameters, bden, logTransfVar){
+
+  
   odeEq <- new("odeEquations")
   odeEq <- createModelEqClass(odeEq,modelFunc)
+  
+  if(missing(logTransfVar)) {
+    logTransfVar <- NULL
+  }
+  
+  logTransf <- rep(0,length(odeEq@origEq))
+  
+  if(!is.null(logTransfVar)){
+    if(min(logTransfVar)<0 || max(logTransfVar)>length(x0)) {
+      argName <- toString(deparse(substitute(logTransfVar)))
+      errorText <- paste0(' has to have values between 1 and ',length(Eq@origEq))
+      stop(paste0(argName,errorText))
+    }
+    logTransf[unique(logTransfVar)] = 1
+  }
+  
+  print(logTransf)
+  
+  odeEq <- setLogTransInd(odeEq,logTransf)
   
   numInputs = length(odeEq@origEq)+1
   createCFile(parameters = parameters,inputs = numInputs, odeEq, bden)
