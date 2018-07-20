@@ -4,7 +4,7 @@
 \alias{createCompModel}
 \title{Create compilable c-code of a model}
 \usage{
-createCompModel(modelFunc, parameters, bden)
+createCompModel(modelFunc, parameters, bden, logTransfVar)
 }
 \arguments{
 \item{modelFunc}{a R-function that can be solved with deSolve. External input of the system should
@@ -15,6 +15,8 @@ state-space representation.}
 tries to extract the declared parameters from the model function.}
 
 \item{bden}{a boolean that indicates if the c-file is used for the mcmc algorithm, default value is 'FALSE'}
+
+\item{logTransfVar}{a vector indicating which state variables should be log transformed to force positive solutions for the states}
 }
 \value{
 None
