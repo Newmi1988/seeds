@@ -27,7 +27,7 @@ modelJakStat  <- function(t, x, parameters, input) {
 
 #### setze initialen zustand, parameter und Zeitpunkte der Auswertung durch deSolve ####
 N = 10^0.31
-x0 = c(N, 0, 0, 0)
+x0 = c(log(N), 0, 0, 0)
 y <- c(X = x0)
 
 parameters = 10^c("k1"=0.31, "k2"=-1, "k3"=-0.49, "k4"= 0.42, "s1"=-0.21, "s2"=-0.34)
@@ -35,7 +35,7 @@ evalTimes <- c( 0.0208,  0.1098,   0.2696,    0.4999,    0.8002,    1.1697,    1
 
 
 #### Function welche die C files erstellt. ####
-createCompModel(modelFunc = modelJakStat, parameters = parameters)
+createCompModel(modelFunc = modelJakStat, parameters = parameters, logTransfVar = c(1))
 ext <- .Platform$dynlib.ext #erkenne plattform um die shared libary unter Linux und Windoes laden zu können
 
 # name des shared library objects
@@ -87,5 +87,6 @@ solJakStat <- deSolve::ode(y = y, evalTimes, func = "derivsc",
                           parms = parameters, dllname = "model", initforc="forcc",
                           forcings = forcings, initfunc = "parmsc")
 
-solJakStat
+## Rücktransformation
+solJakStat[,2] = exp(solJakStat[,2])
 plot(solJakStat)
