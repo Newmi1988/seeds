@@ -61,3 +61,7 @@ l = dim(init)[1]-1
 matplot(init[,1], init[,-1], type = "l", lty = 1:1, lwd = c(2),
         col = 1:l, xlab = "time [min]", ylab = "concn [mol/L]")
 legend("topright", colnames(init)[-1], col = 1:l, lwd = c(2))
+
+#test case for equation where no change in the equation is needed
+devtools::load_all()
+createCompModel(modelFunc = logDeriv, parameters = params, logTransfVar = c(1))
