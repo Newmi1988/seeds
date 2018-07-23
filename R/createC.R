@@ -145,13 +145,20 @@ createCFile <- function(parameters, inputs,Eq, bden){
     replaceVar <- paste0(variableOde,'[',which(logTransf > 0),']')
     
     transfMatrix <- cbind(logVariables,subOther,replaceVar)
+    print(transfMatrix)
     
     formatSameLine <- function(eq,transId,transfMatrix) {
       for(i in 1:nrow(transfMatrix)) {
         selfId <- which(grepl(pattern = paste0("d",transfMatrix[i,1],'[^0-9]'), x = eq)>0)
 
         eqStrSplit <- unlist(strsplit(eq[selfId], split = '='))
-        eqLogStr <- paste(trimSpace(eqStrSplit[1]),trimSpace(paste0('(',eqStrSplit[2],')/',transfMatrix[i,3])), sep = ' = ')
+        print(eqStrSplit[2])
+        if(grepl(pattern = transfMatrix[i,1], eqStrSplit[2])) {
+          eqLogStr <- paste(trimSpace(eqStrSplit[1]),trimSpace(paste0('(',eqStrSplit[2],')/',transfMatrix[i,3])), sep = ' = ')
+        } else {
+          eqLogStr <- eq[selfId]
+        }
+        
         eq[selfId] = eqLogStr
         
         #substitute expression in other lines
@@ -237,9 +244,7 @@ createCompModel <- function(modelFunc, parameters, bden, logTransfVar){
     }
     logTransf[unique(logTransfVar)] = 1
   }
-  
-  print(logTransf)
-  
+
   odeEq <- setLogTransInd(odeEq,logTransf)
   
   numInputs = length(odeEq@origEq)+1

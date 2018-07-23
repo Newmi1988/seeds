@@ -126,7 +126,14 @@ createFunctions <- function(odeEq){
           for(i in 1:nrow(transfMatrix)) {
             selfId <- which(grepl(pattern = paste0("d",transfMatrix[i,3],'[^0-9]'), x = eq)>0)
             eqStrSplit <- unlist(strsplit(eq[selfId], split = '='))
-            eqLogStr <- paste(trimSpace(eqStrSplit[1]),trimSpace(paste0('(',eqStrSplit[2],')/',transfMatrix[i,4])), sep = ' = ')
+            #eqLogStr <- paste(trimSpace(eqStrSplit[1]),trimSpace(paste0('(',eqStrSplit[2],')/',transfMatrix[i,4])), sep = ' = ')
+            if(grepl(pattern = transfMatrix[i,1], eqStrSplit[2])) {
+              eqLogStr <- paste(trimSpace(eqStrSplit[1]),trimSpace(paste0('(',eqStrSplit[2],')/',transfMatrix[i,4])), sep = ' = ')
+            } else {
+              eqLogStr <- eq[selfId]
+            }
+            
+            
             eq[selfId] = eqLogStr
 
             
