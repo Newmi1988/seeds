@@ -1,9 +1,11 @@
 #' wrapper for the ode solver
 
 
-ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
+ode_solv <- function(TIME,x_0,parameter,input,w_estimate,LogTransform){
   
   times = TIME
+  
+  if(LogTransform){x_0[x_0!=0]<-log(x_0[x_0!=0])}
   
   
   if(!is.null(input)){
@@ -56,7 +58,19 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
   
 
   sol <- runSilent()
-
+  
+  if(LogTransform){
+    
+    sol[sol!=0]<-exp(sol[sol!=0])
+    
+    if (any(is.na(sol))|is.null(sol)|((sum(sol< 0)!=0))){
+      
+      print('Log transformation failed :: No success :: skip intergration')
+      
+      return(NA)}
+    
+    }
+  else{
 
   if (!is.null(sol)){
     sol[sol> -0.1&sol<0] <-0
@@ -121,6 +135,9 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
     print('Euler method failed :: No success :: skip intergration')
     
 return(NA)}
+  
+  }
+  
   
   return(as.data.frame(sol[,1:length(x_0)+1]))
   

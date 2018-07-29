@@ -33,6 +33,7 @@
 #' @param gibbs_update         used gibbs algorithm
 #' @param ode_sol              used ode solver
 #' @param measFunc             link function to match observations with modeled states
+#' @param LogTransform         use the log transformed ODE system 
 #' @param numbertrialsstep     number of gibbs updates per timepoint. This should be at least 10. Values have direct influnce on the runtime. 
 #' @param numbertrialseps      number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influnce on the runtime.
 #' @param numbertrialinner     number of inner samples. This should be greater 15 to guarantee a reasonable exploration of the sample space. Values have direct influnce on the runtime.
@@ -93,7 +94,7 @@ BDEN <- function(observation_time,
   PROGRESS <- R.utils::ProgressBar(max=numbertrialsstep*numbertrialseps*numbertrialinner, ticks= numbertrialseps , stepLength=1, newlineWhenDone=FALSE)
   
   ##################################################################################
-  X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*4),2))
+  X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*4),2),LogTransform)
   
   print(X_MODEL)
   X_ERROR        <- matrix(0,length(observation_time),numberstates)
@@ -180,7 +181,7 @@ BDEN <- function(observation_time,
       print('#####################################################################')
       
       MCMC_RESULTS                 <- mcmc_component(loglikelihood_func, MCMC_SET$EPS_step_size, MCMC_SET$EPS_step_size_inner, EPSILON_IT$CONT[TRIALS-1,],S,
-                                                     STEP,observations,EPSILON_IT$Y0,inputData,parameters,EPSILON_IT$ACT,VAR$SIGMA,VAR$DIAG,GIBBS_PAR,numberstates,MCMC_SET$BURNIN_inner,measFunc)
+                                                     STEP,observations,EPSILON_IT$Y0,inputData,parameters,EPSILON_IT$ACT,VAR$SIGMA,VAR$DIAG,GIBBS_PAR,numberstates,MCMC_SET$BURNIN_inner,measFunc,LogTransform)
       
       MCMC_RESULT_THIN            <- coda::mcmc(MCMC_RESULTS, start = MCMC_SET$BURNIN,end=dim(MCMC_RESULTS)[1],thin=20)
       
@@ -213,7 +214,7 @@ BDEN <- function(observation_time,
     
 
 
-     EPSILON_IT$NEW              <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),]),1))
+     EPSILON_IT$NEW              <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),],LogTransform),1))
     
     
     SOLUTION                    <- rbind(SOLUTION,EPSILON_IT$Y0)

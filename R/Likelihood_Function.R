@@ -1,6 +1,28 @@
 #' calculates the log likelihood log[L(G|x)P(G)]
+#' 
+#' The function can be replaced by an userdefined version
+#'  
+#' @param pars                 sampled hidden influence for state k (w_new) at time tn+1
+#' @param Step                 time step of the sample algorithm corresponding to the given vector of time points 
+#' @param OBSERVATIONS         observed values at the given time step/point
+#' @param parameters           model parameters estimates
+#' @param INPUT                discrete input function e.g. stimuli
+#' @param x_0                  initial values at the given time step/point
+#' @param EPS_inner            current hidden inputs at time tn
+#' @param D                    diagonal weight matrix of the current Gibbs step
+#' @param GIBBS_PAR            GIBBS_PAR[["BETA"]] and GIBBS_PAR[["ALPHA"]]; prespecified or calculated vector of state weights
+#' @param k                    number state corresponding to the given hidden influence (w_new)
+#' @param MU_JUMP              mean of the normal distributed proposal distribution
+#' @param SIGMA_JUMP           variance of the normal distributed proposal distribution
+#' @param eps_new              current sample vector of the hidden influences (including all states)
+#' @param objectivfunc,        link function to match observations with modeled states
+#' @param LogTransform         use the log transformed ODE system 
 
-LOGLIKELIHOOD_func  <- function(pars,Step,OBSERVATIONS,x_0,parameters,EPS_inner,INPUT,D,GIBBS_PAR,k,MU_JUMP,SIGMA_JUMP,eps_new,objectivfunc){
+#' @return                     returns the log-likelihood for two given hidden inputs 
+#' 
+#' 
+#' 
+LOGLIKELIHOOD_func  <- function(pars,Step,OBSERVATIONS,x_0,parameters,EPS_inner,INPUT,D,GIBBS_PAR,k,MU_JUMP,SIGMA_JUMP,eps_new,objectivfunc,LogTransform){
   
 
   EPS_inner<-rbind(EPS_inner,eps_new)
@@ -9,7 +31,7 @@ LOGLIKELIHOOD_func  <- function(pars,Step,OBSERVATIONS,x_0,parameters,EPS_inner,
   EPS_PARS[2,k] <- pars
 
   
-  RATIO_partial_new <- PARTIALLIKELIHOOD_func(Step,OBSERVATIONS,x_0,parameters,INPUT,EPS_PARS,GIBBS_PAR[["BETA"]],GIBBS_PAR[["ALPHA"]],objectivfunc) 
+  RATIO_partial_new <- PARTIALLIKELIHOOD_func(Step,OBSERVATIONS,x_0,parameters,INPUT,EPS_PARS,GIBBS_PAR[["BETA"]],GIBBS_PAR[["ALPHA"]],objectivfunc,LogTransform) 
   
   if (!is.na(RATIO_partial_new)){
   
@@ -22,12 +44,12 @@ LOGLIKELIHOOD_func  <- function(pars,Step,OBSERVATIONS,x_0,parameters,EPS_inner,
 }
 
 #partial
-PARTIALLIKELIHOOD_func <- function(STEP,OBSERVATIONS,x_0,parameters,input,W,BETA,ALPHA,objective){
+PARTIALLIKELIHOOD_func <- function(STEP,OBSERVATIONS,x_0,parameters,input,W,BETA,ALPHA,objective,LogTransform){
 
   TIME <-  c(OBSERVATIONS[STEP-1,1],OBSERVATIONS[STEP,1])
   
   
-  X <- ode_solv(TIME,x_0,parameters,input,W)
+  X <- ode_solv(TIME,x_0,parameters,input,W,LogTransform)
   
 
 
