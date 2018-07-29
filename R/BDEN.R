@@ -1,29 +1,45 @@
 #' Bayesian Dynamic Elastic Net
 #'
 #' Full Bayesian algortihm to detect hidden inputs in ODE based models.The algortihm 
-#' is an extention of the Dynamic Elastic Net algorithm (Engelhardt et al. 2016) inpiered by the Elastic-Net Regression.
+#' is an extension of the Dynamic Elastic Net algorithm (Engelhardt et al. 2016) inspired by the Elastic-Net Regression.
+#' 
+#' Ordinary differential equations (ODEs) are a popular approach to quantitatively model molecular networks based on biological knowledge. 
+#' However, such knowledge is typically restricted. Wrongly modelled biological mechanisms as well as relevant external influence factors 
+#' that are not included into the model likely manifest in major discrepancies between model predictions and experimental data. 
+#' Finding the exact reasons for such observed discrepancies can be quite challenging in practice. 
+#' In order to address this issue we suggest a Bayesian approach to estimate hidden influences in ODE based models. 
+#' The method can distinguish between exogenous and endogenous hidden influences. Thus, we can detect wrongly specified as well as missed 
+#' molecular interactions in the model. 
+#' The BDEN as a new and fully probabilistic approach, supports the modeller in an algorithmic manner to identify possible sources of errors 
+#' in ODE based models on the basis of experimental data.  THE BDEN does not require pre-specified hyper-parameters. 
+#' BDEN thus provides a systematic Bayesian computational method to identify target nodes and reconstruct the corresponding 
+#' error signal including detection of missing and wrong molecular interactions within the assumed model. 
+#' The method works for ODE based systems even with uncertain knowledge and noisy data. 
+#' In contrast to approaches based on point estimates the Bayesian framework incorporates the given uncertainty and circumvents 
+#' numerical pitfalls which frequently arise from optimization methods (Engelhardt et al. 2017).
+#' 
 #'
 #' @param observation_time     observed time points
 #' @param observations         observed state dynamics e.g. protein concentrations
-#' @param initialvalues        initial values
-#' @param parameters           model parameters 
+#' @param initialvalues        initial values of the system
+#' @param parameters           model parameters estimates
 #' @param inputData            discrete input function e.g. stimuli
 #' @param numberstates         number of modeled states
-#' @param std                  standard error
-#' @param settings             initial model specific settings
+#' @param std                  standard error of the observed stat dynamics (per time point)
+#' @param settings             initial model specific settings (autmaticly calculated based on the nominal model and data)
 #' @param model                ODE system
 #' @param mcmc_component       used sampling algorithm
 #' @param loglikelihood_func   used likelihood function
 #' @param gibbs_update         used gibbs algorithm
 #' @param ode_sol              used ode solver
 #' @param measFunc             link function to match observations with modeled states
-#' @param numbertrialsstep     number of sampels per timepoint. This should be at least 10.
-#' @param numbertrialseps      number of samples per mcmc step. This should be greater than numberStates*500.
-#' @param numbertrialinner     number of inner samples. This should be greater 15. High values have direct influnce on the runtime.
+#' @param numbertrialsstep     number of gibbs updates per timepoint. This should be at least 10. Values have direct influnce on the runtime. 
+#' @param numbertrialseps      number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influnce on the runtime.
+#' @param numbertrialinner     number of inner samples. This should be greater 15 to guarantee a reasonable exploration of the sample space. Values have direct influnce on the runtime.
 #' @param lambda               inital shrinkage parameter.
 #' @param Grad_correct         used for intial mcmc step size calculation 
-#' @param alpha                mcmc tuning paramter
-#' @param beta                 mcmc tunig parameter
+#' @param alpha                mcmc tuning paramter.
+#' @param beta                 mcmc tunig parameter.
 #'
 #' @return                     returns a results-object with default plot function
 #'
@@ -48,6 +64,7 @@ BDEN <- function(observation_time,
                  ode_sol,
                  measFunc, 
                  
+                 LogTransform     = TRUE,
                  numbertrialsstep = 15,
                  numbertrialseps  = 500*4,
                  numbertrialinner = 10,
@@ -57,25 +74,8 @@ BDEN <- function(observation_time,
                  beta_init        = c(1,1,1,0.1)){
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  createCompModel(modelFunc = model, parameters = parameters, bden = TRUE)
+  if(LogTransform) {createCompModel(modelFunc = model, parameters = parameters, bden = TRUE,logTransVar=1:numberstates)}
+  else{createCompModel(modelFunc = model, parameters = parameters, bden = TRUE)}
   ext <- .Platform$dynlib.ext 
   
   compiledModel <- paste0('model',ext)
