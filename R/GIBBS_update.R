@@ -1,5 +1,31 @@
-#' calculates the Gibbs Update
+#' Gibbs Update
+#' 
+#' Algorithm implemented according to Engelhardt et al. 2017. The BDEN defines a conditional Gaussian prior 
+#' over each hidden input. The scale of the variance of the Gaussian prior is a strongly decaying and smooth 
+#' distribution peaking at zero, which depends on parameters Lambda2, Tau and Sigma. The parameter Tau is itself 
+#' given by an exponential distribution (one for each component of the hidden influence vector) with parameters 
+#' Lambda1. In consequence, sparsity is dependent on the parameter vector Lambda1, whereas smoothness is 
+#' mainly controlled by Lambda2. These parameters are drawn from hyper-priors, which can be set in a non-informative 
+#' manner or with respect to prior knowledge about the degree of shrinkage and smoothness of the hidden influences (Engelhardt et al. 2017). 
+#' 
+#' The function can be replaced by an userdefined version if necessary
+#' 
+#' 
+#' @param D                    diagonal weight matrix of the current Gibbs step
+#' @param EPS_inner            row-wise vector of current hidden influences [tn,tn+1] 
+#' @param R                    parameter for needed for the Gibbs update (for details see Engelhardt et al. 2017)
+#' @param ROH                  parameter for needed for the Gibbs update (for details see Engelhardt et al. 2017)
+#' @param SIGMA_0              prior variance of the prior for the hidden influences
+#' @param N                    number of system states
+#' @param SIGMA                current variance of the prior for the hidden influences (calculated during the Gibbs update)
+#' @param LAMBDA2              current parameter (smoothness) needed for the Gibbs update (for details see Engelhardt et al. 2017) 
+#' @param LAMBDA1              current parameter (sparsity)  needed for the Gibbs update (for details see Engelhardt et al. 2017)   
+#' @param TAU                  current parameter (smoothness) needed for the Gibbs update (for details see Engelhardt et al. 2017) 
+#'
+#'
+#' @return                     A list of updated Gibbs parameters; i.e. Sigma, Lambda1, Lambda2, Tau
 
+#' 
 GIBBS_update  <- function(D,EPS_inner,R,ROH,SGIMA_0,n,SIGMA,LAMBDA2,LAMBDA1,TAU){
   SIGMA_A       <- (n/2)
   SIGMA_B       <- 1/((SGIMA_0*0.5)+0.5*((EPS_inner[2,]-EPS_inner[1,])*(D+diag(1,n))^-1*(EPS_inner[2,]-EPS_inner[1,])))

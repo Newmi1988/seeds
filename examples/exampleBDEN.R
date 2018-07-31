@@ -5,11 +5,12 @@ devtools::load_all()
 graphics.off()
 
 #### setze initialen zustand, parameter und Zeitpunkte der Auswertung durch deSolve ####
-N = 10^0.31
+#N = 10^0.31
+N = 2.4290
 x0 = c(N, 0, 0, 0)
-y <- c(X = x0)
 
-# parameter des modells
+
+# parameter des models
 parameters = c("k1"=2.4290, "k2"=975.4280, "k3"=0.1157, "k4"= 0, "s1"=10^-0.21, "s2"=10^-0.34)
 #parameters = 10^c("k1"=0.31, "k2"=-1, "k3"=-0.49, "k4"= 0.42, "s1"=-0.21, "s2"=-0.34)
 
@@ -51,6 +52,20 @@ modelJakStat  <- function(t, x, parameters, input) {
   })
 }
 
+
+measJakStat <- function(x,index,parameter) {
+  
+  s1 <- 10^(-0.21)
+  s2 <- 10^(-0.34)
+  
+  y1 = s1*(x[,2]+ 2*x[,3])
+  y2 = s2*(x[,1] + x[,2] + 2*x[,3])
+  
+  return(list(y1,y2))
+}
+
+
+# in BDEN loglikelhood
 objectiveJakStat  <- function(index,y,parameter){
   
 if (index == 1){
@@ -69,19 +84,25 @@ if (index == 1){
 }
 
 
-A <- BDEN(observation_time   = measure[['time']],
-     observations       = y,
-     initialvalues      = x0,
-     parameters         = parameters,
-     inputData          = as.matrix(inputData),
-     numberstates       = length(x0),
-     std                = sd,
-     settings           = SETTINGS,
-     mcmc_component     = MCMC_component,
-     loglikelihood_func = LOGLIKELIHOOD_func,
-     gibbs_update       = GIBBS_update,
-     ode_sol            = ode_solv,
-     model              = modelJakStat,
-     measFunc           = objectiveJakStat)
+
+A <- BDEN(measData           = y,
+     x0                      = x0,
+     parameters              = parameters,
+     systemInput             = inputData,
+     sd                      = sd,
+     model                   = modelJakStat,
+     measFunc                = objectiveJakStat,
+     settings                = SETTINGS,
+     mcmc_component          = MCMC_component,
+     loglikelihood_func      = LOGLIKELIHOOD_func,
+     gibbs_update            = GIBBS_update,
+     ode_sol                 = ode_solv)
+
+
+
+
+
+
+
 
 

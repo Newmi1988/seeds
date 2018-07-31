@@ -1,11 +1,14 @@
-#' wrapper for the ode solver
+#' Wrapper to the ODE Solver
 
 
 ode_solv <- function(TIME,x_0,parameter,input,w_estimate,LogTransform){
   
   times = TIME
   
-  if(LogTransform){x_0[x_0!=0]<-log(x_0[x_0!=0])}
+  if(LogTransform){
+    x_0[x_0!=0]<-log(x_0[x_0!=0])
+    x_0[x_0==0]<-log(x_0[x_0==0]+0.000001)
+    }
   
   
   if(!is.null(input)){
@@ -62,6 +65,7 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate,LogTransform){
   if(LogTransform){
     
     sol[sol!=0]<-exp(sol[sol!=0])
+    sol[sol==0]<-exp(sol[sol==0]+0.000001)
     
     if (any(is.na(sol))|is.null(sol)|((sum(sol< 0)!=0))){
       

@@ -1,5 +1,19 @@
-#' calculation of best intial settings
-
+#' Automatic Calculation of optimal Initial Parameters
+#' 
+#' Implemented according to Engelhardt et al. 2017.
+#' 
+#' The function can be replaced by an userdefined version if necessary.
+#'  
+#' @param VARIANCE             standard error of the observed stat dynamics (per time point)
+#' @param N                    number of system states
+#' @param BETA_LAMDBA          time step of the sample algorithm corresponding to the given vector of time points 
+#' @param alphainit            mcmc tuning paramter (weigthing of observed states)
+#' @param betainit             mcmc tuning paramter (weigthing of observed states)
+#' 
+#' @return                     A list of optimal initial parameters; i.e. R, Roh, Alpha, Beta, Tau, Lambda1, Lambda2
+#'
+#'
+#'
 SETTINGS <- function(VARIANCE,N,BETA_LAMDBA,alphainit,betainit){
   
     if (length(alphainit)!=N) alphainit = rep(1,N)

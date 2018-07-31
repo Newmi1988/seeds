@@ -1,6 +1,8 @@
-#' Adapted MCMC Sampler according to Engelhardt et al. 2017.
+#' Componentwise Adapted Metropolis Hastings Sampler 
 #' 
-#' The function can be replaced by an userdefined version
+#' Algorithm implemented according to Engelhardt et al. 2017.
+#' 
+#' The function can be replaced by an userdefined version if necessary
 #'  
 #' @param mcmc_component       used sampling algorithm
 #' @param LOGLIKELIHOOD_func   used likelihood function
@@ -17,7 +19,7 @@
 #' @param SIGMA                current variance of the prior for the hidden influences (calculated during the Gibbs update)
 #' @param DIAG                 diagonal weight matrix of the current Gibbs step
 #' @param GIBBS_par            GIBBS_PAR[["BETA"]] and GIBBS_PAR[["ALPHA"]]; prespecified or calculated vector of state weights
-#' @param N                    number of modeled states
+#' @param N                    number of system states
 #' @param BURNIN               number of dismissed samples during burnin
 #' @param LogTransform         use the log transformed ODE system 
 

@@ -24,23 +24,23 @@
 #' @param initialvalues        initial values of the system
 #' @param parameters           model parameters estimates
 #' @param inputData            discrete input function e.g. stimuli
-#' @param numberstates         number of modeled states
-#' @param std                  standard error of the observed stat dynamics (per time point)
+#' @param numberstates         number of system states
+#' @param sd                  standard error of the observed stat dynamics (per time point)
 #' @param settings             initial model specific settings (autmaticly calculated based on the nominal model and data)
 #' @param model                ODE system
 #' @param mcmc_component       used sampling algorithm
 #' @param loglikelihood_func   used likelihood function
 #' @param gibbs_update         used gibbs algorithm
 #' @param ode_sol              used ode solver
-#' @param measFunc             link function to match observations with modeled states
+#' @param measFunc             link function to match observations with modeled states. Takes states, index of observed variable and involved parameters. Returns the estimated observation at the given index.
 #' @param LogTransform         use the log transformed ODE system 
 #' @param numbertrialsstep     number of gibbs updates per timepoint. This should be at least 10. Values have direct influnce on the runtime. 
 #' @param numbertrialseps      number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influnce on the runtime.
 #' @param numbertrialinner     number of inner samples. This should be greater 15 to guarantee a reasonable exploration of the sample space. Values have direct influnce on the runtime.
 #' @param lambda               inital shrinkage parameter.
 #' @param Grad_correct         used for intial mcmc step size calculation 
-#' @param alpha                mcmc tuning paramter.
-#' @param beta                 mcmc tunig parameter.
+#' @param alpha                mcmc tuning paramter (weigthing of observed states)
+#' @param beta                 mcmc tunig parameter (weigthing of observed states)
 #'
 #' @return                     returns a results-object with default plot function
 #'
@@ -50,22 +50,21 @@
 #' 
 #' 
 
-BDEN <- function(observation_time,
-                 observations,
-                 initialvalues,
+
+
+BDEN <- function(measData,
+                 x0,
                  parameters,
-                 inputData,
-                 numberstates,
-                 std,
+                 systemInput,
+                 sd,
                  settings,
-                 model,
                  mcmc_component,
                  loglikelihood_func,
                  gibbs_update,
                  ode_sol,
                  measFunc, 
-                 
-                 LogTransform     = TRUE,
+                 modelFunc,
+                 LogTransform     = FALSE,
                  numbertrialsstep = 15,
                  numbertrialseps  = 500*4,
                  numbertrialinner = 10,
@@ -73,6 +72,19 @@ BDEN <- function(observation_time,
                  Grad_correct     = 0,
                  alpha            = c(1,1,1,1),
                  beta_init        = c(1,1,1,0.1)){
+  
+  
+  
+  
+  observation_time <- measData[,1]
+  observations     <- measData
+
+  
+  
+   initialvalues    <- x0
+   inputData        <- as.matrix(systemInput)
+   model            <- modelFunc
+   numberstates     <- length(x0)
   
   
   if(LogTransform) {createCompModel(modelFunc = model, parameters = parameters, bden = TRUE,logTransVar=1:numberstates)}
@@ -95,8 +107,11 @@ BDEN <- function(observation_time,
   
   ##################################################################################
   X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*4),2),LogTransform)
-  
+
+  print('Nominal State Dynamics')
   print(X_MODEL)
+  print('#################################')
+  
   X_ERROR        <- matrix(0,length(observation_time),numberstates)
   
   for (i in 1:length(observation_time)){
@@ -135,7 +150,7 @@ BDEN <- function(observation_time,
   print(numberstates)
   print(BETA_LAMBDA)
   print(beta_init)
-  GIBBS_PAR        <- SETTINGS(std,numberstates,BETA_LAMBDA,alpha,beta_init)
+  GIBBS_PAR        <- SETTINGS(sd,numberstates,BETA_LAMBDA,alpha,beta_init)
   EPS_TIME         <- observation_time
   YINIT            <- initialvalues
   EPSILON_IT$CONT  <- matrix(0, nrow = MCMC_SET$STEP_trials  , ncol = numberstates)
@@ -208,9 +223,9 @@ BDEN <- function(observation_time,
     
     
     
-    UP                          <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILONUP[c(STEP-1,STEP),]),1))
+    UP                          <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILONUP[c(STEP-1,STEP),],LogTransform),1))
     
-    LOW                         <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILONLOW[c(STEP-1,STEP),]),1))
+    LOW                         <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILONLOW[c(STEP-1,STEP),],LogTransform),1))
     
 
 
@@ -259,7 +274,7 @@ BDEN <- function(observation_time,
   nomStates <- as.data.frame(cbind(observation_time,X_MODEL))
   colnames(nomStates) = c('t','x1','x2','x3','x4')
 
-  dataError <- std
+  dataError <- sd
   colnames(dataError) <- c("t",paste0('s',1:(ncol(sd)-1)))
 
   measData <- observations
@@ -272,6 +287,8 @@ BDEN <- function(observation_time,
                              hiddenInputEstimates = hiddenInp,
                              hiddenInputUncertainLower = hiddenInpUnsclower,
                              hiddenInputUncertainUpper = hiddenInpUnscupper,
+                             outputEstimatesUncLower = NA,
+                             outputEstimatesUncUpper = NA,
                              outputEstimates = outputMeas,
                              Data = measData,
                              DataError = dataError

@@ -1,6 +1,7 @@
-#' calculates the log likelihood log[L(G|x)P(G)]
+#' Calculates the Log Likelihood for a new sample given the current state (i.e. log[L(G|x)P(G)])
 #' 
-#' The function can be replaced by an userdefined version
+#' Algorithm implemented according to Engelhardt et al. 2017.
+#' The function can be replaced by an userdefined version if necessary.
 #'  
 #' @param pars                 sampled hidden influence for state k (w_new) at time tn+1
 #' @param Step                 time step of the sample algorithm corresponding to the given vector of time points 
@@ -54,7 +55,7 @@ PARTIALLIKELIHOOD_func <- function(STEP,OBSERVATIONS,x_0,parameters,input,W,BETA
 
 
   if(any(is.na(X))) return(NA)
-  
+
   SUM <-  sum(-log((1+(1/(2*BETA))*(((OBSERVATIONS[2,-1]-sapply(1:4,objective,y=tail(X,1),parameter=parameters[5:6],USE.NAMES = TRUE))^2)))^(ALPHA+0.5)))
         
   
