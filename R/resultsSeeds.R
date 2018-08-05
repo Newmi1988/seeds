@@ -217,5 +217,30 @@ setMethod(f = "plotAnno",
           }
 )
 
+####################
+# get the calculated hidden inputs
+setGeneric(name="hiddenInputs",
+           def = function(resultsSeeds, ind)
+           {
+             standardGeneric("hiddenInputs")
+           }
+)
+
+setMethod(f = "hiddenInputs",
+          signature = c("list","numeric"),
+          definition = function(resultsSeeds,ind)
+          {
+            return(resultsSeeds[[ind]]@hiddenInputEstimates)
+          }
+)
+
+setMethod(f = "hiddenInputs",
+          signature =  c("list", "missing"),
+          definition = function(resultsSeeds, ind)
+          {
+            ind <- length(resultsSeeds)
+            return(resultsSeeds[[ind]]@hiddenInputEstimates)
+          }
+)
 
 
