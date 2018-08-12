@@ -4,9 +4,9 @@
 \alias{dynElasticNet}
 \title{estimating the optimal control using the dynamic elastic net}
 \usage{
-dynElasticNet(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2, measData,
-  constStr, SD, modelFunc, measFunc, modelInput, optW, origAUC, maxIteration,
-  plotEsti, conjGrad, eps, logTransf)
+dynElasticNet(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
+  measData, constStr, SD, modelFunc, measFunc, modelInput, optW, origAUC,
+  maxIteration, plotEsti, conjGrad, eps, logTransf)
 }
 \arguments{
 \item{alphaStep}{starting value of the stepsize for the gradient descent, will be calculate to minimize the costfunction by backtracking algorithm}

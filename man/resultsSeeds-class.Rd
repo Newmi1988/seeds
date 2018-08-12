@@ -6,7 +6,8 @@
 \alias{resultsSeeds}
 \title{Results Class for the Algorithms}
 \description{
-A S4 class that collects the results of the two algorithms
+A S4 class that collects the results of the two algorithms. The class also is equiped
+with functions for easily plotting and extracting the different results.
 }
 \section{Slots}{
 

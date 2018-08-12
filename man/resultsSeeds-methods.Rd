@@ -4,11 +4,20 @@
 \name{plot,resultsSeeds,missing-method}
 \alias{plot,resultsSeeds,missing-method}
 \alias{plotAnno,resultsSeeds-method}
+\alias{hiddenInputs}
+\alias{estiStates}
+\alias{outputEstimates}
 \title{Plot method for the S4 class resultsSeeds}
 \usage{
 \S4method{plot}{resultsSeeds,missing}(x, y)
 
 \S4method{plotAnno}{resultsSeeds}(x, stateAnno, measAnno)
+
+hiddenInputs(resultsSeeds, ind)
+
+estiStates(resultsSeeds, ind)
+
+outputEstimates(resultsSeeds, ind)
 }
 \arguments{
 \item{x}{an object of type resultsSeeds or a list of these objects. If a list
@@ -20,7 +29,19 @@ is given the last entry will be plotted.}
 
 \item{measAnno}{a character vector describing the names of the measurements}
 
+\item{resultsSeeds}{A object of the class 'resultsSeeds', which is returned from the algorithms.}
+
+\item{ind}{A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.}
+
 \item{x}{an object of type resultsSeeds which contains the results of the algorithms}
+
+\item{resultsSeeds}{A object of the class 'resultsSeeds', which is returned from the algorithms.}
+
+\item{ind}{A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.}
+
+\item{resultsSeeds}{A object of the class 'resultsSeeds', which is returned from the algorithms.}
+
+\item{ind}{A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.}
 }
 \description{
 A standardized plot function to display the results of the algorithms. Both

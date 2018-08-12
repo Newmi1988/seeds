@@ -2,10 +2,10 @@
 % Please edit documentation in R/ode_solv.R
 \name{ode_solv}
 \alias{ode_solv}
-\title{wrapper for the ode solver}
+\title{Wrapper to the ODE Solver}
 \usage{
-ode_solv(TIME, x_0, parameter, input, w_estimate)
+ode_solv(TIME, x_0, parameter, input, w_estimate, LogTransform)
 }
 \description{
-wrapper for the ode solver
+Wrapper to the ODE Solver
 }
