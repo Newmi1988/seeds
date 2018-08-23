@@ -1,4 +1,25 @@
 ### a S4 class to save the important information of a experiment
+
+#' A class to store the important information of an experiment. 
+#' 
+#' The slots are used to store the important information of an experiment. The class is used to create object for the
+#' two algorithms implemented in seeds. Methods are implemented to easy calculate the nominal solution of the model and
+#' change the details of the saved model.
+#' 
+#' The numerical solutions are calculated using the \pkg{deSolve} - package. 
+#' 
+#' @slot func A funtion containing the ode-equations of the model. For syntax look at the given examples of the \pkg{deSolve} package.
+#' @slot parms the parameters of the model
+#' @slot input matrix containing the inputs with the time points
+#' @slot measFunc function that converts the output of the ode solution
+#' @slot y initial (state) values of the ODE system, has to be a vector
+#' @slot meas matrix with the (experimental) measurements of the system
+#' @slot sd optional standard deviations of the measurements, is used by the algorithms as weights in the costfunction
+#' 
+#' @export odeModel
+#' @exportClass odeModel
+
+
 odeModel <- setClass(
   #name of Class
   "odeModel",
@@ -51,6 +72,11 @@ odeModel <- setClass(
   }
 )
 
+setMethod('initialize', "odeModel", function(.Object,...){
+  .Object <- callNextMethod()
+  return(.Object)
+})
+
 checkMatrix <- function(argMatrix) {
   if(sum(argMatrix)==0) {
     argName <- toString(deparse(substitute(argMatrix)))
@@ -59,7 +85,7 @@ checkMatrix <- function(argMatrix) {
   }
 }
 
-#set function 
+
 setGeneric(name="setModelEquation",
            def = function(theObject,func)
            {
@@ -67,6 +93,15 @@ setGeneric(name="setModelEquation",
            }
 )
 
+#' Set the model equation
+#' 
+#' Set the model equation of the system. Has to be a function that can be used with the deSolve package
+#' @param theObject an object of the class modelClass
+#' @param func function describing the ode equation of the model 
+#' 
+#' @rdname modelClass-methods
+#' 
+#' @export
 setMethod(f = "setModelEquation",
           signature = "odeModel",
           definition = function(theObject,func)
@@ -84,6 +119,14 @@ setGeneric(name="setParms",
            }
 )
 
+#' set the model parameters 
+#' 
+#' @param theObject an object of the class modelClass
+#' @param parms a vector containing the parmeters of the model 
+#' 
+#' @rdname modelClass-methods
+#' 
+#' @export
 setMethod(f = "setParms",
           signature = "odeModel",
           definition = function(theObject,parms)
@@ -101,6 +144,14 @@ setGeneric(name="setInput",
            }
 )
 
+#' Set the inputs of the model. 
+#' 
+#' @param theObject an object of the class modelClass
+#' @param func function describing the ode equation of the model 
+#' 
+#' @rdname modelClass-methods
+#' 
+#' @export
 setMethod(f = "setInput",
           signature = "odeModel",
           definition = function(theObject,input)
@@ -118,6 +169,15 @@ setGeneric(name="setMeasFunc",
            }
 )
 
+
+#' Set the measurement equation for the model
+#' 
+#' @param theObject an object of the class modelClass
+#' @param measFunc measurement function of the model. Has to be a R functions.
+#' 
+#' @rdname modelClass-methods
+#' 
+#' @export
 setMethod(f = "setMeasFunc",
           signature = "odeModel",
           definition = function(theObject,measFunc)
@@ -135,6 +195,15 @@ setGeneric(name="setY",
            }
 )
 
+
+#' Set the vector with the initial (state) values
+#' 
+#' @param theObject an object of the class modelClass
+#' @param y vector with the initial values
+#' 
+#' @rdname modelClass-methods
+#' 
+#' @export
 setMethod(f = "setY",
           signature = "odeModel",
           definition = function(theObject,y)
@@ -152,6 +221,15 @@ setGeneric(name="setMeas",
            }
 )
 
+#' set measurements of the model
+#' 
+#' @param theObject an object of the class modelClass
+#' @param meas measurements of the model, a matrix with measurements of the model
+#' and the corresponding time values
+#' 
+#' @rdname modelClass-methods
+#' 
+#' @export
 setMethod(f = "setMeas",
           signature = "odeModel",
           definition = function(theObject,meas)
@@ -169,6 +247,14 @@ setGeneric(name="setSd",
            }
 )
 
+#' Set the standard deviation of the measurements
+#' 
+#' @param theObject an object of the class modelClass
+#' @param sd a matrix with the standard deviations of the measurements
+#' 
+#' @rdname modelClass-methods
+#' 
+#' @export
 setMethod(f = "setSd",
           signature = "odeModel",
           definition = function(theObject,sd)
@@ -227,6 +313,15 @@ setGeneric(name = 'nominalSol',
            }
 )
 
+
+#' Calculate the nominal solution of the model
+#' 
+#' @param odeModel a object of the class ode model describing the experiment
+#' @param logTrans a vector indicating which of the state vector componenets should be log transformed
+#' 
+#' @rdname modelClass-methods
+#' 
+#' @export
 setMethod(f = 'nominalSol',
           signature = c('odeModel','missing'),
           definition =  function(odeModel,logTrans){

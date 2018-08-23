@@ -7,6 +7,7 @@
 \alias{hiddenInputs}
 \alias{estiStates}
 \alias{outputEstimates}
+\alias{confidenceBands}
 \title{Plot method for the S4 class resultsSeeds}
 \usage{
 \S4method{plot}{resultsSeeds,missing}(x, y)
@@ -18,6 +19,8 @@ hiddenInputs(resultsSeeds, ind)
 estiStates(resultsSeeds, ind)
 
 outputEstimates(resultsSeeds, ind)
+
+confidenceBands(resultsSeeds, slot, ind)
 }
 \arguments{
 \item{x}{an object of type resultsSeeds or a list of these objects. If a list
@@ -33,7 +36,13 @@ is given the last entry will be plotted.}
 
 \item{ind}{A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.}
 
+\item{slot}{Arguement of type character.}
+
 \item{x}{an object of type resultsSeeds which contains the results of the algorithms}
+
+\item{resultsSeeds}{A object of the class 'resultsSeeds', which is returned from the algorithms.}
+
+\item{ind}{A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.}
 
 \item{resultsSeeds}{A object of the class 'resultsSeeds', which is returned from the algorithms.}
 
