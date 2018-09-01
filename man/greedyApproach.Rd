@@ -4,11 +4,13 @@
 \alias{greedyApproach}
 \title{Greedy method for estimating a sparse solution}
 \usage{
-greedyApproach(alphaStep, Beta, alpha1, alpha2, x0, optW, times, measFunc,
-  measData, sd, epsilon, parameters, systemInput, modelFunc, greedyLogical,
-  plotEstimates, conjGrad, cString, logTransfVar)
+greedyApproach(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, times,
+  measFunc, measData, sd, epsilon, parameters, systemInput, modelFunc,
+  greedyLogical, plotEstimates, conjGrad, cString, logTransfVar)
 }
 \arguments{
+\item{odeModel}{a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis.}
+
 \item{alphaStep}{the starting stepsize for the gradient descent
 a fitting stepsize will be calculated based on a backtracking line search
 if the algorithm converges to slow use a bigger stepsize}

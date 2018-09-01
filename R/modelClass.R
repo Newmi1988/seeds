@@ -329,8 +329,9 @@ setMethod(f = 'nominalSol',
             
             times <- odeModel@input[,1]
             input <- odeModel@input
+            x0 <- odeModel@y
             colnames(input) <- rep('',ncol(input))
-            w <- matrix(rep(0,length(x0)*length(times)), ncol = length(y))
+            w <- matrix(rep(0,length(x0)*length(times)), ncol = length(x0))
             wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
             
             u <- apply(X = input[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approx(x = input[,1], y = x, xout = times, rule = 2))
@@ -338,7 +339,7 @@ setMethod(f = 'nominalSol',
             uList = list(cbind(times,u[[1]]$y))
             wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
             forcings <- c(uList, wList)
-            
+
             ext <- .Platform$dynlib.ext
             compiledModel <- paste0('model',ext)
           
@@ -349,13 +350,13 @@ setMethod(f = 'nominalSol',
             system("R CMD SHLIB model.c")
             dyn.load(compiledModel)
             
-            solJakStat <- deSolve::ode(y = odeModel@y, times = times, func = "derivsc",
+            resOde <- deSolve::ode(y = odeModel@y, times = times, func = "derivsc",
                                        parms = odeModel@parms, dllname = "model", initforc="forcc",
                                        forcings = forcings, initfunc = "parmsc")
             
             dyn.unload(compiledModel)
             
-            return(solJakStat)
+            return(resOde)
           }
 )
 

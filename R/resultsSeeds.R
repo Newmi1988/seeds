@@ -426,7 +426,7 @@ setMethod(f = "confidenceBands",
 
 #### summary #####
 summary.resultsSeeds <- function(resultsSeeds) {
-  cat('estimated states')
+  
   states <- list()
   hidInputs <- list()
   
@@ -453,6 +453,6 @@ summary.resultsSeeds <- function(resultsSeeds) {
   hiddenInputs <- do.call(what = rbind, hidInputs)
   row.names(hiddenInputs) <- c('Min.', '1st Qu.', 'Median', 'Mean', '3rd Qu.', 'Max')
   
-  return(list("states"=states, "hiddenInputs" = hiddenInputs))
+  return(list("est. states"=states, "est. hiddenInputs" = hiddenInputs))
 }
 
