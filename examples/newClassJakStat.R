@@ -53,6 +53,8 @@ JakStatModel <- odeModel(func = modelJakStat, parms = parameters, input = inputD
 plot(nominalSol(JakStatModel))
 
 # new call of the greedy method with the new object
+# necessary options
+# alphaStep 
 results <- greedyApproach(odeModel = JakStatModel, alphaStep = 0.01, alpha2 = 0.4 ,cString = JakStatConst, plotEstimates = TRUE, conjGrad = FALSE)
 
 statesAnno <- c("STAT5 cyt.", "STAT5p cyt.", "STAT5p-d cyt.", "stat5-d nucl")
@@ -62,3 +64,18 @@ measurAnno <- c("total STAT5p", "total STAT5")
 plotAnno(results,stateAnno = statesAnno, measAnno =  measurAnno)
 # new summary function for resultsSeeds objects
 summary(results[[3]])
+
+# get the hidden inputs
+# if the object is a list of resultsSeeds object use argument ind to index them
+# default gives returns values of the last listed object
+hiddenInputs(resultsSeeds = results, ind = 3)
+
+# get the states
+estiStates(resultsSeeds = results)
+
+# get the estimated outputs
+outputEstimates(resultsSeeds = results)
+
+# get confidence bands of the results (only bden)
+# slot options: "states", "hiddenInputs", "output"
+confidenceBands(resultsSeeds = results, slot = "states")
