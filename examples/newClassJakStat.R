@@ -53,7 +53,7 @@ JakStatModel <- odeModel(func = modelJakStat, parms = parameters, input = inputD
 plot(nominalSol(JakStatModel))
 
 # new call of the greedy method with the new object
-# necessary options
+# neccessary options:
 # alphaStep 
 results <- greedyApproach(odeModel = JakStatModel, alphaStep = 0.01, alpha2 = 0.4 ,cString = JakStatConst, plotEstimates = TRUE, conjGrad = FALSE)
 
