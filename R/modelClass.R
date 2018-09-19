@@ -15,6 +15,7 @@
 #' @slot y initial (state) values of the ODE system, has to be a vector
 #' @slot meas matrix with the (experimental) measurements of the system
 #' @slot sd optional standard deviations of the measurements, is used by the algorithms as weights in the costfunction
+#' @slot custom customized link function
 #' 
 #' @export odeModel
 #' 
@@ -59,10 +60,10 @@ odeModel <- setClass(
     #   object@sd = NULL
     # }
     
-    if(length(object@y) != 0) {
+    if(length(object@y) != 0 && object@custom == FALSE) {
       m <- matrix(rep(0,length(object@y)),ncol = length(object@y))
       testMeas <- do.call(cbind,object@measFunc(m))
-
+      
       if(ncol(testMeas) != (ncol(object@meas)-1)){
         return("The returned results of the measurement function does not have the same
                dimensions as the given measurements")
@@ -174,25 +175,37 @@ setMethod(f = "setInput",
 #' 
 #' @param theObject an object of the class odeModel
 #' @param measFunc measurement function of the model. Has to be a R functions.
+#' @param costum costum indexing for the measurement function
 #' 
 #' @describeIn odeModel-methods
 #' 
 #' @export
 setGeneric(name="setMeasFunc",
-           def = function(theObject,measFunc)
+           def = function(theObject,measFunc, costum)
            {
              standardGeneric("setMeasFunc")
            }
 )
 
 setMethod(f = "setMeasFunc",
-          signature = "odeModel",
-          definition = function(theObject,measFunc)
+          signature = c('odeModel','function','missing'),
+          definition = function(theObject,measFunc, costum)
           {
             theObject@measFunc  <- measFunc
             validObject(theObject)
             return(theObject)
           }
+)
+setMethod(f = "setMeasFunc",
+          signature = c('odeModel','function','logical'),
+          definition = function(theObject, measFunc, costum)
+          {
+            theObject@meas <- meas
+            theObject@custom <- costum
+            validObject(theObject)
+            return(theObject)
+          }
+          
 )
 
 #' Set the vector with the initial (state) values
@@ -238,7 +251,7 @@ setGeneric(name="setMeas",
 )
 
 setMethod(f = "setMeas",
-          signature = "odeModel",
+          signature = 'odeModel',
           definition = function(theObject,meas)
           {
             theObject@meas <- meas
@@ -246,8 +259,6 @@ setMethod(f = "setMeas",
             return(theObject)
           }
 )
-
-
 
 #' Set the standard deviation of the measurements
 #' 

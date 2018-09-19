@@ -4,12 +4,14 @@
 \alias{setMeasFunc}
 \title{Set the measurement equation for the model}
 \usage{
-setMeasFunc(theObject, measFunc)
+setMeasFunc(theObject, measFunc, costum)
 }
 \arguments{
 \item{theObject}{an object of the class odeModel}
 
 \item{measFunc}{measurement function of the model. Has to be a R functions.}
+
+\item{costum}{costum indexing for the measurement function}
 }
 \description{
 Set the measurement equation for the model
