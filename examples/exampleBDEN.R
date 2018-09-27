@@ -5,14 +5,14 @@ devtools::load_all()
 graphics.off()
 
 #### setze initialen zustand, parameter und Zeitpunkte der Auswertung durch deSolve ####
-#N = 10^0.31
-N = 2.4290
+N = 10^0.31
+#N = 2.4290
 x0 = c(N, 0, 0, 0)
 
 
 # parameter des models
-parameters = c("k1"=2.4290, "k2"=975.4280, "k3"=0.1157, "k4"= 0, "s1"=10^-0.21, "s2"=10^-0.34)
-#parameters = 10^c("k1"=0.31, "k2"=-1, "k3"=-0.49, "k4"= 0.42, "s1"=-0.21, "s2"=-0.34)
+#parameters = c("k1"=2.4290, "k2"=975.4280, "k3"=0.1157, "k4"= 0, "s1"=10^-0.21, "s2"=10^-0.34)
+parameters = 10^c("k1"=0.31, "k2"=-1, "k3"=-0.49, "k4"= 0.42, "s1"=-0.21, "s2"=-0.34)
 
 
 evalTimes <- c( 0.0208,  0.1098,   0.2696,    0.4999,    0.8002,    1.1697,    1.6077,    2.1129,    2.6843,    3.3205,    4.0200,    4.7811,    5.6020,    6.4808,    7.4154,    8.4035,    9.4429,   10.5310, 11.6653,   12.8431,   14.0616,   15.3179,   16.6090,   17.9319,   19.2834,   20.6603,   22.0594,   23.4773,   24.9107,   26.3561,   27.8102,   29.2695,   30.7305,   32.1898,   33.6439,   35.0893, 36.5227,   37.9406,   39.3397,   40.7166,   42.0681,   43.3910,   44.6821,   45.9384,   47.1569,   48.3347,   49.4690,   50.5571,   51.5965,   52.5846,   53.5192,   54.3980,   55.2189,   55.9800, 56.6795,   57.3157,   57.8871,   58.3923,   58.8303,   59.1998,   59.5001,   59.7304,   59.8902,   59.9792)
@@ -28,8 +28,6 @@ sd                           <- cbind(measure['time'],measure['sd_STAT5p_cyt'],m
 y                            <- cbind(measure['time'],((measure['STAT5ptot_cyt']/parameters['s2'])-(measure['STAT5p_cyt']/parameters['s1'])),measure['STAT5p_cyt'],measure['STAT5ptot_cyt'],(x0[1]-(measure['STAT5ptot_cyt']/parameters['s2']))/2/(1400/450))
 y[y<0]                       <- 0
 colnames(y)                  <- c("time", "STAT5" ,"STAT5p_cyt","STAT5ptot_cyt","STAT5_n")
-
-
 
 modelJakStat  <- function(t, x, parameters, input) {
   with (as.list(parameters),{
@@ -52,20 +50,6 @@ modelJakStat  <- function(t, x, parameters, input) {
   })
 }
 
-
-measJakStat <- function(x,index,parameter) {
-  
-  s1 <- 10^(-0.21)
-  s2 <- 10^(-0.34)
-  
-  y1 = s1*(x[,2]+ 2*x[,3])
-  y2 = s2*(x[,1] + x[,2] + 2*x[,3])
-  
-  return(list(y1,y2))
-}
-
-
-# in BDEN loglikelhood
 objectiveJakStat  <- function(index,y,parameter){
   
 if (index == 1){
@@ -85,18 +69,19 @@ if (index == 1){
 
 
 
-A <- BDEN(measData           = y,
-     x0                      = x0,
-     parameters              = parameters,
-     systemInput             = inputData,
-     sd                      = sd,
-     model                   = modelJakStat,
-     measFunc                = objectiveJakStat,
-     settings                = SETTINGS,
-     mcmc_component          = MCMC_component,
-     loglikelihood_func      = LOGLIKELIHOOD_func,
-     gibbs_update            = GIBBS_update,
-     ode_sol                 = ode_solv)
+JakStatModel <- odeModel(func = modelJakStat, parms = parameters, input = inputData, 
+                         measFunc = objectiveJakStat, y = x0, meas = y, sd = sd,custom=TRUE)
+
+plot(nominalSol(JakStatModel))
+
+
+A <- BDEN(odeModel               = JakStatModel,
+          settings               = SETTINGS,
+          LogTransform           = FALSE,
+          mcmc_component         = MCMC_component,
+          loglikelihood_func     = LOGLIKELIHOOD_func,
+          gibbs_update           = GIBBS_update,
+          ode_sol                = ode_solv)
 
 
 

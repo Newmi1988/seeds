@@ -15,6 +15,7 @@
 #' @slot y initial (state) values of the ODE system, has to be a vector
 #' @slot meas matrix with the (experimental) measurements of the system
 #' @slot sd optional standard deviations of the measurements, is used by the algorithms as weights in the costfunction
+#' @slot custom customized link function
 #' 
 #' @export odeModel
 #' 
@@ -31,7 +32,8 @@ odeModel <- setClass(
     measFunc = "function",
     y = "numeric",
     meas = "data.frame",
-    sd = "data.frame"
+    sd = "data.frame",
+    custom= 'logical'
   ),
   
   prototype = list(
@@ -41,7 +43,8 @@ odeModel <- setClass(
     measFunc =  function(x) {},
     y =  numeric(0),
     meas =  data.frame(matrix(numeric(0), ncol = 2)),
-    sd = data.frame(matrix(numeric(0), ncol = 2))
+    sd = data.frame(matrix(numeric(0), ncol = 2)),
+    custom=FALSE
   ),
   validity = function(object) {
     # check inputs of matrix slots
@@ -59,7 +62,7 @@ odeModel <- setClass(
     #   object@sd = NULL
     # }
     
-    if(length(object@y) != 0) {
+    if(length(object@y) != 0 && object@custom == FALSE) {
       m <- matrix(rep(0,length(object@y)),ncol = length(object@y))
       testMeas <- do.call(cbind,object@measFunc(m))
 

@@ -18,27 +18,19 @@
 #' In contrast to approaches based on point estimates the Bayesian framework incorporates the given uncertainty and circumvents 
 #' numerical pitfalls which frequently arise from optimization methods (Engelhardt et al. 2017).
 #' 
-#'
-#' @param observation_time     observed time points
-#' @param observations         observed state dynamics e.g. protein concentrations
-#' @param initialvalues        initial values of the system
-#' @param parameters           model parameters estimates
-#' @param inputData            discrete input function e.g. stimuli
-#' @param numberstates         number of system states
-#' @param sd                  standard error of the observed stat dynamics (per time point)
+#' 
+#' @param odeModel             a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis. 
 #' @param settings             initial model specific settings (autmaticly calculated based on the nominal model and data)
-#' @param model                ODE system
-#' @param mcmc_component       used sampling algorithm
-#' @param loglikelihood_func   used likelihood function
-#' @param gibbs_update         used gibbs algorithm
-#' @param ode_sol              used ode solver
-#' @param measFunc             link function to match observations with modeled states. Takes states, index of observed variable and involved parameters. Returns the estimated observation at the given index.
-#' @param LogTransform         use the log transformed ODE system 
+#' @param mcmc_component       sampling algorithm
+#' @param loglikelihood_func   likelihood function
+#' @param gibbs_update         gibbs algorithm
+#' @param ode_sol              ode solver
+#' @param LogTransform         log transformed ODE system 
 #' @param numbertrialsstep     number of gibbs updates per timepoint. This should be at least 10. Values have direct influnce on the runtime. 
 #' @param numbertrialseps      number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influnce on the runtime.
 #' @param numbertrialinner     number of inner samples. This should be greater 15 to guarantee a reasonable exploration of the sample space. Values have direct influnce on the runtime.
 #' @param lambda               inital shrinkage parameter.
-#' @param Grad_correct         used for intial mcmc step size calculation 
+#' @param Grad_correct         intial mcmc step size calculation 
 #' @param alpha                mcmc tuning paramter (weigthing of observed states)
 #' @param beta                 mcmc tunig parameter (weigthing of observed states)
 #'
@@ -52,18 +44,13 @@
 
 
 
-BDEN <- function(measData,
-                 x0,
-                 parameters,
-                 systemInput,
-                 sd,
+BDEN <- function(odeModel,
                  settings,
                  mcmc_component,
                  loglikelihood_func,
                  gibbs_update,
                  ode_sol,
-                 measFunc, 
-                 modelFunc,
+                 
                  LogTransform     = FALSE,
                  numbertrialsstep = 15,
                  numbertrialseps  = 500*4,
@@ -75,19 +62,30 @@ BDEN <- function(measData,
   
   
   
-  
-  observation_time <- measData[,1]
-  observations     <- measData
+  if(!missing(odeModel)){
+    modelFunc <- odeModel@func
+    parameters <- odeModel@parms
+    systemInput <- odeModel@input
+    measFunc <- odeModel@measFunc
+    x0 <- odeModel@y
+    measData <- odeModel@meas
+    sd <- odeModel@sd
+    
+    
+    observation_time <- measData[,1]
+    observations     <- measData
+    
 
+    
+    initialvalues    <- x0
+    inputData        <- as.matrix(systemInput)
+    model            <- modelFunc
+    numberstates     <- length(x0)
+
+  }
   
   
-   initialvalues    <- x0
-   inputData        <- as.matrix(systemInput)
-   model            <- modelFunc
-   numberstates     <- length(x0)
-  
-  
-  if(LogTransform) {createCompModel(modelFunc = model, parameters = parameters, bden = TRUE,logTransVar=1:numberstates)}
+  if(LogTransform) {createCompModel(modelFunc = model, parameters = parameters, bden = TRUE,logTransfVar=1:numberstates)}
   else{createCompModel(modelFunc = model, parameters = parameters, bden = TRUE)}
   ext <- .Platform$dynlib.ext 
   
@@ -103,8 +101,7 @@ BDEN <- function(measData,
   dyn.load(compiledModel)
   
   
-  PROGRESS <- R.utils::ProgressBar(max=numbertrialsstep*numbertrialseps*numbertrialinner, ticks= numbertrialseps , stepLength=1, newlineWhenDone=FALSE)
-  
+    
   ##################################################################################
   X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*4),2),LogTransform)
 
@@ -123,6 +120,8 @@ BDEN <- function(measData,
   for (i in 1:(numberstates-(1+Grad_correct))){   
     GRADIENT[,i]       <- abs(diff(X_ERROR[,i])/diff(observation_time))
   }
+  
+
   ##################################################################################
   COUNTER = 1
   COUNTER2 = 1
@@ -147,9 +146,9 @@ BDEN <- function(measData,
     SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.5
   }
   BETA_LAMBDA      <- lambda
-  print(numberstates)
-  print(BETA_LAMBDA)
-  print(beta_init)
+  #print(numberstates)
+  #print(BETA_LAMBDA)
+  #print(beta_init)
   GIBBS_PAR        <- SETTINGS(sd,numberstates,BETA_LAMBDA,alpha,beta_init)
   EPS_TIME         <- observation_time
   YINIT            <- initialvalues
@@ -159,17 +158,24 @@ BDEN <- function(measData,
   SOLUTIONLOW      <- YINIT*0
   SOLUTIONUP       <- YINIT*0
   EPSILON_IT$NEW   <- YINIT
-  print('S')
-  print(S)
-  print('SIGMA')
-  print(SIGMA)
-  print(GIBBS_PAR)
-  print
+  stateUnscertainlower_OUT <- dim(measData[,-1])[2]*0
+  stateUnscertainupper_OUT <- dim(measData[,-1])[2]*0
+  X_OUTPUT                <- dim(measData[,-1])[2]*0
+  
+  #print('S')
+  #print(S)
+  #print('SIGMA')
+  #print(SIGMA)
+  #print(GIBBS_PAR)
+  #print
   ##################################################################################
   
   
   for (STEP in 2:length(EPS_TIME)){
-    print(STEP)
+    
+    print(paste0('Step ',STEP-1,' of ',length(EPS_TIME)-1))
+    PROGRESS <- R.utils::ProgressBar(max=MCMC_SET$STEP_trials-1, ticks=MCMC_SET$STEP_trials-1 , stepLength=1, newlineWhenDone=FALSE)
+
     
     EPSILON_IT$Y0            <- EPSILON_IT$NEW
     GIBBS_PAR_IT$TAU         <- GIBBS_PAR$TAU
@@ -181,19 +187,19 @@ BDEN <- function(measData,
     
     for (TRIALS in 2:MCMC_SET$STEP_trials){
       R.utils::increase(PROGRESS)
-      print(TRIALS)
-      print('DIAGONAL')
+      #print(TRIALS)
+      #print('DIAGONAL')
       VAR$DIAG                    <- diag((GIBBS_PAR_IT$TAU+GIBBS_PAR_IT$LAMBDA2)^-1)
-      print(VAR$DIAG)
-      print('TAU')
-      print(GIBBS_PAR_IT$TAU)
-      print('LAMBDA')
-      print(GIBBS_PAR_IT$LAMBDA2)
-      print('DIFF EPSILON')
-      print(EPSILON_IT$ACT[2,]-EPSILON_IT$ACT[1,])
-      print(paste0('SIGMA'))
-      print(VAR$SIGMA)     
-      print('#####################################################################')
+      #print(VAR$DIAG)
+      #print('TAU')
+      #print(GIBBS_PAR_IT$TAU)
+      #print('LAMBDA')
+      #print(GIBBS_PAR_IT$LAMBDA2)
+      #print('DIFF EPSILON')
+      #print(EPSILON_IT$ACT[2,]-EPSILON_IT$ACT[1,])
+     # print(paste0('SIGMA'))
+      #print(VAR$SIGMA)     
+     # print('#####################################################################')
       
       MCMC_RESULTS                 <- mcmc_component(loglikelihood_func, MCMC_SET$EPS_step_size, MCMC_SET$EPS_step_size_inner, EPSILON_IT$CONT[TRIALS-1,],S,
                                                      STEP,observations,EPSILON_IT$Y0,inputData,parameters,EPSILON_IT$ACT,VAR$SIGMA,VAR$DIAG,GIBBS_PAR,numberstates,MCMC_SET$BURNIN_inner,measFunc,LogTransform)
@@ -221,58 +227,90 @@ BDEN <- function(measData,
     EPSILONLOW[STEP,]           <- matrixStats::colQuantiles(EPSILON_IT$CONT[-1,], probs = 0.05, na.rm = TRUE) 
     EPSILONUP[STEP,]            <- matrixStats::colQuantiles(EPSILON_IT$CONT[-1,], probs = 0.95, na.rm = TRUE)
     
-    
+
     
     UP                          <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILONUP[c(STEP-1,STEP),],LogTransform),1))
-    
     LOW                         <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILONLOW[c(STEP-1,STEP),],LogTransform),1))
     
-
+   
+     DUMMY_SOLUTION               <- matrix(0,dim(EPSILON_IT$CONT)[1],numberstates)
+    for (iii in 2:dim(EPSILON_IT$CONT)[1]){
+      DUMMY_SOLUTION[iii,] <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,rbind(EPSILON[STEP-1,],EPSILON_IT$CONT[iii,]),LogTransform),1))
+    }
+    
+    
 
      EPSILON_IT$NEW              <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),],LogTransform),1))
     
+     A <- matrixStats::colQuantiles(DUMMY_SOLUTION[-1,], probs = 0.05, na.rm = TRUE)
+     B <- matrixStats::colQuantiles(DUMMY_SOLUTION[-1,], probs = 0.95, na.rm = TRUE)
+     C <- matrixStats::colQuantiles(DUMMY_SOLUTION[-1,], probs = 0.5, na.rm = TRUE)
     
-    SOLUTION                    <- rbind(SOLUTION,EPSILON_IT$Y0)
-    SOLUTIONLOW                 <- rbind(SOLUTIONLOW,LOW)
-    SOLUTIONUP                  <- rbind(SOLUTIONUP ,UP)
+    SOLUTION                    <- rbind(SOLUTION,C)
+    SOLUTIONLOW                 <- rbind(SOLUTIONLOW,A)
+    SOLUTIONUP                  <- rbind(SOLUTIONUP ,B)
+    
+    EPSILON_IT$NEW  <- C
+    
+    stateUnscertainlower_OUT    <- rbind(stateUnscertainlower_OUT,as.numeric(sapply(1:4,measFunc,y=A,parameter=parameters[5:6],USE.NAMES = TRUE))) 
+    stateUnscertainupper_OUT    <- rbind(stateUnscertainupper_OUT,as.numeric(sapply(1:4,measFunc,y=B,parameter=parameters[5:6],USE.NAMES = TRUE)))
+    X_OUTPUT                    <- rbind(X_OUTPUT,as.numeric(sapply(1:4,measFunc,y=C,parameter=parameters[5:6],USE.NAMES = TRUE)))
+    
+    
     
     SIGMA[[STEP]]               <- VAR$SIGMA
+    
+    print(paste0('Step ',STEP-1,' of ',length(EPS_TIME)-1,'.Done'))
+    print('###################')
   }
   
-
+  
+  
+  #X_OUTPUT <- matrix(0,length(observation_time),numberstates)
+ # for (i in 1:length(observation_time)){
+ #   X_OUTPUT [i,] <- as.numeric(sapply(1:4,measFunc,y=SOLUTION[i,],parameter=parameters[5:6],USE.NAMES = TRUE))
+  #}
+  
+  #stateUnscertainlower_OUT<- matrix(0,length(observation_time),numberstates)
+  #for (i in 1:length(observation_time)){
+  #  stateUnscertainlower_OUT[i,] <- as.numeric(sapply(1:4,measFunc,y=SOLUTIONLOW[i,],parameter=parameters[5:6],USE.NAMES = TRUE))
+  #}
+  
+  #stateUnscertainupper_OUT <- matrix(0,length(observation_time),numberstates)
+  #for (i in 1:length(observation_time)){
+  #  stateUnscertainupper_OUT[i,] <- as.numeric(sapply(1:4,measFunc,y=SOLUTIONLOW[i,],parameter=parameters[5:6],USE.NAMES = TRUE))
+  #}
 
   
-
-  hiddenInpUnsclower <- as.data.frame(cbind(observation_time,EPSILONLOW))
-  colnames(hiddenInpUnsclower) = c('t','w1','w2','w3','w4')
+  hiddenInpUnsclower             <- as.data.frame(cbind(observation_time,EPSILONLOW))
+  colnames(hiddenInpUnsclower)  <- c("t",paste0('w',1: numberstates))
   
   hiddenInpUnscupper <- as.data.frame(cbind(observation_time,EPSILONUP))
-  colnames(hiddenInpUnscupper) = c('t','w1','w2','w3','w4')
+  colnames(hiddenInpUnscupper)   <- c("t",paste0('w',1: numberstates))
   
   stateUnscertainlower <- as.data.frame(cbind(observation_time,SOLUTIONLOW))
-  colnames(stateUnscertainlower)= c('t','x1','x2','x3','x4')
-  
+  colnames(stateUnscertainlower) <- c("t",paste0('x',1: numberstates))
   
   stateUnscertainupper <- as.data.frame(cbind(observation_time,SOLUTIONUP))
-  colnames(stateUnscertainupper)= c('t','x1','x2','x3','x4')
+  colnames(stateUnscertainupper) <- c("t",paste0('x',1: numberstates))
+  
+  outputEstimatesuncLower <- as.data.frame(cbind(observation_time,stateUnscertainlower_OUT))
+  colnames(outputEstimatesuncLower) <- c("t",paste0('y',1:(ncol(measData[,-1]))))
+  
+  outputEstimatesuncUpper <- as.data.frame(cbind(observation_time,stateUnscertainupper_OUT))
+  colnames(outputEstimatesuncUpper) <- c("t",paste0('y',1:(ncol(measData[,-1]))))
   
   states <- as.data.frame(cbind(observation_time,SOLUTION))
-  colnames(states)= c('t','x1','x2','x3','x4')
+  colnames(states) <- c("t",paste0('x',1: numberstates))
   
   hiddenInp <- as.data.frame(cbind(observation_time,EPSILON))
-  colnames(hiddenInp)= c('t','w1','w2','w3','w4')
-  
-  
-  X_OUTPUT <- matrix(0,length(observation_time),numberstates)
-  for (i in 1:length(observation_time)){
-    X_OUTPUT [i,] <- as.numeric(sapply(1:4,measFunc,y=SOLUTION[i,],parameter=parameters[5:6],USE.NAMES = TRUE))
-  }
+  colnames(hiddenInp) <- c("t",paste0('w',1: numberstates))
   
   outputMeas <- as.data.frame(cbind(observation_time,X_OUTPUT))
-  colnames(outputMeas) = c('t','y1','y2','y3','y4')
+  colnames(outputMeas) <- c("t",paste0('y',1:(ncol(measData[,-1]))))
   
   nomStates <- as.data.frame(cbind(observation_time,X_MODEL))
-  colnames(nomStates) = c('t','x1','x2','x3','x4')
+  colnames(nomStates) <- c("t",paste0('x',1: numberstates))
 
   dataError <- sd
   colnames(dataError) <- c("t",paste0('s',1:(ncol(sd)-1)))
@@ -280,6 +318,7 @@ BDEN <- function(measData,
   measData <- observations
   colnames(measData) <- c("t",paste0('y',1:(ncol(measData[,-1]))))
   
+ 
   res <- seeds::resultsSeeds(stateNominal = nomStates,
                              stateEstimates = states,
                              stateUnscertainLower =  stateUnscertainlower,
@@ -287,8 +326,8 @@ BDEN <- function(measData,
                              hiddenInputEstimates = hiddenInp,
                              hiddenInputUncertainLower = hiddenInpUnsclower,
                              hiddenInputUncertainUpper = hiddenInpUnscupper,
-                             outputEstimatesUncLower = NA,
-                             outputEstimatesUncUpper = NA,
+                             outputEstimatesUncLower = outputEstimatesuncLower,
+                             outputEstimatesUncUpper = outputEstimatesuncUpper,
                              outputEstimates = outputMeas,
                              Data = measData,
                              DataError = dataError
