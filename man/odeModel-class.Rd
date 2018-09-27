@@ -29,5 +29,7 @@ The numerical solutions are calculated using the \pkg{deSolve} - package.
 \item{\code{meas}}{matrix with the (experimental) measurements of the system}
 
 \item{\code{sd}}{optional standard deviations of the measurements, is used by the algorithms as weights in the costfunction}
+
+\item{\code{custom}}{customized link function}
 }}
 

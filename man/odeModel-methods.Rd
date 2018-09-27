@@ -2,22 +2,14 @@
 % Please edit documentation in R/modelClass.R
 \name{setModelEquation}
 \alias{setModelEquation}
-\alias{setMeas}
 \title{Set the model equation}
 \usage{
 setModelEquation(theObject, func)
-
-setMeas(theObject, meas)
 }
 \arguments{
 \item{theObject}{an object of the class modelClass}
 
 \item{func}{function describing the ode equation of the model}
-
-\item{meas}{measurements of the model, a matrix with measurements of the model
-and the corresponding time values}
-
-\item{theObject}{an object of the class odeModel}
 }
 \description{
 Set the model equation of the system. Has to be a function that can be used with the deSolve package
