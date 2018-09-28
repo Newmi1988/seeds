@@ -77,7 +77,7 @@ plot(nominalSol(JakStatModel))
 
 A <- BDEN(odeModel               = JakStatModel,
           settings               = SETTINGS,
-          LogTransform           = FALSE,
+          LogTransform           = TRUE,
           mcmc_component         = MCMC_component,
           loglikelihood_func     = LOGLIKELIHOOD_func,
           gibbs_update           = GIBBS_update,
