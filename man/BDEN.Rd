@@ -4,30 +4,18 @@
 \alias{BDEN}
 \title{Bayesian Dynamic Elastic Net}
 \usage{
-BDEN(observation_time, observations, initialvalues, parameters, inputData,
-  numberstates, std, settings, model, mcmc_component, loglikelihood_func,
-  gibbs_update, ode_sol, measFunc, numbertrialsstep = 15,
-  numbertrialseps = 500 * 4, numbertrialinner = 10, lambda = 0.001,
-  Grad_correct = 0, alpha = c(1, 1, 1, 1), beta_init = c(1, 1, 1, 0.1))
+BDEN(measData, x0, parameters, systemInput, sd, settings, mcmc_component,
+  loglikelihood_func, gibbs_update, ode_sol, measFunc, modelFunc,
+  LogTransform = FALSE, numbertrialsstep = 15, numbertrialseps = 500
+  * 4, numbertrialinner = 10, lambda = 0.001, Grad_correct = 0,
+  alpha = c(1, 1, 1, 1), beta_init = c(1, 1, 1, 0.1))
 }
 \arguments{
-\item{observation_time}{observed time points}
+\item{parameters}{model parameters estimates}
 
-\item{observations}{observed state dynamics e.g. protein concentrations}
+\item{sd}{standard error of the observed stat dynamics (per time point)}
 
-\item{initialvalues}{initial values}
-
-\item{parameters}{model parameters}
-
-\item{inputData}{discrete input function e.g. stimuli}
-
-\item{numberstates}{number of modeled states}
-
-\item{std}{standard error}
-
-\item{settings}{initial model specific settings}
-
-\item{model}{ODE system}
+\item{settings}{initial model specific settings (autmaticly calculated based on the nominal model and data)}
 
 \item{mcmc_component}{used sampling algorithm}
 
@@ -37,28 +25,58 @@ BDEN(observation_time, observations, initialvalues, parameters, inputData,
 
 \item{ode_sol}{used ode solver}
 
-\item{measFunc}{link function to match observations with modeled states}
+\item{measFunc}{link function to match observations with modeled states. Takes states, index of observed variable and involved parameters. Returns the estimated observation at the given index.}
 
-\item{numbertrialsstep}{number of sampels per timepoint. This should be at least 10.}
+\item{LogTransform}{use the log transformed ODE system}
 
-\item{numbertrialseps}{number of samples per mcmc step. This should be greater than numberStates*500.}
+\item{numbertrialsstep}{number of gibbs updates per timepoint. This should be at least 10. Values have direct influnce on the runtime.}
 
-\item{numbertrialinner}{number of inner samples. This should be greater 15. High values have direct influnce on the runtime.}
+\item{numbertrialseps}{number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influnce on the runtime.}
+
+\item{numbertrialinner}{number of inner samples. This should be greater 15 to guarantee a reasonable exploration of the sample space. Values have direct influnce on the runtime.}
 
 \item{lambda}{inital shrinkage parameter.}
 
 \item{Grad_correct}{used for intial mcmc step size calculation}
 
-\item{alpha}{mcmc tuning paramter}
+\item{alpha}{mcmc tuning paramter (weigthing of observed states)}
 
-\item{beta}{mcmc tunig parameter}
+\item{observation_time}{observed time points}
+
+\item{observations}{observed state dynamics e.g. protein concentrations}
+
+\item{initialvalues}{initial values of the system}
+
+\item{inputData}{discrete input function e.g. stimuli}
+
+\item{numberstates}{number of system states}
+
+\item{model}{ODE system}
+
+\item{beta}{mcmc tunig parameter (weigthing of observed states)}
 }
 \value{
 returns a results-object with default plot function
 }
 \description{
 Full Bayesian algortihm to detect hidden inputs in ODE based models.The algortihm 
-is an extention of the Dynamic Elastic Net algorithm (Engelhardt et al. 2016) inpiered by the Elastic-Net Regression.
+is an extension of the Dynamic Elastic Net algorithm (Engelhardt et al. 2016) inspired by the Elastic-Net Regression.
+}
+\details{
+Ordinary differential equations (ODEs) are a popular approach to quantitatively model molecular networks based on biological knowledge. 
+However, such knowledge is typically restricted. Wrongly modelled biological mechanisms as well as relevant external influence factors 
+that are not included into the model likely manifest in major discrepancies between model predictions and experimental data. 
+Finding the exact reasons for such observed discrepancies can be quite challenging in practice. 
+In order to address this issue we suggest a Bayesian approach to estimate hidden influences in ODE based models. 
+The method can distinguish between exogenous and endogenous hidden influences. Thus, we can detect wrongly specified as well as missed 
+molecular interactions in the model. 
+The BDEN as a new and fully probabilistic approach, supports the modeller in an algorithmic manner to identify possible sources of errors 
+in ODE based models on the basis of experimental data.  THE BDEN does not require pre-specified hyper-parameters. 
+BDEN thus provides a systematic Bayesian computational method to identify target nodes and reconstruct the corresponding 
+error signal including detection of missing and wrong molecular interactions within the assumed model. 
+The method works for ODE based systems even with uncertain knowledge and noisy data. 
+In contrast to approaches based on point estimates the Bayesian framework incorporates the given uncertainty and circumvents 
+numerical pitfalls which frequently arise from optimization methods (Engelhardt et al. 2017).
 }
 \examples{
 #### clear workspace, load package, remove graphics ####
@@ -68,11 +86,12 @@ devtools::load_all()
 graphics.off()
 
 #### setze initialen zustand, parameter und Zeitpunkte der Auswertung durch deSolve ####
-N = 10^0.31
+#N = 10^0.31
+N = 2.4290
 x0 = c(N, 0, 0, 0)
-y <- c(X = x0)
 
-# parameter des modells
+
+# parameter des models
 parameters = c("k1"=2.4290, "k2"=975.4280, "k3"=0.1157, "k4"= 0, "s1"=10^-0.21, "s2"=10^-0.34)
 #parameters = 10^c("k1"=0.31, "k2"=-1, "k3"=-0.49, "k4"= 0.42, "s1"=-0.21, "s2"=-0.34)
 
@@ -114,6 +133,20 @@ modelJakStat  <- function(t, x, parameters, input) {
   })
 }
 
+
+measJakStat <- function(x,index,parameter) {
+  
+  s1 <- 10^(-0.21)
+  s2 <- 10^(-0.34)
+  
+  y1 = s1*(x[,2]+ 2*x[,3])
+  y2 = s2*(x[,1] + x[,2] + 2*x[,3])
+  
+  return(list(y1,y2))
+}
+
+
+# in BDEN loglikelhood
 objectiveJakStat  <- function(index,y,parameter){
   
 if (index == 1){
@@ -132,20 +165,26 @@ if (index == 1){
 }
 
 
-A <- BDEN(observation_time   = measure[['time']],
-     observations       = y,
-     initialvalues      = x0,
-     parameters         = parameters,
-     inputData          = as.matrix(inputData),
-     numberstates       = length(x0),
-     std                = sd,
-     settings           = SETTINGS,
-     mcmc_component     = MCMC_component,
-     loglikelihood_func = LOGLIKELIHOOD_func,
-     gibbs_update       = GIBBS_update,
-     ode_sol            = ode_solv,
-     model              = modelJakStat,
-     measFunc           = objectiveJakStat)
+
+A <- BDEN(measData           = y,
+     x0                      = x0,
+     parameters              = parameters,
+     systemInput             = inputData,
+     sd                      = sd,
+     model                   = modelJakStat,
+     measFunc                = objectiveJakStat,
+     settings                = SETTINGS,
+     mcmc_component          = MCMC_component,
+     loglikelihood_func      = LOGLIKELIHOOD_func,
+     gibbs_update            = GIBBS_update,
+     ode_sol                 = ode_solv)
+
+
+
+
+
+
+
 
 
 }

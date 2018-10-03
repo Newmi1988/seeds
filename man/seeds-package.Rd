@@ -7,9 +7,9 @@
 \title{seeds: Estimate hidden inputs using the method of the dynamic elastic net}
 \description{
 A package combining two different algorithms for calculating hidden
-inputs. These hidden inputs can be interpreted as a controll that tries to minimize the
-discrepancies between a given model and a given measurements. The method is
-also called the 'dynamic elastic net'.
+  inputs. These hidden inputs can be interpreted as a controll that tries to minimize the
+  discrepancies between a given model and a given measurements. The method is 
+  also called the 'dynamic elastic net'.
 }
 \details{
 Details

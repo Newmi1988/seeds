@@ -1,6 +1,7 @@
 #' Results Class for the Algorithms
 #' 
-#' A S4 class that collects the results of the two algorithms
+#' A S4 class that collects the results of the two algorithms. The class also is equiped
+#' with functions for easily plotting and extracting the different results.
 #' 
 #' @slot stateNominal data.frame containing the states of the nominal model
 #' @slot stateEstimates data.frame containing the state estimates
@@ -217,8 +218,16 @@ setMethod(f = "plotAnno",
           }
 )
 
-####################
-# get the calculated hidden inputs
+
+#### return hidden Inputs ####
+#' Get the estimated hidden inputs
+#' 
+#' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
+#' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
+#'
+#' @describeIn resultsSeeds-methods
+#' 
+#' @export
 setGeneric(name="hiddenInputs",
            def = function(resultsSeeds, ind)
            {
@@ -243,4 +252,207 @@ setMethod(f = "hiddenInputs",
           }
 )
 
+setMethod(f = "hiddenInputs",
+          signature = c("resultsSeeds","missing"),
+          definition = function(resultsSeeds,ind)
+          {
+            return(resultsSeeds@hiddenInputEstimates)
+          }
+)
+
+#### return estimated states ####
+#' Get the estimated states
+#' 
+#' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
+#' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
+#'
+#' @describeIn resultsSeeds-methods
+#' 
+#' @export
+setGeneric(name="estiStates",
+           def = function(resultsSeeds, ind)
+           {
+             standardGeneric("estiStates")
+           }
+)
+
+setMethod(f = "estiStates",
+          signature = c("list","numeric"),
+          definition = function(resultsSeeds,ind)
+          {
+            return(resultsSeeds[[ind]]@stateEstimates)
+          }
+)
+
+setMethod(f = "estiStates",
+          signature =  c("list", "missing"),
+          definition = function(resultsSeeds, ind)
+          {
+            ind <- length(resultsSeeds)
+            return(resultsSeeds[[ind]]@stateEstimates)
+          }
+)
+
+setMethod(f = "estiStates",
+          signature =  c("resultsSeeds", "missing"),
+          definition = function(resultsSeeds, ind)
+          {
+            return(resultsSeeds@stateEstimates)
+          }
+)
+
+#### return estimated outputs ####
+#' Get the estimated outputs
+#' 
+#' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
+#' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
+#'
+#' @describeIn resultsSeeds-methods
+#' 
+#' @export
+setGeneric(name="outputEstimates",
+           def = function(resultsSeeds, ind)
+           {
+             standardGeneric("outputEstimates")
+           }
+)
+
+setMethod(f = "outputEstimates",
+          signature = c("list","numeric"),
+          definition = function(resultsSeeds,ind)
+          {
+            return(resultsSeeds[[ind]]@outputEstimates)
+          }
+)
+
+setMethod(f = "outputEstimates",
+          signature =  c("list", "missing"),
+          definition = function(resultsSeeds, ind)
+          {
+            ind <- length(resultsSeeds)
+            return(resultsSeeds[[ind]]@outputEstimates)
+          }
+)
+
+setMethod(f = "outputEstimates",
+          signature =  c("resultsSeeds", "missing"),
+          definition = function(resultsSeeds, ind)
+          {
+            return(resultsSeeds@outputEstimates)
+          }
+)
+
+#### return confidence bands ####
+#' Get the estimated confidence bands for the bayesian method
+#' 
+#' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
+#' @param slot Arguement of type character. 
+#' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
+#'
+#' @describeIn resultsSeeds-methods
+#' 
+#' @export
+setGeneric(name="confidenceBands",
+           def = function(resultsSeeds, slot, ind)
+           {
+             standardGeneric("confidenceBands")
+           }
+)
+
+setMethod(f = "confidenceBands",
+          signature =  c("list","character","numeric"),
+          definition = function(resultsSeeds, slot, ind)
+          {
+            res <- list()
+            if(slot =="states") {
+              res$lower <- resultsSeeds[[ind]]@stateUnscertainLower
+              res$upper <- resultsSeeds[[ind]]@stateUnscertainUpper
+            }
+            if(slot == "hiddenInputs"){
+              res$lower <- resultsSeeds[[ind]]@hiddenInputUncertainLower
+              res$upper <- resultsSeeds[[ind]]@hiddenInputUncertainUpper
+            }
+            if(slot == "output"){
+              res$lower <- resultsSeeds[[ind]]@outputEstimatesUncLower
+              res$upper <- resultsSeeds[[ind]]@outputEstimatesUncUpper
+            }
+            return(res)
+          }
+)
+
+setMethod(f = "confidenceBands",
+          signature =  c("list","character","missing"),
+          definition = function(resultsSeeds, slot, ind)
+          {
+            ind <- length(resultsSeeds)
+            res <- list()
+            if(slot =="states") {
+              res$lower <- resultsSeeds[[ind]]@stateUnscertainLower
+              res$upper <- resultsSeeds[[ind]]@stateUnscertainUpper
+            }
+            if(slot == "hiddenInputs"){
+              res$lower <- resultsSeeds[[ind]]@hiddenInputUncertainLower
+              res$upper <- resultsSeeds[[ind]]@hiddenInputUncertainUpper
+            }
+            if(slot == "output"){
+              res$lower <- resultsSeeds[[ind]]@outputEstimatesUncLower
+              res$upper <- resultsSeeds[[ind]]@outputEstimatesUncUpper
+            }
+            return(res)
+          }
+)
+
+setMethod(f = "confidenceBands",
+          signature =  c("resultsSeeds","character","missing"),
+          definition = function(resultsSeeds, slot, ind)
+          {
+            ind <- length(resultsSeeds)
+            res <- list()
+            if(slot =="states") {
+              res$lower <- resultsSeeds@stateUnscertainLower
+              res$upper <- resultsSeeds@stateUnscertainUpper
+            }
+            if(slot == "hiddenInputs"){
+              res$lower <- resultsSeeds@hiddenInputUncertainLower
+              res$upper <- resultsSeeds@hiddenInputUncertainUpper
+            }
+            if(slot == "output"){
+              res$lower <- resultsSeeds@outputEstimatesUncLower
+              res$upper <- resultsSeeds@outputEstimatesUncUpper
+            }
+            return(res)
+          }
+)
+
+#### summary #####
+summary.resultsSeeds <- function(resultsSeeds) {
+  
+  states <- list()
+  hidInputs <- list()
+  
+  states$min <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) min(x))
+  hidInputs$min <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) min(x))
+  
+  states$q1 <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) quantile(x, 0.25))
+  hidInputs$q1 <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) quantile(x, 0.25))
+  
+  states$mean <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) mean(x))
+  hidInputs$mean <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) mean(x))
+  
+  states$median <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) median(x))
+  hidInputs$median <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) median(x))
+  
+  states$q3 <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) quantile(x, 0.75))
+  hidInputs$q3 <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) quantile(x, 0.75))
+  
+  states$max <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) max(x))
+  hidInputs$max <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) max(x))
+  
+  states <- do.call(what = rbind, states)
+  row.names(states) <- c('Min.', '1st Qu.', 'Median', 'Mean', '3rd Qu.', 'Max')
+  hiddenInputs <- do.call(what = rbind, hidInputs)
+  row.names(hiddenInputs) <- c('Min.', '1st Qu.', 'Median', 'Mean', '3rd Qu.', 'Max')
+  
+  return(list("est. states"=states, "est. hiddenInputs" = hiddenInputs))
+}
 

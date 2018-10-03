@@ -2,10 +2,27 @@
 % Please edit documentation in R/SETTINGS.R
 \name{SETTINGS}
 \alias{SETTINGS}
-\title{calculation of best intial settings}
+\title{Automatic Calculation of optimal Initial Parameters}
 \usage{
 SETTINGS(VARIANCE, N, BETA_LAMDBA, alphainit, betainit)
 }
+\arguments{
+\item{VARIANCE}{standard error of the observed stat dynamics (per time point)}
+
+\item{N}{number of system states}
+
+\item{BETA_LAMDBA}{time step of the sample algorithm corresponding to the given vector of time points}
+
+\item{alphainit}{mcmc tuning paramter (weigthing of observed states)}
+
+\item{betainit}{mcmc tuning paramter (weigthing of observed states)}
+}
+\value{
+A list of optimal initial parameters; i.e. R, Roh, Alpha, Beta, Tau, Lambda1, Lambda2
+}
 \description{
-calculation of best intial settings
+Implemented according to Engelhardt et al. 2017.
+}
+\details{
+The function can be replaced by an userdefined version if necessary.
 }

@@ -2,12 +2,55 @@
 % Please edit documentation in R/MCMC_component.R
 \name{MCMC_component}
 \alias{MCMC_component}
-\title{mcmc sampler}
+\title{Componentwise Adapted Metropolis Hastings Sampler}
 \usage{
 MCMC_component(LOGLIKELIHOOD_func, STEP_SIZE, STEP_SIZE_INNER, EPSILON,
-  JUMP_SCALE, STEP, OBSERVATIONS, Y0, INPUTDATA, PARAMETER, EPSILON_ACT, SIGMA,
-  DIAG, GIBBS_par, N, BURNIN, objective)
+  JUMP_SCALE, STEP, OBSERVATIONS, Y0, INPUTDATA, PARAMETER, EPSILON_ACT,
+  SIGMA, DIAG, GIBBS_par, N, BURNIN, objective, LogTrans)
+}
+\arguments{
+\item{LOGLIKELIHOOD_func}{used likelihood function}
+
+\item{STEP_SIZE}{number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influnce on the runtime.}
+
+\item{STEP_SIZE_INNER}{number of inner samples. This should be greater 15 to guarantee a reasonable exploration of the sample space. Values have direct influnce on the runtime.}
+
+\item{EPSILON}{vector of hidden influences (placeholder for customized version)}
+
+\item{JUMP_SCALE}{ODE system}
+
+\item{STEP}{time step of the sample algorithm corresponding to the given vector of time points}
+
+\item{OBSERVATIONS}{observed state dynamics e.g. protein concentrations}
+
+\item{Y0}{initial values of the system}
+
+\item{INPUTDATA}{discrete input function e.g. stimuli}
+
+\item{PARAMETER}{model parameters estimates}
+
+\item{EPSILON_ACT}{vector of current hidden influences}
+
+\item{SIGMA}{current variance of the prior for the hidden influences (calculated during the Gibbs update)}
+
+\item{DIAG}{diagonal weight matrix of the current Gibbs step}
+
+\item{GIBBS_par}{GIBBS_PAR[["BETA"]] and GIBBS_PAR[["ALPHA"]]; prespecified or calculated vector of state weights}
+
+\item{N}{number of system states}
+
+\item{BURNIN}{number of dismissed samples during burnin}
+
+\item{mcmc_component}{used sampling algorithm}
+
+\item{LogTransform}{use the log transformed ODE system}
+}
+\value{
+A matrix with the sampled hidden inputs (row-wise)
 }
 \description{
-mcmc sampler
+Algorithm implemented according to Engelhardt et al. 2017.
+}
+\details{
+The function can be replaced by an userdefined version if necessary
 }

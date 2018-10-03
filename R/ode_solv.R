@@ -6,10 +6,10 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate,LogTransform){
   times = TIME
   
   if(LogTransform){
-    x_0[x_0!=0]<-log(x_0[x_0!=0])
-    x_0[x_0==0]<-log(x_0[x_0==0]+0.000001)
+    x_0[x_0!=0] <- log(x_0[x_0!=0])
+    x_0[x_0==0] <- log(0.00001)
     }
-  
+  print(x_0)
   
   if(!is.null(input)){
     inputApprox <- apply(X = input[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approx(x = input[,1], y = x, xout = times, rule = 2))
@@ -64,12 +64,12 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate,LogTransform){
   
   if(LogTransform){
     
-    sol[sol!=0]<-exp(sol[sol!=0])
-    sol[sol==0]<-exp(sol[sol==0]+0.000001)
+    sol[sol!=0]        <- exp(sol[sol!=0])
+    sol[sol<=0.00001] <- 0
     
     if (any(is.na(sol))|is.null(sol)|((sum(sol< 0)!=0))){
       
-      print('Log transformation failed :: No success :: skip intergration')
+      print('Log transformation failed :: No success :: skip sample')
       
       return(NA)}
     
@@ -136,7 +136,7 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate,LogTransform){
 
   if (any(is.na(sol))|is.null(sol)|((sum(sol< 0)!=0))){
     
-    print('Euler method failed :: No success :: skip intergration')
+    print('Euler method failed :: No success :: skip sample')
     
 return(NA)}
   

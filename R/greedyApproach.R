@@ -2,6 +2,8 @@
 #'
 #' calculates controls based on a first optimisation with gradient descent; should result in a sparse vector
 #' of hidden inputs.
+#' 
+#' @param odeModel a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis. 
 #'
 #' @param alphaStep      the starting stepsize for the gradient descent
 #'                a fitting stepsize will be calculated based on a backtracking line search
@@ -53,9 +55,20 @@
 #' 
 #' @export
 
-greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measFunc, measData, sd, epsilon,
+greedyApproach <- function(odeModel ,alphaStep,Beta,alpha1, alpha2, x0, optW, times, measFunc, measData, sd, epsilon,
                            parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString, logTransfVar) {
 
+  #### new object implementation ####
+  if(!missing(odeModel)){
+    modelFunc <- odeModel@func
+    parameters <- odeModel@parms
+    systemInput <- odeModel@input
+    measFunc <- odeModel@measFunc
+    x0 <- odeModel@y
+    measData <- odeModel@meas
+    sd <- odeModel@sd
+  }
+  
   if(missing(systemInput)) {
     systemInput <- NULL
   }
@@ -64,7 +77,7 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
     epsilon <- 0.25
   }
   
-  if(missing(sd)){
+  if(missing(sd) || nrow(sd)==0){
     sd <- NULL
   }
   
@@ -138,7 +151,10 @@ greedyApproach <- function(alphaStep,Beta,alpha1, alpha2, x0, optW, times, measF
 
   checkLogical(plotEstimates)
   checkLogical(greedyLogical)
-
+  
+  if(missing(optW)){
+    optW <- rep(1, length(x0))
+  }
 
   checkDimensions <- function() {
     if(length(x0)!= length(optW)) {
