@@ -11,8 +11,6 @@ importSBML <- function(modelStr) {
     
     # measurements
     rules <- model@model@rules
-
-    # every reaction is a class of type reaction
     reactions <- model@model@reactions
     
     reacList <- list()
@@ -23,20 +21,27 @@ importSBML <- function(modelStr) {
     stoichM <- stoichiometryMatrix(object = model@model)
     print(stoichM)
 
+    react <- c()
     combieReact <- function(reactStrs, stMatrix) {
       for (i in 1:nrow(stMatrix)) {
         m <- which(stMatrix[i,] !=0 )
         if(length(m)>0) {
-          test <- paste0(stMatrix[i,m],'*',reactStrs[m], collapse = ' + ')
-          print(test)
+          react <- c(react,paste0(stMatrix[i,m],'*',reactStrs[m], collapse = ' + '))
         }
-
       }
+      print(react)
     }
-    
+
     combieReact(reacList,stoichM)
     
   }
+  
+  meas <- c()
+  for (i in 1:length(rules)) {
+    meas[[i]] <- gsub(pattern = "expression", replacement = '', x = rules[[i]]@math)
+  }
+  
+  print(meas)
   
   return(model)
 }
