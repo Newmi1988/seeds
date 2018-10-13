@@ -246,5 +246,6 @@ createCompModel <- function(modelFunc, parameters, bden, logTransfVar){
   odeEq <- setLogTransInd(odeEq,logTransf)
   
   numInputs = length(odeEq@origEq)+1
+
   createCFile(parameters = parameters,inputs = numInputs, odeEq, bden)
 }
