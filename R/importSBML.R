@@ -10,14 +10,12 @@ importSBML <- function(modelStr) {
     # measurements
     rules <- model@model@rules
     reactions <- model@model@reactions
-     
     reacList <- list()
     for (i in 1:length(reactions)) {
       reacList[[i]] <- gsub(pattern = "expression",replacement = '',deparse(model@model@reactions[[i]]@kineticLaw@math, width.cutoff = 300))
     }
 
     stoichM <- stoichiometryMatrix(object = model@model)
-    
     react <- c()
     combieReact <- function(reactStrs, stMatrix) {
       for (i in 1:nrow(stMatrix)) {
@@ -63,6 +61,29 @@ importSBML <- function(modelStr) {
     }
     namedParaVec <- v
     names(namedParaVec) <- tolower(n)
+    
+    initToPara <- function(model,namedParaV){
+      const <- c()
+      for (i in 1:length(model@model@species)){
+        const[i] = model@model@species[[i]]@constant
+      }
+      print(const)
+      constSpec <- model@model@species[[which(const,TRUE)]]  
+      
+      
+      nV <- c()
+      namesV <- c()
+      for (i in 1:length(constSpec)){
+        nV[i] = constSpec@initialAmount
+        namesV[i] = constSpec@id
+      }
+      names(nV) <- tolower(namesV)
+      
+      namedParaV = c(namedParaV, nV)
+      return(namedParaV)
+    }
+    
+    namedParaVec = initToPara(model, namedParaVec)
     
     initVec <- model@model@species
     v <- c()
