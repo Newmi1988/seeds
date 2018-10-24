@@ -63,6 +63,9 @@ greedyApproach <- function(odeModel ,alphaStep,Beta,alpha1, alpha2, x0, optW, ti
     modelFunc <- odeModel@func
     parameters <- odeModel@parms
     systemInput <- odeModel@input
+    if(sum(colSums(systemInput)) == 0){
+      systemInput <- NULL
+    }
     measFunc <- odeModel@measFunc
     x0 <- odeModel@y
     measData <- odeModel@meas
@@ -268,7 +271,6 @@ greedyApproach <- function(odeModel ,alphaStep,Beta,alpha1, alpha2, x0, optW, ti
         error = rbind(error,c( alpha2Start*10^(1-i),mean(estiAlpha2[[i]]$rmse)))
       }
       
-      print(error)
   } else if(is.null(alpha2)) {
       
       cat('\nNo installation of package doParallel found:\n')
@@ -292,7 +294,6 @@ greedyApproach <- function(odeModel ,alphaStep,Beta,alpha1, alpha2, x0, optW, ti
 
       }
     
-      print(error)
     slopeErr <- abs(diff(error[,1]) / diff(error[,2]))
     #slopeErr = slopeErr[which(slopeErr >0 )]
     changeTresh <- min(which(slopeErr <0.5))
