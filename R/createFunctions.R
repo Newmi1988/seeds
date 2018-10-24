@@ -52,7 +52,7 @@ createFunctions <- function(odeEq){
 
       funcStartStr <- paste0(funcType," <-function(t,p,parameters,input) {")
       # funcStartStr <- append(funcStartStr,paste0("\twith (as.list(",paste(paraInput, collapse = ","),") {\n"),after = length(funcStartStr)+1)
-      funcStartStr <- append(funcStartStr,paste0("\twith (as.list(",paraInput,"), {\n"),after = length(funcStartStr)+1)
+      funcStartStr <- append(funcStartStr,paste0("\twith (as.list(parameters), {\n"),after = length(funcStartStr)+1)
       
       # get additional operations, like setting parameters
       addiOperUntrimed <- odeEq@modelStr[!grepl("\\{|\\}",odeEq@modelStr)]
