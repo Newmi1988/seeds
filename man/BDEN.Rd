@@ -4,30 +4,26 @@
 \alias{BDEN}
 \title{Bayesian Dynamic Elastic Net}
 \usage{
-BDEN(measData, x0, parameters, systemInput, sd, settings, mcmc_component,
-  loglikelihood_func, gibbs_update, ode_sol, measFunc, modelFunc,
-  LogTransform = FALSE, numbertrialsstep = 15, numbertrialseps = 500
-  * 4, numbertrialinner = 10, lambda = 0.001, Grad_correct = 0,
-  alpha = c(1, 1, 1, 1), beta_init = c(1, 1, 1, 0.1))
+BDEN(odeModel, settings, mcmc_component, loglikelihood_func, gibbs_update,
+  ode_sol, LogTransform = FALSE, numbertrialsstep = 15,
+  numbertrialseps = 500 * 4, numbertrialinner = 10, lambda = 0.001,
+  Grad_correct = 0, alpha = c(1, 1, 1, 1), beta_init = c(1, 1, 1,
+  0.1))
 }
 \arguments{
-\item{parameters}{model parameters estimates}
-
-\item{sd}{standard error of the observed stat dynamics (per time point)}
+\item{odeModel}{a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis.}
 
 \item{settings}{initial model specific settings (autmaticly calculated based on the nominal model and data)}
 
-\item{mcmc_component}{used sampling algorithm}
+\item{mcmc_component}{sampling algorithm}
 
-\item{loglikelihood_func}{used likelihood function}
+\item{loglikelihood_func}{likelihood function}
 
-\item{gibbs_update}{used gibbs algorithm}
+\item{gibbs_update}{gibbs algorithm}
 
-\item{ode_sol}{used ode solver}
+\item{ode_sol}{ode solver}
 
-\item{measFunc}{link function to match observations with modeled states. Takes states, index of observed variable and involved parameters. Returns the estimated observation at the given index.}
-
-\item{LogTransform}{use the log transformed ODE system}
+\item{LogTransform}{log transformed ODE system}
 
 \item{numbertrialsstep}{number of gibbs updates per timepoint. This should be at least 10. Values have direct influnce on the runtime.}
 
@@ -37,21 +33,9 @@ BDEN(measData, x0, parameters, systemInput, sd, settings, mcmc_component,
 
 \item{lambda}{inital shrinkage parameter.}
 
-\item{Grad_correct}{used for intial mcmc step size calculation}
+\item{Grad_correct}{intial mcmc step size calculation}
 
 \item{alpha}{mcmc tuning paramter (weigthing of observed states)}
-
-\item{observation_time}{observed time points}
-
-\item{observations}{observed state dynamics e.g. protein concentrations}
-
-\item{initialvalues}{initial values of the system}
-
-\item{inputData}{discrete input function e.g. stimuli}
-
-\item{numberstates}{number of system states}
-
-\item{model}{ODE system}
 
 \item{beta}{mcmc tunig parameter (weigthing of observed states)}
 }
@@ -86,14 +70,14 @@ devtools::load_all()
 graphics.off()
 
 #### setze initialen zustand, parameter und Zeitpunkte der Auswertung durch deSolve ####
-#N = 10^0.31
-N = 2.4290
+N = 10^0.31
+#N = 2.4290
 x0 = c(N, 0, 0, 0)
 
 
 # parameter des models
-parameters = c("k1"=2.4290, "k2"=975.4280, "k3"=0.1157, "k4"= 0, "s1"=10^-0.21, "s2"=10^-0.34)
-#parameters = 10^c("k1"=0.31, "k2"=-1, "k3"=-0.49, "k4"= 0.42, "s1"=-0.21, "s2"=-0.34)
+#parameters = c("k1"=2.4290, "k2"=975.4280, "k3"=0.1157, "k4"= 0, "s1"=10^-0.21, "s2"=10^-0.34)
+parameters = 10^c("k1"=0.31, "k2"=-1, "k3"=-0.49, "k4"= 0.42, "s1"=-0.21, "s2"=-0.34)
 
 
 evalTimes <- c( 0.0208,  0.1098,   0.2696,    0.4999,    0.8002,    1.1697,    1.6077,    2.1129,    2.6843,    3.3205,    4.0200,    4.7811,    5.6020,    6.4808,    7.4154,    8.4035,    9.4429,   10.5310, 11.6653,   12.8431,   14.0616,   15.3179,   16.6090,   17.9319,   19.2834,   20.6603,   22.0594,   23.4773,   24.9107,   26.3561,   27.8102,   29.2695,   30.7305,   32.1898,   33.6439,   35.0893, 36.5227,   37.9406,   39.3397,   40.7166,   42.0681,   43.3910,   44.6821,   45.9384,   47.1569,   48.3347,   49.4690,   50.5571,   51.5965,   52.5846,   53.5192,   54.3980,   55.2189,   55.9800, 56.6795,   57.3157,   57.8871,   58.3923,   58.8303,   59.1998,   59.5001,   59.7304,   59.8902,   59.9792)
@@ -109,8 +93,6 @@ sd                           <- cbind(measure['time'],measure['sd_STAT5p_cyt'],m
 y                            <- cbind(measure['time'],((measure['STAT5ptot_cyt']/parameters['s2'])-(measure['STAT5p_cyt']/parameters['s1'])),measure['STAT5p_cyt'],measure['STAT5ptot_cyt'],(x0[1]-(measure['STAT5ptot_cyt']/parameters['s2']))/2/(1400/450))
 y[y<0]                       <- 0
 colnames(y)                  <- c("time", "STAT5" ,"STAT5p_cyt","STAT5ptot_cyt","STAT5_n")
-
-
 
 modelJakStat  <- function(t, x, parameters, input) {
   with (as.list(parameters),{
@@ -133,20 +115,6 @@ modelJakStat  <- function(t, x, parameters, input) {
   })
 }
 
-
-measJakStat <- function(x,index,parameter) {
-  
-  s1 <- 10^(-0.21)
-  s2 <- 10^(-0.34)
-  
-  y1 = s1*(x[,2]+ 2*x[,3])
-  y2 = s2*(x[,1] + x[,2] + 2*x[,3])
-  
-  return(list(y1,y2))
-}
-
-
-# in BDEN loglikelhood
 objectiveJakStat  <- function(index,y,parameter){
   
 if (index == 1){
@@ -166,18 +134,19 @@ if (index == 1){
 
 
 
-A <- BDEN(measData           = y,
-     x0                      = x0,
-     parameters              = parameters,
-     systemInput             = inputData,
-     sd                      = sd,
-     model                   = modelJakStat,
-     measFunc                = objectiveJakStat,
-     settings                = SETTINGS,
-     mcmc_component          = MCMC_component,
-     loglikelihood_func      = LOGLIKELIHOOD_func,
-     gibbs_update            = GIBBS_update,
-     ode_sol                 = ode_solv)
+JakStatModel <- odeModel(func = modelJakStat, parms = parameters, input = inputData, 
+                         measFunc = objectiveJakStat, y = x0, meas = y, sd = sd,custom=TRUE)
+
+plot(nominalSol(JakStatModel))
+
+
+A <- BDEN(odeModel               = JakStatModel,
+          settings               = SETTINGS,
+          LogTransform           = TRUE,
+          mcmc_component         = MCMC_component,
+          loglikelihood_func     = LOGLIKELIHOOD_func,
+          gibbs_update           = GIBBS_update,
+          ode_sol                = ode_solv)
 
 
 

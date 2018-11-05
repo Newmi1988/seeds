@@ -2,15 +2,69 @@
 % Please edit documentation in R/modelClass.R
 \name{setModelEquation}
 \alias{setModelEquation}
+\alias{setParms}
+\alias{setInput}
+\alias{setMeasFunc}
+\alias{setY}
+\alias{setMeas}
+\alias{setSd}
+\alias{nominalSol}
 \title{Set the model equation}
 \usage{
 setModelEquation(theObject, func)
+
+setParms(theObject, parms)
+
+setInput(theObject, input)
+
+setMeasFunc(theObject, measFunc, costum)
+
+setY(theObject, y)
+
+setMeas(theObject, meas)
+
+setSd(theObject, sd)
+
+nominalSol(odeModel, logTrans)
 }
 \arguments{
-\item{theObject}{an object of the class modelClass}
+\item{theObject}{an object of the class odeModel}
 
 \item{func}{function describing the ode equation of the model}
+
+\item{parms}{a vector containing the parmeters of the model}
+
+\item{input}{function describing the ode equation of the model}
+
+\item{measFunc}{measurement function of the model. Has to be a R functions.}
+
+\item{costum}{costum indexing for the measurement function}
+
+\item{y}{vector with the initial values}
+
+\item{meas}{measurements of the model, a matrix with measurements of the model
+and the corresponding time values}
+
+\item{sd}{a matrix with the standard deviations of the measurements}
+
+\item{odeModel}{a object of the class ode model describing the experiment}
+
+\item{logTrans}{a vector indicating which of the state vector componenets should be log transformed}
+
+\item{theObject}{an object of the class odeModel}
+
+\item{theObject}{an object of the class modelClass}
+
+\item{theObject}{an object of the class odeModel}
+
+\item{theObject}{an object of the class odeModel}
+
+\item{theObject}{an object of the class odeModel}
+
+\item{theObject}{an object of the class odeModel}
 }
 \description{
 Set the model equation of the system. Has to be a function that can be used with the deSolve package
+
+a method to set the model parameters of an odeModel object.
 }

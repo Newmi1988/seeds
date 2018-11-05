@@ -2,7 +2,7 @@ importSBML <- function(modelStr) {
   if(!require('rsbml',character.only = TRUE)) {
     cat('Please install rsbml from the Bioconducture reposotory')
   } else {
-    model <- rsbml_read(filename = modelStr, dom = TRUE)
+    model <- rsbml::rsbml_read(filename = modelStr, dom = TRUE)
     
     states <- model@model@species
     parameter <- model@model@parameters
@@ -15,7 +15,7 @@ importSBML <- function(modelStr) {
       reacList[[i]] <- gsub(pattern = "expression",replacement = '',deparse(model@model@reactions[[i]]@kineticLaw@math, width.cutoff = 300))
     }
 
-    stoichM <- stoichiometryMatrix(object = model@model)
+    stoichM <- rsbml::stoichiometryMatrix(object = model@model)
     react <- c()
     combieReact <- function(reactStrs, stMatrix) {
       for (i in 1:nrow(stMatrix)) {
@@ -67,7 +67,6 @@ importSBML <- function(modelStr) {
       for (i in 1:length(model@model@species)){
         const[i] = model@model@species[[i]]@constant
       }
-      print(const)
       constSpec <- model@model@species[[which(const,TRUE)]]  
       
       

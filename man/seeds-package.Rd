@@ -8,7 +8,7 @@
 \description{
 A package combining two different algorithms for calculating hidden
   inputs. These hidden inputs can be interpreted as a controll that tries to minimize the
-  discrepancies between a given model and a given measurements. The method is 
+  discrepancies between a given model and given measurements. The method is 
   also called the 'dynamic elastic net'.
 }
 \details{

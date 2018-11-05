@@ -95,7 +95,7 @@ plotResultsSeeds  <- function(x,y) {
   
   smoothRes <- function(df) {
     omitNan <- df[, !is.nan(colSums(df)), drop=FALSE]
-    df[,!is.nan(colSums(df))] = apply(X = omitNan, MARGIN = 2, FUN = function(x) smooth(x = x))
+    df[,!is.nan(colSums(df))] = apply(X = omitNan, MARGIN = 2, FUN = function(x) stats::smooth(x = x))
     return(df)
   }
   
@@ -225,7 +225,7 @@ setMethod(f = "plotAnno",
 #' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
-#' @describeIn resultsSeeds-methods
+#' @rdname resultsSeeds-methods
 #' 
 #' @export
 setGeneric(name="hiddenInputs",
@@ -266,7 +266,7 @@ setMethod(f = "hiddenInputs",
 #' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
-#' @describeIn resultsSeeds-methods
+#' @rdname resultsSeeds-methods
 #' 
 #' @export
 setGeneric(name="estiStates",
@@ -307,7 +307,7 @@ setMethod(f = "estiStates",
 #' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
-#' @describeIn resultsSeeds-methods
+#' @rdname resultsSeeds-methods
 #' 
 #' @export
 setGeneric(name="outputEstimates",
@@ -349,7 +349,7 @@ setMethod(f = "outputEstimates",
 #' @param slot Arguement of type character. 
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
-#' @describeIn resultsSeeds-methods
+#' @rdname resultsSeeds-methods
 #' 
 #' @export
 setGeneric(name="confidenceBands",

@@ -4,7 +4,7 @@
 \alias{greedyApproach}
 \title{Greedy method for estimating a sparse solution}
 \usage{
-greedyApproach(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, times,
+greedyApproach(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW,
   measFunc, measData, sd, epsilon, parameters, systemInput, modelFunc,
   greedyLogical, plotEstimates, conjGrad, cString, logTransfVar)
 }
