@@ -433,17 +433,17 @@ summary.resultsSeeds <- function(resultsSeeds) {
   states$min <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) min(x))
   hidInputs$min <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) min(x))
   
-  states$q1 <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) quantile(x, 0.25))
-  hidInputs$q1 <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) quantile(x, 0.25))
+  states$q1 <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) stats::quantile(x, 0.25))
+  hidInputs$q1 <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) stats::quantile(x, 0.25))
   
   states$mean <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) mean(x))
   hidInputs$mean <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) mean(x))
   
-  states$median <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) median(x))
-  hidInputs$median <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) median(x))
+  states$median <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) stats::median(x))
+  hidInputs$median <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) stats::median(x))
   
-  states$q3 <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) quantile(x, 0.75))
-  hidInputs$q3 <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) quantile(x, 0.75))
+  states$q3 <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) stats::quantile(x, 0.75))
+  hidInputs$q3 <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) stats::quantile(x, 0.75))
   
   states$max <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) max(x))
   hidInputs$max <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) max(x))

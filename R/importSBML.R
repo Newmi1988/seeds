@@ -2,6 +2,7 @@ importSBML <- function(modelStr) {
   if(!require('rsbml',character.only = TRUE)) {
     cat('Please install rsbml from the Bioconducture reposotory')
   } else {
+    requireNamespace("rsbml")
     model <- rsbml::rsbml_read(filename = modelStr, dom = TRUE)
     
     states <- model@model@species
@@ -98,6 +99,7 @@ importSBML <- function(modelStr) {
     
     model <- odeModel(func = eqFuncList$reac, parms = namedParaVec, measFunc = eqFuncList$meas, y = initState)
   }
+  unloadNamespace('rsbml')
   
   return(model)
 }

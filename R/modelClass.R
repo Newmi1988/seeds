@@ -204,7 +204,7 @@ setMethod(f = "setMeasFunc",
           signature = c('odeModel','function','logical'),
           definition = function(theObject, measFunc, costum)
           {
-            theObject@meas <- meas
+            theObject@meas <- measFunc
             theObject@custom <- costum
             validObject(theObject)
             return(theObject)
@@ -357,7 +357,7 @@ setMethod(f = 'nominalSol',
             ### get the times from the measurements
             # add case for missing input
             times <- odeModel@meas[,1]
-            if (sum(colSums(uvb@input))==0){
+            if (sum(colSums(odeModel@input))==0){
               uList = list(cbind(times,rep(0,length(times)))) 
             } else {
               input <- odeModel@input
@@ -399,7 +399,7 @@ setMethod(f = 'nominalSol',
             ### get the times from the measurements
             # add case for missing input
             times <- odeModel@meas[,1]
-            if (sum(colSums(uvb@input))==0){
+            if (sum(colSums(odeModel@input))==0){
               uList = list(cbind(times,rep(0,length(times)))) 
             } else {
               input <- odeModel@input
@@ -411,7 +411,7 @@ setMethod(f = 'nominalSol',
             
             
             
-            w <- matrix(rep(0,length(x0)*length(times)), ncol = length(y))
+            w <- matrix(rep(0,length(x0)*length(times)), ncol = length(x0))
             wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
             
 

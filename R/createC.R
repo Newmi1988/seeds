@@ -235,9 +235,9 @@ createCompModel <- function(modelFunc, parameters, bden, logTransfVar){
   logTransf <- rep(0,length(odeEq@origEq))
   
   if(!is.null(logTransfVar)){
-    if(min(logTransfVar)<0 || max(logTransfVar)>length(x0)) {
+    if(min(logTransfVar)<0 || max(logTransfVar)>length(modelFunc)) {
       argName <- toString(deparse(substitute(logTransfVar)))
-      errorText <- paste0(' has to have values between 1 and ',length(Eq@origEq))
+      errorText <- paste0(' has to have values between 1 and ',length(modelFunc))
       stop(paste0(argName,errorText))
     }
     logTransf[unique(logTransfVar)] = 1
