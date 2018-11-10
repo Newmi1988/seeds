@@ -18,7 +18,6 @@
 #' @slot custom customized link function
 #' 
 #' @export odeModel
-#' 
 #' @exportClass odeModel
 #'
 #' @import methods
@@ -99,8 +98,6 @@ checkMatrix <- function(argMatrix) {
 #' @param theObject an object of the class odeModel
 #' @param func function describing the ode equation of the model 
 #' 
-#' @rdname odeModel-methods
-#' 
 #' @export
 setGeneric(name="setModelEquation",
            def = function(theObject,func)
@@ -109,6 +106,7 @@ setGeneric(name="setModelEquation",
            }
 )
 
+#' @rdname setModelEquation
 setMethod(f = "setModelEquation",
           signature = "odeModel",
           definition = function(theObject,func)
@@ -127,8 +125,6 @@ setMethod(f = "setModelEquation",
 #' @param theObject an object of the class odeModel
 #' @param parms a vector containing the parmeters of the model 
 #' 
-#' @rdname odeModel-methods
-#' 
 #' @export
 setGeneric(name="setParms",
            def = function(theObject,parms)
@@ -137,6 +133,7 @@ setGeneric(name="setParms",
            }
 )
 
+#' @rdname setParms
 setMethod(f = "setParms",
           signature = c("odeModel",'numeric'),
           definition = function(theObject,parms)
@@ -152,8 +149,6 @@ setMethod(f = "setParms",
 #' @param theObject an object of the class modelClass
 #' @param input function describing the ode equation of the model 
 #' 
-#' @rdname odeModel-methods
-#' 
 #' @export
 setGeneric(name="setInput",
            def = function(theObject,input)
@@ -162,6 +157,7 @@ setGeneric(name="setInput",
            }
 )
 
+#' @rdname setInput 
 setMethod(f = "setInput",
           signature = "odeModel",
           definition = function(theObject,input)
@@ -181,8 +177,6 @@ setMethod(f = "setInput",
 #' @param measFunc measurement function of the model. Has to be a R functions.
 #' @param costum costum indexing for the measurement function
 #' 
-#' @rdname odeModel-methods
-#' 
 #' @export
 setGeneric(name="setMeasFunc",
            def = function(theObject,measFunc, costum)
@@ -191,6 +185,7 @@ setGeneric(name="setMeasFunc",
            }
 )
 
+#' @rdname setMeasFunc
 setMethod(f = "setMeasFunc",
           signature = c('odeModel','function','missing'),
           definition = function(theObject,measFunc, costum)
@@ -200,6 +195,9 @@ setMethod(f = "setMeasFunc",
             return(theObject)
           }
 )
+
+
+#' @rdname setMeasFunc
 setMethod(f = "setMeasFunc",
           signature = c('odeModel','function','logical'),
           definition = function(theObject, measFunc, costum)
@@ -217,8 +215,6 @@ setMethod(f = "setMeasFunc",
 #' @param theObject an object of the class odeModel
 #' @param y vector with the initial values
 #' 
-#' @rdname odeModel-methods
-#' 
 #' @export
 setGeneric(name="setY",
            def = function(theObject,y)
@@ -227,6 +223,7 @@ setGeneric(name="setY",
            }
 )
 
+#' @rdname setY
 setMethod(f = "setY",
           signature = "odeModel",
           definition = function(theObject,y)
@@ -244,8 +241,6 @@ setMethod(f = "setY",
 #' @param meas measurements of the model, a matrix with measurements of the model
 #' and the corresponding time values
 #' 
-#' @rdname odeModel-methods
-#' 
 #' @export
 setGeneric(name="setMeas",
            def = function(theObject,meas)
@@ -254,6 +249,7 @@ setGeneric(name="setMeas",
            }
 )
 
+#' @rdname setMeas
 setMethod(f = "setMeas",
           signature = 'odeModel',
           definition = function(theObject,meas)
@@ -269,8 +265,6 @@ setMethod(f = "setMeas",
 #' @param theObject an object of the class odeModel
 #' @param sd a matrix with the standard deviations of the measurements
 #' 
-#' @rdname odeModel-methods
-#' 
 #' @export
 setGeneric(name="setSd",
            def = function(theObject,sd)
@@ -279,6 +273,7 @@ setGeneric(name="setSd",
            }
 )
 
+#' @rdname setSd
 setMethod(f = "setSd",
           signature = "odeModel",
           definition = function(theObject,sd)
@@ -338,8 +333,6 @@ setMethod(f = 'genCCode',
 #' @param odeModel a object of the class ode model describing the experiment
 #' @param logTrans a vector indicating which of the state vector componenets should be log transformed
 #' 
-#' @rdname odeModel-methods
-#' 
 #' @export
 setGeneric(name = 'nominalSol',
            def = function(odeModel, logTrans)
@@ -348,6 +341,7 @@ setGeneric(name = 'nominalSol',
            }
 )
 
+#' @rdname nominalSol
 setMethod(f = 'nominalSol',
           signature = c('odeModel','missing'),
           definition =  function(odeModel,logTrans){
@@ -390,6 +384,7 @@ setMethod(f = 'nominalSol',
           }
 )
 
+#' @rdname nominalSol
 setMethod(f = 'nominalSol',
           signature = c('odeModel','numeric'),
           definition =  function(odeModel,logTrans){

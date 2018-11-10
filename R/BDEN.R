@@ -36,8 +36,6 @@
 #'
 #' @return                     returns a results-object with default plot function
 #'
-#' @example /examples/exampleBDEN.R
-#' 
 #' @export
 #' 
 #' 

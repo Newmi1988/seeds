@@ -51,8 +51,6 @@
 #'
 #' @return returns a results-object with default plot function. The plot shows the estimated best sparse fit
 #'
-#' @example /examples/uvb.R
-#' 
 #' @export
 
 greedyApproach <- function(odeModel ,alphaStep,Beta,alpha1, alpha2, x0, optW, measFunc, measData, sd, epsilon,

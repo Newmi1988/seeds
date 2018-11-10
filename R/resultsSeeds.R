@@ -154,11 +154,11 @@ plotResultsSeeds  <- function(x,y) {
 #' is given the last entry will be plotted.
 #' @param y ...
 #' 
-#' @rdname resultsSeeds-methods
-#' 
 #' @aliases plot,resultsSeeds,missing-method
 #' 
 #' @export
+
+#' @rdname plot-seeds
 setMethod(f = "plot",
           signature = c(x="resultsSeeds",y="missing"),
           definition = function(x,y)
@@ -169,6 +169,7 @@ setMethod(f = "plot",
           }
 )
 
+#' @rdname plot-seeds
 setMethod(f = "plot",
           signature = c(x="list",y="missing"),
           definition = function(x,y)
@@ -182,7 +183,7 @@ setMethod(f = "plot",
 
 
  
-setGeneric(name = "plotAnno", function(x,stateAnno,measAnno) standardGeneric("plotAnno"))
+
 
 #' Create annotated plot
 #' 
@@ -192,9 +193,10 @@ setGeneric(name = "plotAnno", function(x,stateAnno,measAnno) standardGeneric("pl
 #' @param stateAnno a character vector describing the names of the states
 #' @param measAnno a character vector describing the names of the measurements
 #' 
-#' @rdname resultsSeeds-methods
-#' 
 #' @export
+setGeneric(name = "plotAnno", function(x,stateAnno,measAnno) standardGeneric("plotAnno"))
+
+#' @rdname plotAnno
 setMethod(f = "plotAnno",
           signature = "resultsSeeds",
           definition = function(x,stateAnno,measAnno)
@@ -206,6 +208,7 @@ setMethod(f = "plotAnno",
           }
 )
 
+#' @rdname plotAnno
 setMethod(f = "plotAnno",
           signature = "list",
           definition = function(x,stateAnno,measAnno)
@@ -225,9 +228,8 @@ setMethod(f = "plotAnno",
 #' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
-#' @rdname resultsSeeds-methods
-#' 
 #' @export
+
 setGeneric(name="hiddenInputs",
            def = function(resultsSeeds, ind)
            {
@@ -235,6 +237,7 @@ setGeneric(name="hiddenInputs",
            }
 )
 
+#' @rdname hiddenInputs
 setMethod(f = "hiddenInputs",
           signature = c("list","numeric"),
           definition = function(resultsSeeds,ind)
@@ -243,6 +246,7 @@ setMethod(f = "hiddenInputs",
           }
 )
 
+#' @rdname hiddenInputs
 setMethod(f = "hiddenInputs",
           signature =  c("list", "missing"),
           definition = function(resultsSeeds, ind)
@@ -252,6 +256,7 @@ setMethod(f = "hiddenInputs",
           }
 )
 
+#' @rdname hiddenInputs
 setMethod(f = "hiddenInputs",
           signature = c("resultsSeeds","missing"),
           definition = function(resultsSeeds,ind)
@@ -266,8 +271,6 @@ setMethod(f = "hiddenInputs",
 #' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
-#' @rdname resultsSeeds-methods
-#' 
 #' @export
 setGeneric(name="estiStates",
            def = function(resultsSeeds, ind)
@@ -276,6 +279,7 @@ setGeneric(name="estiStates",
            }
 )
 
+#' @rdname estiStates
 setMethod(f = "estiStates",
           signature = c("list","numeric"),
           definition = function(resultsSeeds,ind)
@@ -284,6 +288,7 @@ setMethod(f = "estiStates",
           }
 )
 
+#' @rdname estiStates
 setMethod(f = "estiStates",
           signature =  c("list", "missing"),
           definition = function(resultsSeeds, ind)
@@ -293,6 +298,7 @@ setMethod(f = "estiStates",
           }
 )
 
+#' @rdname estiStates
 setMethod(f = "estiStates",
           signature =  c("resultsSeeds", "missing"),
           definition = function(resultsSeeds, ind)
@@ -307,8 +313,6 @@ setMethod(f = "estiStates",
 #' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
-#' @rdname resultsSeeds-methods
-#' 
 #' @export
 setGeneric(name="outputEstimates",
            def = function(resultsSeeds, ind)
@@ -317,6 +321,7 @@ setGeneric(name="outputEstimates",
            }
 )
 
+#' @rdname outputEstimates
 setMethod(f = "outputEstimates",
           signature = c("list","numeric"),
           definition = function(resultsSeeds,ind)
@@ -325,6 +330,7 @@ setMethod(f = "outputEstimates",
           }
 )
 
+#' @rdname outputEstimates
 setMethod(f = "outputEstimates",
           signature =  c("list", "missing"),
           definition = function(resultsSeeds, ind)
@@ -334,6 +340,7 @@ setMethod(f = "outputEstimates",
           }
 )
 
+#' @rdname outputEstimates
 setMethod(f = "outputEstimates",
           signature =  c("resultsSeeds", "missing"),
           definition = function(resultsSeeds, ind)
@@ -349,8 +356,6 @@ setMethod(f = "outputEstimates",
 #' @param slot Arguement of type character. 
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
-#' @rdname resultsSeeds-methods
-#' 
 #' @export
 setGeneric(name="confidenceBands",
            def = function(resultsSeeds, slot, ind)
@@ -359,6 +364,7 @@ setGeneric(name="confidenceBands",
            }
 )
 
+#' @rdname confidenceBands
 setMethod(f = "confidenceBands",
           signature =  c("list","character","numeric"),
           definition = function(resultsSeeds, slot, ind)
@@ -380,6 +386,7 @@ setMethod(f = "confidenceBands",
           }
 )
 
+#' @rdname confidenceBands
 setMethod(f = "confidenceBands",
           signature =  c("list","character","missing"),
           definition = function(resultsSeeds, slot, ind)
@@ -402,6 +409,7 @@ setMethod(f = "confidenceBands",
           }
 )
 
+#' @rdname confidenceBands
 setMethod(f = "confidenceBands",
           signature =  c("resultsSeeds","character","missing"),
           definition = function(resultsSeeds, slot, ind)
