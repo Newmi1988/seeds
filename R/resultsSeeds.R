@@ -179,17 +179,6 @@ printSeedsResults <- function(x) {
 #' 
 
 setMethod(f = 'print',
-          signature = 'list',
-          definition = function(x) 
-          {
-            results <- x[[length(x)]]
-            printSeedsResults(results)
-          }
-          
-          
-          )
-
-setMethod(f = 'print',
           signature = 'resultsSeeds',
           definition = function(x) 
           {
@@ -229,19 +218,6 @@ setMethod(f = "plot",
           }
 )
 
-#' @rdname plot-seeds
-setMethod(f = "plot",
-          signature = c(x="list",y="missing"),
-          definition = function(x,y)
-          {
-            x <- x[[length(x)]]
-            plotList <- plotResultsSeeds(x,y)
-            
-            return(plotList)
-          }
-)
-
- 
 
 
 #' Create annotated plot
@@ -522,4 +498,6 @@ summary.resultsSeeds <- function(resultsSeeds) {
   
   return(list("est. states"=states, "est. hiddenInputs" = hiddenInputs))
 }
+
+# setMethod()
 

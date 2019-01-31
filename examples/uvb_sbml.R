@@ -8,4 +8,5 @@ uvb <- setMeas(theObject = uvb, y)
 # plot(nominalSol(odeModel = uvb))
 
 res <- greedyApproach(odeModel = uvb, alphaStep = 400, alpha2 = 0.0001, plotEstimates = TRUE)
-plot(res)
+# plot the first iteration
+plot(res[[1]])
