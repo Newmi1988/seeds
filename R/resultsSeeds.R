@@ -144,6 +144,65 @@ plotResultsSeeds  <- function(x,y) {
   
 }
 
+printSeedsResults <- function(x) {
+  cat('Number of observations',ncol(x@Data)-1,'\n')
+  cat('Number of states',ncol(x@stateEstimates)-1,'\n')
+  cat('Mean deviation states: ')
+  cat(colMeans(x@DataError[,-1]),'\n\n')
+  cat('Estimated states interpolated by given measuerment points\n')
+  
+  tOut <- x@Data[,1] 
+  tIn <- x@stateEstimates[,1]
+  interpStates <- apply(X = x@stateEstimates[,-1], MARGIN = 2, FUN = function(x) stats::approx(x = tIn, y = x, tOut,rule=2, method = 'linear'))
+  interpStatesDf <- do.call(cbind, lapply(interpStates, FUN = function(x) cbind(x$y)))
+  interpStatesDf = cbind(tOut,interpStatesDf)
+  colnames(interpStatesDf) <- colnames(x@stateEstimates)
+  print(interpStatesDf)
+}
+
+#### printing function ####
+
+#' A default printing function for the resultsSeeds class
+#'
+#' This function overwrites the default print function and is used for objects 
+#' of the class resultsSeeds. The print function gives the basic information about
+#' the results seeds object. The default printout is the estimated states and 
+#' the calculated hidden inputs
+#' 
+#' @param x an object of the class resultsSeeds
+#'
+#' @aliases print,resultsSeeds
+#'
+#' @export
+#' 
+#' @rdname print-seeds
+#' 
+
+setMethod(f = 'print',
+          signature = 'list',
+          definition = function(x) 
+          {
+            results <- x[[length(x)]]
+            printSeedsResults(results)
+          }
+          
+          
+          )
+
+setMethod(f = 'print',
+          signature = 'resultsSeeds',
+          definition = function(x) 
+          {
+            printSeedsResults(x)
+          }
+          
+          
+          )
+
+
+
+#### plotting function ####
+
 #' Plot method for the S4 class resultsSeeds
 #' 
 #' A standardized plot function to display the results of the algorithms. Both
@@ -163,6 +222,7 @@ setMethod(f = "plot",
           signature = c(x="resultsSeeds",y="missing"),
           definition = function(x,y)
           {
+            
             plotList <- plotResultsSeeds(x,y)
             
             return(plotList)
@@ -180,7 +240,6 @@ setMethod(f = "plot",
             return(plotList)
           }
 )
-
 
  
 
