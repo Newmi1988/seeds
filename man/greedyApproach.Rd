@@ -56,7 +56,7 @@ will only use perform a calculation of the inputs for all knots without a sparse
 \item{logTransfVar}{a vector indicating which state variables should be log transformed to force positive solutions for the states}
 }
 \value{
-returns a results-object with default plot function. The plot shows the estimated best sparse fit
+returns a list of results-objects with default plot function. The plot shows the estimated best fit for the sparse hidden inputs
 }
 \description{
 calculates controls based on a first optimisation with gradient descent; should result in a sparse vector

@@ -3,12 +3,9 @@
 \docType{methods}
 \name{plot,resultsSeeds,missing-method}
 \alias{plot,resultsSeeds,missing-method}
-\alias{plot,list,missing-method}
 \title{Plot method for the S4 class resultsSeeds}
 \usage{
 \S4method{plot}{resultsSeeds,missing}(x, y)
-
-\S4method{plot}{list,missing}(x, y)
 }
 \arguments{
 \item{x}{an object of type resultsSeeds or a list of these objects. If a list
