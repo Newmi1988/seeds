@@ -67,7 +67,7 @@ summary(results[[3]])
 
 # get the hidden inputs
 # if the object is a list of resultsSeeds object use argument ind to index them
-# default gives returns values of the last listed object
+# default returns values of the last listed object
 hiddenInputs(resultsSeeds = results, ind = 3)
 
 # get the states

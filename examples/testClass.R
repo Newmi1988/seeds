@@ -1,5 +1,3 @@
-devtools::load_all()
-graphics.off()
 
 ### Lade Beispieldaten um die Plot-Funktion zu überprüfen
 load('uvbRes.RData')

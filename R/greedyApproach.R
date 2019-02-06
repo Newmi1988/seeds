@@ -49,7 +49,7 @@
 #'
 #' @param logTransfVar a vector indicating which state variables should be log transformed to force positive solutions for the states
 #'
-#' @return returns a results-object with default plot function. The plot shows the estimated best sparse fit
+#' @return returns a list of results-objects with default plot function. The plot shows the estimated best fit for the sparse hidden inputs
 #'
 #' @export
 

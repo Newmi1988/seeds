@@ -184,8 +184,6 @@ setMethod(f = 'print',
           {
             printSeedsResults(x)
           }
-          
-          
           )
 
 
@@ -211,9 +209,7 @@ setMethod(f = "plot",
           signature = c(x="resultsSeeds",y="missing"),
           definition = function(x,y)
           {
-            
             plotList <- plotResultsSeeds(x,y)
-            
             return(plotList)
           }
 )
@@ -256,6 +252,78 @@ setMethod(f = "plotAnno",
           }
 )
 
+
+#### plot states ####
+#' Plot the estimated states
+#' 
+#' @param resultsSeeds
+#' 
+#' @export
+#'
+
+
+#' @rdname plotStates
+setGeneric(name = "plotStates", function(x,y) standardGeneric("plotStates"))
+
+
+#' @rdname plotStates
+setMethod(f = "plotStates",
+          signature = c("resultsSeeds","missing"),
+          definition = function(x,y) {
+            
+            plotList <- plotResultsSeeds(x,y)
+
+            return(plotList[[1]])
+          }
+          )
+
+##### plot hidden inputs ####
+#' Plot the estimated states
+#' 
+#' @param resultsSeeds
+#' 
+#' @export
+#'
+
+
+#' @rdname plotHiddenInputs
+setGeneric(name = "plotHiddenInputs", function(x,y) standardGeneric("plotHiddenInputs"))
+
+
+#' @rdname plotHiddenInputs
+setMethod(f = "plotHiddenInputs",
+          signature = c("resultsSeeds","missing"),
+          definition = function(x,y) {
+            
+            plotList <- plotResultsSeeds(x,y)
+
+            return(plotList[[2]])
+          }
+          )
+
+### plot measurements ####
+#' Plot the estimated states
+#' 
+#' @param resultsSeeds
+#' 
+#' @export
+#'
+
+
+#' @rdname plotStates
+setGeneric(name = "plotMeas", function(x,y) standardGeneric("plotMeas"))
+
+
+#' @rdname plotStates
+setMethod(f = "plotMeas",
+          signature = c("resultsSeeds","missing"),
+          definition = function(x,y) {
+            
+            plotList <- plotResultsSeeds(x,y)
+
+            return(plotList[[3]])
+          }
+          )
 
 #### return hidden Inputs ####
 #' Get the estimated hidden inputs
