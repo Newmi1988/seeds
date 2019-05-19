@@ -33,8 +33,6 @@ getEquations <- function(model){
           consq <- dpTestModel[condId+1]
           conStr <- append(condStatem[i], consq, after = 1)
           conStr <- gsub(pattern = "\\s",replacement = "",conStr)
-          
-
         }
         condList[[i]] <- conStr
       }
@@ -67,7 +65,8 @@ getEquations <- function(model){
         trimDxy <- gsub("([y]+)\\s*([0-9]+)","\\2",trimedModelEq)
       }
       if(length(trimDxy)>1) {
-        order <- as.integer(substr(x = trimDxy, start = 1, stop = 2)) #convert character of all first elements of the string vector into numbers
+        #convert character of all first elements of the string vector into numbers
+        order <- as.integer(substr(x = trimDxy, start = 1, stop = 2)) 
         newModelEq <- trimedModelEq[order]
       }
       else {
@@ -81,12 +80,13 @@ getEquations <- function(model){
 trimSpace <- function (x) gsub("\\s", "",x)
   
 getPara <- function(model){
-  dpTestModel <- deparse(model,width.cutoff = 500)
-  functionHead <- strsplit(dpTestModel[1], split = ",")[[1]]
+  # get the parameters of the model
+  deparseModel <- deparse(model,width.cutoff = 500)
+  functionHead <- strsplit(deparseModel[1], split = ",")[[1]]
   paraInd <- trimSpace(functionHead[grepl("para",functionHead)])
   paraInd = gsub(pattern = "[^a-zA-Z]", replacement = "", x = paraInd)
   
-  paras <- dpTestModel[grepl(paste0(paraInd,"\\[[0-9]*"),dpTestModel)]
+  paras <- deparseModel[grepl(paste0(paraInd,"\\[[0-9]*"),deparseModel)]
   
   paras = strsplit(x = trimSpace(paras), split = "=|<-")
   paras = unlist(lapply(paras, '[[',1))

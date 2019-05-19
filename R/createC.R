@@ -1,11 +1,14 @@
 createCFile <- function(parameters, inputs,Eq, bden){
   
+  # the bden method has additional parameters that needs to be written into the c-file
   if(missing(bden)){
     bden <- FALSE
   }
   
   trimSpace <- function (x) gsub("\\s", "",x)
   
+  
+  #' The c file is combined out of strings that are filled with the right parameters
   StringC <- '#include <R.h>'
   StringC = append(StringC,'#include <math.h>')
 
@@ -17,12 +20,11 @@ createCFile <- function(parameters, inputs,Eq, bden){
     paraStr <- paste0('static double parms[',length(parameters),'];')
   }
 
-
-  inpStr <- paste0('static double forc[', inputs+1,'];')
+  
+  externalInputs <- paste0('static double forc[', inputs+1,'];')
 
   
-  
-  StringC = append(StringC, values = c('',paraStr,inpStr))
+  StringC = append(StringC, values = c('',paraStr,externalInputs))
   
   #define parameters
   if(is.null(names(parameters))){
@@ -95,9 +97,6 @@ createCFile <- function(parameters, inputs,Eq, bden){
   }
   
   if(length(Eq@cond)>0){
-    # correct the indeces
-    # test <- lapply(X = Eq@cond, FUN = function(x) gsub(pattern = "(\\[[0-9]*)", replacement = "\\1 -1", x))
-    # test = lapply(X = test, FUN = Deriv::Simplify)
     
     reformCond <- function(x){
       Str <- c(x[1],paste0(x[-1]),'}\n')
@@ -105,7 +104,6 @@ createCFile <- function(parameters, inputs,Eq, bden){
     }
     
     conditions <- unlist(lapply(Eq@cond, function(x) reformCond(x)))
-    # conditions = gsub(pattern = "(\\[[0-9]*)", replacement = "\\1 -1", conditions)
     ifCond <- conditions[grepl(pattern = 'if', conditions)]
     ifId <- which(conditions %in% ifCond)
     
@@ -173,7 +171,6 @@ createCFile <- function(parameters, inputs,Eq, bden){
   eqC <- gsub(pattern = "(d*[x])([0-9]*)", replacement = "\\1[\\2]" , Eq@origEq)
 
   #### log transf cond####
-  # logTransf <- c(0,0,0,0)
   logTransf <- Eq@logInd
   if(sum(logTransf)>0) {
     eqC = logTransfC(eqC,logTransf)
@@ -188,7 +185,7 @@ createCFile <- function(parameters, inputs,Eq, bden){
   }
   
   
-  
+  # write the formated string to a c file that is compiled for better performance
   writeFileC <- function(string){
     file.create('model.c')
     fileC <- file('model.c')

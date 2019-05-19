@@ -293,11 +293,12 @@ greedyApproach <- function(odeModel ,alphaStep,Beta,alpha1, alpha2, x0, optW, me
       }
     
     slopeErr <- abs(diff(error[,1]) / diff(error[,2]))
-    #slopeErr = slopeErr[which(slopeErr >0 )]
     changeTresh <- min(which(slopeErr <0.5))
 
-    alpha2 = error[changeTresh+1,1]  # alpha2 is selected based on the squared error at the given measurement times
-    results <- estiAlpha2[[changeTresh+1]]     # use the estimated results of the estimation for saving time
+    # alpha2 is selected based on the squared error at the given measurement times
+    alpha2 = error[changeTresh+1,1]  
+    # use the estimated results of the estimation for saving time
+    results <- estiAlpha2[[changeTresh+1]]     
 
     cat('Conservativ estimated alpha2=',alpha2)
 
@@ -425,12 +426,9 @@ greedyApproach <- function(odeModel ,alphaStep,Beta,alpha1, alpha2, x0, optW, me
                       outputEstimatesUncLower = outPutUnsc,
                       outputEstimatesUncUpper = outPutUnsc,
                       Data = measData,
-                      DataError = dataError
-  )
+                      DataError = dataError)
   
   }
-
-
-    return(res)
-
+  
+  return(res)
 }

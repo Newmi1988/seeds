@@ -48,18 +48,6 @@ odeModel <- setClass(
   validity = function(object) {
     # check inputs of matrix slots
     meas <- object@meas
-    # measBool <- checkMatrix(meas)
-    # if(!is.null(measBool)) {
-    #   return(measBool)
-    # }
-    # 
-    # if(ncol(object@meas) !=  ncol(object@sd)) {
-    #   return("For every measurement the standard deviation has to be given.")
-    # }
-    
-    # if(nrow(object@meas) != 1 && nrow(sd) == 1) {
-    #   object@sd = NULL
-    # }
     
     if(length(object@y) != 0 && object@custom == FALSE && colSums(object@meas)!=0) {
       m <- matrix(rep(0,length(object@y)),ncol = length(object@y))

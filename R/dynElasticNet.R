@@ -49,6 +49,8 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     plotEsti <- FALSE
   }
   
+  # if no vector with indices for the log transformation is given
+  # create a vector with only zeros, so no log transformation is done
   if (missing(logTransf)) {
     logTransf <- rep(0,length(x0))
   }
@@ -57,6 +59,8 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     x0[which(logTransf>0)] = log(x0[which(logTransf>0)])
   } 
   
+  # Parameters
+  # N - number of interpolation steps for the results of the odeEquation
   N <- 100
   times <- measData[,1]
   t0 <- times[1]
@@ -101,6 +105,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     Q <- apply(X = interpSD, MARGIN = 2, FUN = function(t)  (1/t^2)/length(t) )
   }
   
+  # set standard names for the state vector is no names are given
   if(all(is.null(names(x0)))) {
     names(x0) <- paste0(rep("x",length(x0)),1:length(x0))
   }
@@ -139,10 +144,12 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
       solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters))
     }
   }
-  
+ 
+  # seperate the measurements times and the values of the states 
   Tx <- solNominal[,1]
   x <- solNominal[,-1, drop=FALSE]
   
+  # log-transform indicated state components
   if(sum(logTransf)>0) {
     x[,which(logTransf>0)] = exp(x[,which(logTransf>0)])
   } 
@@ -200,6 +207,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
         
         tryCatch(
           {
+            # used the compiled code for faster execution
             R.utils::captureOutput( solX <- deSolve::ode(y = x0, time, func = "derivsc",
                                             parms = parameters, dllname = "model", initforc="forcc",
                                             forcings = forcings, initfunc = "parmsc")
@@ -220,6 +228,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
           }
         )
       } else {
+        # fallback to the original deSolve functionality if compilation is not possible (missing Rtoosl)
         input$optW = optW
         tryCatch(
           {
@@ -248,6 +257,7 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
       Tx = solX[,1]
       x = solX[,-1, drop=FALSE]
       
+      # reverse the logTransformation to get the real state value
       if(sum(logTransf)>0) {
         x[,which(logTransf>0)] = exp(x[,which(logTransf>0)])
       } 
@@ -537,18 +547,20 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     oldW = w
     
     if(conjGrad){
+      # conjugrate gradients method
       gNeg = P + alpha2*w
       if(i==1){
         oldGrad = -gNeg
         step = gNeg
       }
       else {
-        
+        # gradient descent method
         newGrad <- gNeg * (gNeg + oldGrad)
         newInt <- apply(X = newGrad, MARGIN = 2, FUN = function(x) pracma::trapz(Tp, x))
         
         oldInt <- apply(X = oldGrad, MARGIN = 2, FUN = function(x) pracma::trapz(Tp, x^2))
         
+        # check if values are nan and set them to zero
         newInt[is.nan(newInt)] <- 0
         oldInt[is.nan(oldInt)] <- 0
         betaTest <- sum(newInt)/sum(oldInt)
@@ -562,13 +574,13 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     }
     
     
-    
+    # calculate the stepsize based on a backtracking algorithm
     alpha = getAlphaBacktracking(oldW = oldW,W = w,Q = Q,y = measData,
                                  gradStep = step,J = J,currIter = i,alphaDynNet = alphaDynNet,
                                  alphaS = alphaS,stepBeta = armijoBeta,optW = optW,para = parameters,
                                  tInt = tInt,Tp = Tp,measFunc = measFunc,input = input,measureTimes = measureTimes, logTransf = logTransf)
     
-    # calculate the new hidden inputs
+    # calculate the new hidden inputs (apply gradient)
     w = oldW + alpha*step
 
     if(sum(is.na(colSums(w)))>0  ) {
@@ -628,10 +640,11 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
       )
       
     }
-    ####
+    
     Tx = solX[,1]
     x = solX[,-1, drop=FALSE]
     
+    # transform the logtransformed values back
     if(sum(logTransf)>0) {
       x[,which(logTransf>0)] = exp(x[,which(logTransf>0)])
     } 
@@ -642,8 +655,11 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     input$interpyHat <- apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
     input$w <- inputState$wInterp
     
+    # save the cost for the iteration
     J[i+1] = costFunction(measureTimes,input,alphaDynNet)
     
+    
+    #### Calculate the AUC ####
     tAUC <- measureTimes
     absW <- abs(sapply(input$w, mapply, tAUC))
     interpAbsW <- apply(X = absW, MARGIN = 2, FUN = function(x) stats::approxfun(x = tAUC, y = x, rule=2, method = 'linear'))

@@ -52,7 +52,7 @@ odeEquations <- setClass(
     logInd = numeric(0)
   ),
   validity = function(object) {
-    # ...some validation stuff...
+    # no validation needed
   }
 )
 
@@ -61,8 +61,13 @@ setMethod('initialize', "odeEquations", function(.Object,...){
             return(.Object)
           })
 
+
+# setCostateEq
+# assign the costate the calculated costate function
+# to the odeEquationObject 
+# the costate equation is used to calculate the optimal control
 setGeneric(name="setCostateEq",
-           def = function(theObject,costate)
+           def = function(odeEquationObject,costate)
            {
              standardGeneric("setCostateEq")
            }
@@ -70,16 +75,20 @@ setGeneric(name="setCostateEq",
 
 setMethod(f = "setCostateEq",
           signature = "odeEquations",
-          definition = function(theObject,costate)
+          definition = function(odeEquationObject,costate)
           {
-            theObject@costateEq <- costate
+            odeEquationObject@costateEq <- costate
 
-            return(theObject)
+            return(odeEquationObject)
           }
 )
 
+
+
+# setOrigEq
+# assign the original equation to the odeEquationObject
 setGeneric(name="setOrigEq",
-           def = function(theObject,origEq)
+           def = function(odeEquationObject,origEq)
            {
              standardGeneric("setOrigEq")
            }
@@ -87,16 +96,21 @@ setGeneric(name="setOrigEq",
 
 setMethod(f = "setOrigEq",
           signature = "odeEquations",
-          definition = function(theObject,origEq)
+          definition = function(odeEquationObject,origEq)
           {
-            theObject@origEq <- origEq
+            odeEquationObject@origEq <- origEq
 
-            return(theObject)
+            return(odeEquationObject)
           }
 )
 
+
+
+# setJacobian
+# internal function
+# assign a jacobian function to the odeEquation object
 setGeneric(name="setJacobian",
-           def = function(theObject,jacobian)
+           def = function(odeEquationObject,jacobian)
            {
              standardGeneric("setJacobian")
            }
@@ -104,16 +118,20 @@ setGeneric(name="setJacobian",
 
 setMethod(f = "setJacobian",
           signature = "odeEquations",
-          definition = function(theObject,jacobian)
+          definition = function(odeEquationObject,jacobian)
           {
-            theObject@jacobian <- jacobian
+            odeEquationObject@jacobian <- jacobian
 
-            return(theObject)
+            return(odeEquationObject)
           }
 )
 
+
+
+# set the hamiltonian
+# should not be exposed directly be the user
 setGeneric(name="setHamiltonian",
-           def = function(theObject,hamiltonian)
+           def = function(odeEquationObject,hamiltonian)
            {
              standardGeneric("setHamiltonian")
            }
@@ -121,114 +139,141 @@ setGeneric(name="setHamiltonian",
 
 setMethod(f = "setHamiltonian",
           signature = "odeEquations",
-          definition = function(theObject,hamiltonian)
+          definition = function(odeEquationObject,hamiltonian)
           {
-            theObject@hamiltonian <- hamiltonian
+            odeEquationObject@hamiltonian <- hamiltonian
 
-            return(theObject)
+            return(odeEquationObject)
           }
 )
 
+
+
+# Calculate Costate
+# calculates the costate function from the given ode-model function
 setGeneric(name = "calculateCostate",
-           def = function(theObject) {
+           def = function(odeEquationObject) {
              standardGeneric("calculateCostate")
            }
 )
 
 setMethod(f = "calculateCostate",
           signature = "odeEquations",
-          definition = function(theObject)
+          definition = function(odeEquationObject)
           {
-            tempList <- symbolicDiff(theObject)
-            theObject@costateEq <- tempList$costate
-            theObject@JhT <- tempList$JhT
-            theObject@jacobian <- tempList$jacobian
-            theObject@origEq <- tempList$origEq
-            theObject@hamiltonian <- tempList$Hamilton
-            return(theObject)
+            tempList <- symbolicDiff(odeEquationObject)
+            odeEquationObject@costateEq <- tempList$costate
+            odeEquationObject@JhT <- tempList$JhT
+            odeEquationObject@jacobian <- tempList$jacobian
+            odeEquationObject@origEq <- tempList$origEq
+            odeEquationObject@hamiltonian <- tempList$Hamilton
+            return(odeEquationObject)
           }
 )
 
+
+
+# assigns a model to the odeEquationClass
+# theModel - has to be a R-functions that can be solved with deSolve
 setGeneric(name = "createModelEqClass",
-           def = function(theObject,theModel) {
+           def = function(odeEquationObject,theModel) {
              standardGeneric("createModelEqClass")
            }
 )
 
 setMethod(f = "createModelEqClass",
           signature = "odeEquations",
-          definition = function(theObject,theModel)
+          definition = function(odeEquationObject,theModel)
           {
-            theObject@modelStr <- deparse(theModel,width.cutoff = 500)
+            odeEquationObject@modelStr <- deparse(theModel,width.cutoff = 500)
             tempList <- getEquations(theModel)
-            theObject@origEq <- tempList$strM
-            theObject@parameters <- tempList$strP
-            theObject@cond <- tempList$cond
-            return(theObject)
+            odeEquationObject@origEq <- tempList$strM
+            odeEquationObject@parameters <- tempList$strP
+            odeEquationObject@cond <- tempList$cond
+            return(odeEquationObject)
           }
 
 )
 
+
+
+# set costum costfunction
 setGeneric(name = "setCostFunc",
-           def = function(theObject,costFunction){
+           def = function(odeEquationObject,costFunction){
              standardGeneric("setCostFunc")
            }
 )
 
 setMethod(f = "setCostFunc",
           signature = "odeEquations",
-          definition = function(theObject,costFunction)
+          definition = function(odeEquationObject,costFunction)
           {
-            theObject@costFunction <- getEquations(costFunction)$strM
-            theObject@dynamicElasticNet <- FALSE
+            odeEquationObject@costFunction <- getEquations(costFunction)$strM
+            odeEquationObject@dynamicElasticNet <- FALSE
 
-            return(theObject)
+            return(odeEquationObject)
           }
 )
 
+
+
+# setMeassureFunc
+# class method for setting the measurement function
+# the functions has to be a standard r-function
 setGeneric(name = "setMeassureFunc",
-           def = function(theObject,meassureFunc) {
+           def = function(odeEquationObject,meassureFunc) {
              standardGeneric("setMeassureFunc")
            }
 )
 
 setMethod(f = "setMeassureFunc",
           signature = "odeEquations",
-          definition = function(theObject,meassureFunc)
+          definition = function(odeEquationObject,meassureFunc)
           {
-            theObject@measureStr <- deparse(meassureFunc,width.cutoff = 500)
-            theObject@measureFunction <- getEquations(meassureFunc)$strM
-            return(theObject)
+            odeEquationObject@measureStr <- deparse(meassureFunc,width.cutoff = 500)
+            odeEquationObject@measureFunction <- getEquations(meassureFunc)$strM
+            return(odeEquationObject)
           }
 )
 
+
+
+# isDynElaNet
+# Indicate if the elastic net method should be use
+# if not set the optimizer will use no hidden inputs
+# the solutions are only the optimal control
 setGeneric(name = "isDynElaNet",
-           def = function(theObject) {
+           def = function(odeEquationObject) {
              standardGeneric("isDynElaNet")
            }
 )
 
 setMethod(f = "isDynElaNet",
           signature = "odeEquations",
-          definition = function(theObject)
+          definition = function(odeEquationObject)
           {
-            theObject@dynamicElasticNet <- TRUE
-            return(theObject)
+            odeEquationObject@dynamicElasticNet <- TRUE
+            return(odeEquationObject)
           }
 )
 
+
+
+
+# Function setLogTransfInd
+# Set indeces for components of that shoudl be log transformed
 setGeneric(name = "setLogTransInd",
-          def = function(theObject,logIndVec) {
+          def = function(odeEquationObject,logIndVec) {
             standardGeneric("setLogTransInd")
           }
 )
 
 setMethod(f = "setLogTransInd",
           signature = "odeEquations",
-          definition = function(theObject,logIndVec)
+          definition = function(odeEquationObject,logIndVec)
           {
-            theObject@logInd <- logIndVec
-            return(theObject)
+            odeEquationObject@logInd <- logIndVec
+            return(odeEquationObject)
           }
 )
 
