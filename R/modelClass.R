@@ -16,6 +16,7 @@
 #' @slot meas matrix with the (experimental) measurements of the system
 #' @slot sd optional standard deviations of the measurements, is used by the algorithms as weights in the costfunction
 #' @slot custom customized link function
+#' @slot nnStates bit vector that indicates if states should be observed by the root function
 #' 
 #' @export odeModel
 #' @exportClass odeModel
@@ -26,28 +27,36 @@ odeModel <- setClass(
   "odeModel",
   slots = c(
     func = "function",
+    times = "numeric",
     parms = "numeric",
     input = "data.frame",
     measFunc = "function",
     y = "numeric",
     meas = "data.frame",
     sd = "data.frame",
-    custom= 'logical'
+    custom= 'logical',
+    nnStates = 'numeric',
+    nnTollerance = 'numeric',
+    resetValue = "numeric"
   ),
   
   prototype = list(
     func = function(x) {},
+    times = numeric(),
     parms = numeric(),
     input = data.frame(matrix(numeric(0), ncol = 2)),
     measFunc =  function(x) {},
     y =  numeric(0),
     meas =  data.frame(matrix(numeric(0), ncol = 2)),
     sd = data.frame(matrix(numeric(0), ncol = 2)),
-    custom=FALSE
+    custom=FALSE,
+    nnStates = numeric(),
+    nnTollerance = numeric(),
+    resetValue = numeric()
   ),
   validity = function(object) {
-    # check inputs of matrix slots
-    meas <- object@meas
+    # check inputs of matrix slot
+
     
     if(length(object@y) != 0 && object@custom == FALSE && colSums(object@meas)!=0) {
       m <- matrix(rep(0,length(object@y)),ncol = length(object@y))
@@ -273,24 +282,24 @@ setMethod(f = "setSd",
 )
 
 
+#' 
+#'
+#'
+#'
+#'
+
+
 setGeneric(name = 'genCCode',
-           def = function(odeModel,bden,logTrans)
+           def = function(odeModel,bden,nnStates)
            {
              standardGeneric('genCCode')
            }
 )
 
-setMethod(f = 'genCCode',
-          signature = c('odeModel','missing','missing'),
-          definition =  function(odeModel,bden,logTrans){
-            createCompModel(modelFunc = odeModel@func,parameters = odeModel@parms)
-            return(odeModel)
-          }
-)
 
 setMethod(f = 'genCCode',
           signature = c('odeModel','logical','missing'),
-          definition =  function(odeModel,bden,logTrans){
+          definition =  function(odeModel,bden,nnStates){
             createCompModel(modelFunc = odeModel@func,parameters = odeModel@parms, bden = bden)
             return(odeModel)
           }
@@ -298,16 +307,16 @@ setMethod(f = 'genCCode',
 
 setMethod(f = 'genCCode',
           signature = c('odeModel','logical','numeric'),
-          definition =  function(odeModel,bden,logTrans){
-            createCompModel(modelFunc = odeModel@func,parameters = odeModel@parms, bden = bden, logTransfVar = logTrans)
+          definition =  function(odeModel,bden, nnStates){
+            createCompModel(modelFunc = odeModel@func,parameters = odeModel@parms, bden = bden, nnStates = nnStates)
             return(odeModel)
           }
 )
 
 setMethod(f = 'genCCode',
           signature = c('odeModel','missing','numeric'),
-          definition =  function(odeModel,bden,logTrans){
-            createCompModel(modelFunc = odeModel@func,parameters = odeModel@parms, logTransfVar = logTrans)
+          definition =  function(odeModel,bden,nnStates){
+            createCompModel(modelFunc = odeModel@func,parameters = odeModel@parms, nnStates = nnStates)
             return(odeModel)
           }
 )
@@ -319,11 +328,10 @@ setMethod(f = 'genCCode',
 #' Calculate the nominal solution of the model
 #' 
 #' @param odeModel a object of the class ode model describing the experiment
-#' @param logTrans a vector indicating which of the state vector componenets should be log transformed
 #' 
 #' @export
 setGeneric(name = 'nominalSol',
-           def = function(odeModel, logTrans)
+           def = function(odeModel)
            {
              standardGeneric('nominalSol')
            }
@@ -331,103 +339,111 @@ setGeneric(name = 'nominalSol',
 
 #' @rdname nominalSol
 setMethod(f = 'nominalSol',
-          signature = c('odeModel','missing'),
-          definition =  function(odeModel,logTrans){
-            createCompModel(modelFunc = odeModel@func,parameters = odeModel@parms, logTransfVar = logTrans)
+          signature = c('odeModel'),
+          definition =  function(odeModel){
             
             x0 <- odeModel@y
             ### get the times from the measurements
             # add case for missing input
-            times <- odeModel@meas[,1]
+
+            times <- odeModel@times
             if (sum(colSums(odeModel@input))==0){
-              uList = list(cbind(times,rep(0,length(times)))) 
+              input <- rep(0,length(times))
+              uList = list(cbind(times,input)) 
             } else {
               input <- odeModel@input
-              colnames(input) <- rep('',ncol(input))
               u <- apply(X = input[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approx(x = input[,1], y = x, xout = times, rule = 2))
               uList = list(cbind(times,u[[1]]$y))
             }
             
             w <- matrix(rep(0,length(x0)*length(times)), ncol = length(x0))
-            wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
-            wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
-            forcings <- c(uList, wList)
-            ext <- .Platform$dynlib.ext
-            compiledModel <- paste0('model',ext)
           
-            if(is.loaded('derivsc')){
+            
+            if (grepl("Rtools", Sys.getenv('PATH')) || (.Platform$OS.type != "windows")) {
+              
+              
+              ext <- .Platform$dynlib.ext
+              compiledModel <- paste0('model',ext)
+              
+              
+              if(is.loaded('derivsc')){
+                dyn.unload(compiledModel)
+              }
+              createCompModel(modelFunc = odeModel@func,parameters = odeModel@parms, nnStates = nnStates)
+              system("R CMD SHLIB model.c")
+              dyn.load(compiledModel)
+              
+            
+              wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
+              wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
+              forcings <- c(uList, wList)
+  
+              
+              
+              if (sum(odeModel@nnStates) == 0) {
+                
+                resOde <- deSolve::ode(y = odeModel@y, times = times, func = "derivsc",
+                                         parms = odeModel@parms, dllname = "model", initforc="forcc",
+                                         forcings = forcings, initfunc = "parmsc")
+              
+              } else {
+                
+                myEvent <- eval(parse(text = createEvent(rootStates = odeModel@nnStates, tollerance = 0., value = 0.0001)))
+                
+                resOde <- deSolve::lsoda(y = odeModel@y, times = times, func = "derivsc",
+                                         parms = odeModel@parms, dllname = "model", initforc="forcc",
+                                         forcings = forcings, initfunc = "parmsc", nroot = sum(odeModel@nnStates),
+                                         rootfunc = "myroot", events = list(func = myEvent, root = TRUE))
+                                         
+              }
+              
+              
               dyn.unload(compiledModel)
-            }
-
-            system("R CMD SHLIB model.c")
-            dyn.load(compiledModel)
+              
+            } else {
+              
+              
+              odeEq <- isDynElaNet(odeModel)
+              odeEq <- calculateCostate(odeModel)
+              createFunctions(odeModel)
+              
+              source('stateHiddenInput.R')
+              
+              hiddenInputState <- get('hiddenInputState', envir = environment())
+              
+              input$w = apply(X = w, MARGIN = 2, FUN = function(x) stats::approxfun(x = times, y = x, method = 'linear', rule = 2))
+              input$u = apply(X = input, MARGIN = 2, FUN = function(x) stats::approxfun(x = times, y = x, method = 'linear', rule = 2))
+              
+              if(sum(odeModel@nnStates) == 0) {
+                
+                resOde <- deSolve::ode(y = odeModel@y,
+                                       func = hiddenInputs,
+                                       times = times,
+                                       parms = odeModel@parms,
+                                       input = input)
+                                       
+                                       
+                
+              } else {
+                
+                myRoot <- eval(parse(text = createRoot(rootStates = odeModel@nnStates)))
+                myEvent <- eval(parse(text = createEvent(rootStates = odeModel@nnStates, odeModel@nnTollerance)))
+                
+                resOde <- deSolve::ode(y = x0,
+                                        times = time,
+                                        func = hiddenInputState,
+                                        parms = parameters,
+                                        input = input,
+                                        events = list(func = myEvent, root = TRUE),
+                                        rootfun = myRoot)
+              }
+              
+              
+            } 
             
-            resOde <- deSolve::ode(y = odeModel@y, times = times, func = "derivsc",
-                                       parms = odeModel@parms, dllname = "model", initforc="forcc",
-                                       forcings = forcings, initfunc = "parmsc")
             
-            dyn.unload(compiledModel)
             
             return(resOde)
-          }
-)
-
-#' @rdname nominalSol
-setMethod(f = 'nominalSol',
-          signature = c('odeModel','numeric'),
-          definition =  function(odeModel,logTrans){
-            createCompModel(modelFunc = odeModel@func,parameters = odeModel@parms, logTransfVar = logTrans)
-            
-            x0 <- odeModel@y
-            ### get the times from the measurements
-            # add case for missing input
-            times <- odeModel@meas[,1]
-            if (sum(colSums(odeModel@input))==0){
-              uList = list(cbind(times,rep(0,length(times)))) 
-            } else {
-              input <- odeModel@input
-              colnames(input) <- rep('',ncol(input))
-              u <- apply(X = input[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approx(x = input[,1], y = x, xout = times, rule = 2))
-              uList = list(cbind(times,u[[1]]$y))
-            }
-            times <- odeModel@meas[,1]
-            
-            
-            
-            w <- matrix(rep(0,length(x0)*length(times)), ncol = length(x0))
-            wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
-            
-
-            wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
-            forcings <- c(uList, wList)
-            
-            ext <- .Platform$dynlib.ext
-            compiledModel <- paste0('model',ext)
-            
-            if(is.loaded('derivsc')){
-              dyn.unload(compiledModel)
-            }
-            
-            if(min(logTrans) >0 && max(logTrans) <= length(odeModel@y)){
-              x0[logTrans] = log(x0[logTrans])
-            } else {
-              stop(paste0('The given values of logTrans have to be between ',0,' and ',length(odeModel@y)))
-            }
-            
-            system("R CMD SHLIB model.c")
-            dyn.load(compiledModel)
-            
-            out <- deSolve::ode(y = odeModel@y, times = times, func = "derivsc",
-                                       parms = odeModel@parms, dllname = "model", initforc="forcc",
-                                       forcings = forcings, initfunc = "parmsc")
-            
-            dyn.unload(compiledModel)
-            
-            
-            
-            out[,logTrans+1] = exp(out[,logTrans+1])
-            
-            return(out)
           }
 )
 

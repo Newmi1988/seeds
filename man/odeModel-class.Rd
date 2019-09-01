@@ -31,5 +31,7 @@ The numerical solutions are calculated using the \pkg{deSolve} - package.
 \item{\code{sd}}{optional standard deviations of the measurements, is used by the algorithms as weights in the costfunction}
 
 \item{\code{custom}}{customized link function}
+
+\item{\code{nnStates}}{bit vector that indicates if states should be observed by the root function}
 }}
 

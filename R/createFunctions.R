@@ -12,8 +12,7 @@ createFunctions <- function(odeEq){
   formatEqs <- function(modelEq){
     return(gsub("(d[x,y]*)\\[([0-9]*)\\]=","",modelEq))
   }
-  
-  # Create the needed files
+
   createCostate <- function(modelODE){
     file.create('costate.R')
     fileCostate <- file('costate.R')
@@ -35,8 +34,6 @@ createFunctions <- function(odeEq){
     close(fileCostateStart)
   }
   
-  
-  #### format the ode equation to be used for calculation  ####
   formatFuncString <- function(odeEq,funcType) {
     formatStr <- gsub(pattern = "\\[|[1-9]|\\]",replacement = "", strsplit(odeEq@origEq,"=")[[1]][1])
     if(funcType=="costate"){
@@ -51,6 +48,7 @@ createFunctions <- function(odeEq){
       #check if additional variables are defined in model-function
       formatStr = sub(pattern = "d",replacement = "",formatStr)
       
+      #addInputs = trimAddInputs(odeEq,addInputs,paraInput, formatStr)
 
       funcStartStr <- paste0(funcType," <-function(t,p,parameters,input) {")
       # funcStartStr <- append(funcStartStr,paste0("\twith (as.list(",paste(paraInput, collapse = ","),") {\n"),after = length(funcStartStr)+1)
@@ -178,7 +176,6 @@ createFunctions <- function(odeEq){
   
   wrapperCreateFunc <- function(odeEq) {
     createCostate(formatFuncString(odeEq,"costate"))
-    # if the paramter dynamicElasticNet is set to true add the hidden input to each component of the state
     if(odeEq@dynamicElasticNet){
       createStateHiddenInput(formatFuncString(odeEq,"hiddenInputState"))
     }

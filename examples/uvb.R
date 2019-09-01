@@ -67,6 +67,9 @@ uvbMeasure <- function(x) {
   return(list(y1,y2,y3,y4,y5))
 }
 
+testNN = rep(0,length(x0))
+testNN[1] = 1
+
 
 y <- uvbData[,1:6]
 t <- uvbData$t
@@ -78,6 +81,3 @@ res <- greedyApproach(alphaStep = 500, alpha2 = 0.0001, optW = rep(1,13), x0 = x
 )
 
 plot(res[[2]])
-
-# plot the solution for the first selected variable
-# plot(res[[1]])

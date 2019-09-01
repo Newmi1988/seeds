@@ -25,17 +25,18 @@
 #' @param loglikelihood_func   likelihood function
 #' @param gibbs_update         gibbs algorithm
 #' @param ode_sol              ode solver
-#' @param LogTransform         log transformed ODE system 
+#' @param NegativeStates       Negative states are allowed
 #' @param numbertrialsstep     number of gibbs updates per timepoint. This should be at least 10. Values have direct influnce on the runtime. 
 #' @param numbertrialseps      number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influnce on the runtime.
 #' @param numbertrialinner     number of inner samples. This should be greater 15 to guarantee a reasonable exploration of the sample space. Values have direct influnce on the runtime.
 #' @param lambda               inital shrinkage parameter.
-#' @param Grad_correct         intial mcmc step size calculation 
+#' @param Grad_correct         correction factor for initial sigma estimate
 #' @param alpha                mcmc tuning paramter (weigthing of observed states)
 #' @param beta                 mcmc tunig parameter (weigthing of observed states)
-#'
+#' @param printstatesignore    states ignored in final output (default = FALSE)
+
 #' @return                     returns a results-object with default plot function
-#'
+
 #' @export
 #' 
 #' 
@@ -48,17 +49,15 @@ BDEN <- function(odeModel,
                  loglikelihood_func,
                  gibbs_update,
                  ode_sol,
-                 
-                 LogTransform     = FALSE,
-                 numbertrialsstep = 15,
-                 numbertrialseps  = 500*4,
-                 numbertrialinner = 10,
-                 lambda           = .001,
-                 Grad_correct     = 0,
-                 alpha            = c(1,1,1,1),
-                 beta_init        = c(1,1,1,0.1)){
-  
-  
+                 NegativeStates   = FALSE,
+                 numbertrialsstep  = 15,
+                 numbertrialseps   = NA,
+                 numbertrialinner  = 25,
+                 lambda            = .001,
+                 Grad_correct      = 0,
+                 alpha             = c(1,1,1,1),
+                 beta_init         = c(1,1,1,0.1),
+                 printstatesignore = FALSE){
   
   if(!missing(odeModel)){
     modelFunc <- odeModel@func
@@ -73,18 +72,24 @@ BDEN <- function(odeModel,
     observation_time <- measData[,1]
     observations     <- measData
     
-
+    
     
     initialvalues    <- x0
     inputData        <- as.matrix(systemInput)
     model            <- modelFunc
     numberstates     <- length(x0)
-
+    
   }
   
+  if (length(alpha) != length(observations[1,]))     {alpha=rep(1,length(observations[1,]))}
+  if (length(beta_init) != length(observations[1,])) {beta_init=rep(1,length(observations[1,]))}
   
-  if(LogTransform) {createCompModel(modelFunc = model, parameters = parameters, bden = TRUE,logTransfVar=1:numberstates)}
-  else{createCompModel(modelFunc = model, parameters = parameters, bden = TRUE)}
+  
+  if(NegativeStates){
+  createCompModel(modelFunc = model, parameters = parameters, bden = TRUE, nnStates = rep(0, numberstates))}
+  else{
+    createCompModel(modelFunc = model, parameters = parameters, bden = TRUE, nnStates = rep(1, numberstates))}
+  
   ext <- .Platform$dynlib.ext 
   
   compiledModel <- paste0('model',ext)
@@ -99,27 +104,26 @@ BDEN <- function(odeModel,
   dyn.load(compiledModel)
   
   
-    
   ##################################################################################
-  X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*4),2),LogTransform)
+  X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*numberstates),2))
 
   print('Nominal State Dynamics')
-  print(X_MODEL)
-  print('#################################')
+  base::print(X_MODEL)
+  print('################# BDEN INITIALIZED ################')
   
   X_ERROR        <- matrix(0,length(observation_time),numberstates)
   
   for (i in 1:length(observation_time)){
-    X_ERROR [i,] <- abs(abs(as.numeric(observations[i,-1]))-abs(as.numeric(sapply(1:4,measFunc,y=X_MODEL[i,],parameter=parameters[5:6],USE.NAMES = TRUE))))
+    X_ERROR [i,] <- abs(abs(as.numeric(observations[i,-1]))-abs(as.numeric(sapply(1:numberstates,measFunc,y=X_MODEL[i,],parameter=parameters,USE.NAMES = TRUE))))
   }
-
+  
   GRADIENT        <- matrix(0,length(observation_time)-1,numberstates-1)
   
   for (i in 1:(numberstates-(1+Grad_correct))){   
     GRADIENT[,i]       <- abs(diff(X_ERROR[,i])/diff(observation_time))
   }
   
-
+  
   ##################################################################################
   COUNTER = 1
   COUNTER2 = 1
@@ -128,52 +132,52 @@ BDEN <- function(odeModel,
   GIBBS_PAR_IT              <- list()
   EPSILON_IT                <- list()
   VAR                       <- list()
-  MCMC_SET$STEP_trials      <- numbertrialsstep
+  MCMC_SET$STEP_trials            <- numbertrialsstep
   MCMC_SET$EPS_step_size          <- numbertrialseps
   MCMC_SET$EPS_step_size_inner    <- numbertrialinner
-  MCMC_SET$BURNIN           <- round(MCMC_SET$EPS_step_size*(3/5))
-  MCMC_SET$BURNIN_inner     <- round(MCMC_SET$EPS_step_size_inner/3)
-  MCMC_TRACK                <- vector("list",dim(X_MODEL)[1])        
+  MCMC_SET$BURNIN                 <- floor(numbertrialseps/numberstates*(3/5))
+     
   
   EPSILON          <- matrix(0, nrow = dim(X_MODEL)[1]  , ncol = numberstates)
   EPSILONLOW       <- matrix(0, nrow = dim(X_MODEL)[1]  , ncol = numberstates)
   EPSILONUP        <- matrix(0, nrow = dim(X_MODEL)[1]  , ncol = numberstates)
   SIGMA            <- vector("list",dim(X_MODEL)[1]) 
-  S                <- mean(GRADIENT)*10
+  S                <- mean(GRADIENT)*10*2.5
+
   for (i in 1:length(SIGMA)){
-    SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.5
+
+SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.5
   }
   BETA_LAMBDA      <- lambda
-  #print(numberstates)
-  #print(BETA_LAMBDA)
-  #print(beta_init)
+  
+  
   GIBBS_PAR        <- SETTINGS(sd,numberstates,BETA_LAMBDA,alpha,beta_init)
   EPS_TIME         <- observation_time
   YINIT            <- initialvalues
   EPSILON_IT$CONT  <- matrix(0, nrow = MCMC_SET$STEP_trials  , ncol = numberstates)
   EPSILON_IT$ACT   <- matrix(0, nrow = 2  , ncol = numberstates)
   SOLUTION         <- YINIT
-  SOLUTIONLOW      <- YINIT*0
-  SOLUTIONUP       <- YINIT*0
+  SOLUTIONLOW      <- YINIT
+  SOLUTIONUP       <- YINIT
   EPSILON_IT$NEW   <- YINIT
+
   stateUnscertainlower_OUT <- dim(measData[,-1])[2]*0
   stateUnscertainupper_OUT <- dim(measData[,-1])[2]*0
-  X_OUTPUT                <- dim(measData[,-1])[2]*0
+
+  X_OUTPUT                 <- as.numeric(sapply(1:numberstates,measFunc,y=YINIT,parameter=parameters,USE.NAMES = TRUE))
   
-  #print('S')
-  #print(S)
-  #print('SIGMA')
-  #print(SIGMA)
-  #print(GIBBS_PAR)
-  #print
+
+
+  
   ##################################################################################
   
   
   for (STEP in 2:length(EPS_TIME)){
     
     print(paste0('Step ',STEP-1,' of ',length(EPS_TIME)-1))
-    PROGRESS <- R.utils::ProgressBar(max=MCMC_SET$STEP_trials-1, ticks=MCMC_SET$STEP_trials-1 , stepLength=1, newlineWhenDone=FALSE)
 
+    PROGRESS <- R.utils::ProgressBar(max=MCMC_SET$STEP_trials-1, ticks=MCMC_SET$STEP_trials-1 , stepLength=1, newlineWhenDone=TRUE)
+   
     
     EPSILON_IT$Y0            <- EPSILON_IT$NEW
     GIBBS_PAR_IT$TAU         <- GIBBS_PAR$TAU
@@ -183,30 +187,27 @@ BDEN <- function(odeModel,
     EPSILON_IT$CONT[1,]      <- EPSILON[STEP-1,]
     VAR$SIGMA                <- SIGMA[[STEP]]  
     
+    DummyB                   <- EPSILON_IT$CONT[1,]
+    
+    
     for (TRIALS in 2:MCMC_SET$STEP_trials){
       R.utils::increase(PROGRESS)
-      #print(TRIALS)
-      #print('DIAGONAL')
+      
       VAR$DIAG                    <- diag((GIBBS_PAR_IT$TAU+GIBBS_PAR_IT$LAMBDA2)^-1)
-      #print(VAR$DIAG)
-      #print('TAU')
-      #print(GIBBS_PAR_IT$TAU)
-      #print('LAMBDA')
-      #print(GIBBS_PAR_IT$LAMBDA2)
-      #print('DIFF EPSILON')
-      #print(EPSILON_IT$ACT[2,]-EPSILON_IT$ACT[1,])
-     # print(paste0('SIGMA'))
-      #print(VAR$SIGMA)     
-     # print('#####################################################################')
+    
       
       MCMC_RESULTS                 <- mcmc_component(loglikelihood_func, MCMC_SET$EPS_step_size, MCMC_SET$EPS_step_size_inner, EPSILON_IT$CONT[TRIALS-1,],S,
-                                                     STEP,observations,EPSILON_IT$Y0,inputData,parameters,EPSILON_IT$ACT,VAR$SIGMA,VAR$DIAG,GIBBS_PAR,numberstates,MCMC_SET$BURNIN_inner,measFunc,LogTransform)
-      
-      MCMC_RESULT_THIN            <- coda::mcmc(MCMC_RESULTS, start = MCMC_SET$BURNIN,end=dim(MCMC_RESULTS)[1],thin=20)
+                                                     STEP,observations,EPSILON_IT$Y0,inputData,parameters,EPSILON_IT$ACT,VAR$SIGMA,VAR$DIAG,GIBBS_PAR,numberstates,MCMC_SET$BURNIN_inner,measFunc)
       
       
+
       
-      EPSILON_IT$CONT[TRIALS,]    <- colMeans(MCMC_RESULT_THIN[-1,]) 
+
+      #EPSILON_IT$CONT[TRIALS,]    <- MCMC_RESULTS[length(MCMC_RESULTS[,1]),]
+      EPSILON_IT$CONT[TRIALS,]    <-  colMeans(MCMC_RESULTS[MCMC_SET$BURNIN:length(MCMC_RESULTS[,1]),],na.rm = TRUE)  
+    
+   
+
       EPSILON_IT$ACT[2,]          <- EPSILON_IT$CONT[TRIALS,] 
       
       G_U                         <- gibbs_update(VAR$DIAG,EPSILON_IT$ACT,
@@ -217,68 +218,57 @@ BDEN <- function(odeModel,
       GIBBS_PAR_IT$LAMBDA1        <- G_U$LAMBDA1 
       GIBBS_PAR_IT$TAU            <- G_U$TAU 
       
+      MCMC_RESULT_THIN            <- coda::mcmc(MCMC_RESULTS, start = MCMC_SET$BURNIN,end=dim(MCMC_RESULTS)[1],thin=5)
+      DummyB                      <- rbind(DummyB,MCMC_RESULT_THIN[-1,])  
       
-
+      
     }
-    
-    EPSILON[STEP,]              <- matrixStats::colQuantiles(EPSILON_IT$CONT[-1,], probs = 0.5, na.rm = TRUE)
-    EPSILONLOW[STEP,]           <- matrixStats::colQuantiles(EPSILON_IT$CONT[-1,], probs = 0.05, na.rm = TRUE) 
-    EPSILONUP[STEP,]            <- matrixStats::colQuantiles(EPSILON_IT$CONT[-1,], probs = 0.95, na.rm = TRUE)
-    
 
-    
-    UP                          <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILONUP[c(STEP-1,STEP),],LogTransform),1))
-    LOW                         <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILONLOW[c(STEP-1,STEP),],LogTransform),1))
-    
-   
-     DUMMY_SOLUTION               <- matrix(0,dim(EPSILON_IT$CONT)[1],numberstates)
-    for (iii in 2:dim(EPSILON_IT$CONT)[1]){
-      DUMMY_SOLUTION[iii,] <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,rbind(EPSILON[STEP-1,],EPSILON_IT$CONT[iii,]),LogTransform),1))
-    }
+    #EPSILON[STEP,]              <- colMeans(EPSILON_IT$CONT[max(4,floor(MCMC_SET$STEP_trials/3)):length(EPSILON_IT$CONT[,1]),], na.rm = TRUE)
+    EPSILON[STEP,]              <- colMeans(EPSILON_IT$CONT[max(4,floor(MCMC_SET$STEP_trials/2)):length(EPSILON_IT$CONT[,1]),], na.rm = TRUE)
+ 
     
     
-
-     EPSILON_IT$NEW              <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),],LogTransform),1))
     
-     A <- matrixStats::colQuantiles(DUMMY_SOLUTION[-1,], probs = 0.05, na.rm = TRUE)
-     B <- matrixStats::colQuantiles(DUMMY_SOLUTION[-1,], probs = 0.95, na.rm = TRUE)
-     C <- matrixStats::colQuantiles(DUMMY_SOLUTION[-1,], probs = 0.5, na.rm = TRUE)
+    EPSILONLOW[STEP,]           <- matrixStats::colQuantiles(DummyB, probs = 0.025, na.rm = TRUE) 
+    EPSILONUP[STEP,]            <- matrixStats::colQuantiles(DummyB, probs = 0.975, na.rm = TRUE)
+    
+    
+  
+    EPSILON_IT$NEW              <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,EPSILON[c(STEP-1,STEP),]),1))
+    
+    C <- EPSILON_IT$NEW
     
     SOLUTION                    <- rbind(SOLUTION,C)
+    
+    
+    DUMMY_SOLUTION_CI               <- matrix(0,dim(DummyB)[1],numberstates)
+    for (iii in 2:dim(DummyB)[1]){
+      DUMMY_SOLUTION_CI[iii,] <- as.numeric(tail(ode_sol(EPS_TIME[c(STEP-1,STEP)],EPSILON_IT$Y0,parameters,inputData,rbind(EPSILON[STEP-1,],DummyB[iii,])),1))
+    }
+    
+    A <- matrixStats::colQuantiles(DUMMY_SOLUTION_CI[-1,], probs = 0.025, na.rm = TRUE)
+    B <- matrixStats::colQuantiles(DUMMY_SOLUTION_CI[-1,], probs = 0.975, na.rm = TRUE) 
+    
+
     SOLUTIONLOW                 <- rbind(SOLUTIONLOW,A)
     SOLUTIONUP                  <- rbind(SOLUTIONUP ,B)
     
-    EPSILON_IT$NEW  <- C
     
-    stateUnscertainlower_OUT    <- rbind(stateUnscertainlower_OUT,as.numeric(sapply(1:4,measFunc,y=A,parameter=parameters[5:6],USE.NAMES = TRUE))) 
-    stateUnscertainupper_OUT    <- rbind(stateUnscertainupper_OUT,as.numeric(sapply(1:4,measFunc,y=B,parameter=parameters[5:6],USE.NAMES = TRUE)))
-    X_OUTPUT                    <- rbind(X_OUTPUT,as.numeric(sapply(1:4,measFunc,y=C,parameter=parameters[5:6],USE.NAMES = TRUE)))
+    stateUnscertainlower_OUT    <- rbind(stateUnscertainlower_OUT,as.numeric(sapply(1:numberstates,measFunc,y=A,parameter=parameters,USE.NAMES = TRUE))) 
+    stateUnscertainupper_OUT    <- rbind(stateUnscertainupper_OUT,as.numeric(sapply(1:numberstates,measFunc,y=B,parameter=parameters,USE.NAMES = TRUE)))
+    X_OUTPUT                    <- rbind(X_OUTPUT,as.numeric(sapply(1:numberstates,measFunc,y=C,parameter=parameters,USE.NAMES = TRUE)))
     
     
     
     SIGMA[[STEP]]               <- VAR$SIGMA
     
-    print(paste0('Step ',STEP-1,' of ',length(EPS_TIME)-1,'.Done'))
-    print('###################')
+    
+    
   }
   
   
   
-  #X_OUTPUT <- matrix(0,length(observation_time),numberstates)
- # for (i in 1:length(observation_time)){
- #   X_OUTPUT [i,] <- as.numeric(sapply(1:4,measFunc,y=SOLUTION[i,],parameter=parameters[5:6],USE.NAMES = TRUE))
-  #}
-  
-  #stateUnscertainlower_OUT<- matrix(0,length(observation_time),numberstates)
-  #for (i in 1:length(observation_time)){
-  #  stateUnscertainlower_OUT[i,] <- as.numeric(sapply(1:4,measFunc,y=SOLUTIONLOW[i,],parameter=parameters[5:6],USE.NAMES = TRUE))
-  #}
-  
-  #stateUnscertainupper_OUT <- matrix(0,length(observation_time),numberstates)
-  #for (i in 1:length(observation_time)){
-  #  stateUnscertainupper_OUT[i,] <- as.numeric(sapply(1:4,measFunc,y=SOLUTIONLOW[i,],parameter=parameters[5:6],USE.NAMES = TRUE))
-  #}
-
   
   hiddenInpUnsclower             <- as.data.frame(cbind(observation_time,EPSILONLOW))
   colnames(hiddenInpUnsclower)  <- c("t",paste0('w',1: numberstates))
@@ -309,12 +299,25 @@ BDEN <- function(odeModel,
   
   nomStates <- as.data.frame(cbind(observation_time,X_MODEL))
   colnames(nomStates) <- c("t",paste0('x',1: numberstates))
-
+  
+  print('A')
+  
   dataError <- sd
   colnames(dataError) <- c("t",paste0('s',1:(ncol(sd)-1)))
-
+  
   measData <- observations
   colnames(measData) <- c("t",paste0('y',1:(ncol(measData[,-1]))))
+  
+ 
+  if (!identical(printstatesignore, FALSE)){
+    
+    dataError                 <- dataError[-sort(printstatesignore+1)]
+    measData                  <- measData[-sort(printstatesignore+1)]
+    outputMeas                <- outputMeas[-sort(printstatesignore+1)]
+    outputEstimatesuncLower   <- outputEstimatesuncLower[-sort(printstatesignore+1)]
+    outputEstimatesuncUpper   <- outputEstimatesuncUpper[-sort(printstatesignore+1)]
+  }
+  
   
  
   res <- seeds::resultsSeeds(stateNominal = nomStates,

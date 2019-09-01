@@ -6,7 +6,7 @@
 \usage{
 greedyApproach(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW,
   measFunc, measData, sd, epsilon, parameters, systemInput, modelFunc,
-  greedyLogical, plotEstimates, conjGrad, cString, logTransfVar)
+  greedyLogical, plotEstimates, conjGrad, cString, nnStates)
 }
 \arguments{
 \item{odeModel}{a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis.}
@@ -53,10 +53,10 @@ will only use perform a calculation of the inputs for all knots without a sparse
 
 \item{cString}{a string that represents constrains, can be used to calculate a hidden input for a komponent that gradient is zero}
 
-\item{logTransfVar}{a vector indicating which state variables should be log transformed to force positive solutions for the states}
+\item{nnStates}{a bit vector indicating the states that should be non negative}
 }
 \value{
-returns a list of results-objects with default plot function. The plot shows the estimated best fit for the sparse hidden inputs
+returns a results-object with default plot function. The plot shows the estimated best sparse fit
 }
 \description{
 calculates controls based on a first optimisation with gradient descent; should result in a sparse vector

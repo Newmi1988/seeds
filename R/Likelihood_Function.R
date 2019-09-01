@@ -17,13 +17,13 @@
 #' @param SIGMA_JUMP           variance of the normal distributed proposal distribution
 #' @param eps_new              current sample vector of the hidden influences (including all states)
 #' @param objectivfunc,        link function to match observations with modeled states
-#' @param LogTransform         use the log transformed ODE system 
+
 
 #' @return                     returns the log-likelihood for two given hidden inputs 
 #' 
 #' 
 #' 
-LOGLIKELIHOOD_func  <- function(pars,Step,OBSERVATIONS,x_0,parameters,EPS_inner,INPUT,D,GIBBS_PAR,k,MU_JUMP,SIGMA_JUMP,eps_new,objectivfunc,LogTransform){
+LOGLIKELIHOOD_func  <- function(pars,Step,OBSERVATIONS,x_0,parameters,EPS_inner,INPUT,D,GIBBS_PAR,k,MU_JUMP,SIGMA_JUMP,eps_new,objectivfunc){
   
 
   EPS_inner<-rbind(EPS_inner,eps_new)
@@ -32,7 +32,7 @@ LOGLIKELIHOOD_func  <- function(pars,Step,OBSERVATIONS,x_0,parameters,EPS_inner,
   EPS_PARS[2,k] <- pars
 
   
-  RATIO_partial_new <- PARTIALLIKELIHOOD_func(Step,OBSERVATIONS,x_0,parameters,INPUT,EPS_PARS,GIBBS_PAR[["BETA"]],GIBBS_PAR[["ALPHA"]],objectivfunc,LogTransform) 
+  RATIO_partial_new <- PARTIALLIKELIHOOD_func(Step,OBSERVATIONS,x_0,parameters,INPUT,EPS_PARS,GIBBS_PAR[["BETA"]],GIBBS_PAR[["ALPHA"]],objectivfunc) 
   
   if (!is.na(RATIO_partial_new)){
   
@@ -45,18 +45,18 @@ LOGLIKELIHOOD_func  <- function(pars,Step,OBSERVATIONS,x_0,parameters,EPS_inner,
 }
 
 #partial
-PARTIALLIKELIHOOD_func <- function(STEP,OBSERVATIONS,x_0,parameters,input,W,BETA,ALPHA,objective,LogTransform){
+PARTIALLIKELIHOOD_func <- function(STEP,OBSERVATIONS,x_0,parameters,input,W,BETA,ALPHA,objective){
 
   TIME <-  c(OBSERVATIONS[STEP-1,1],OBSERVATIONS[STEP,1])
   
   
-  X <- ode_solv(TIME,x_0,parameters,input,W,LogTransform)
+  X <- ode_solv(TIME,x_0,parameters,input,W)
   
 
 
   if(any(is.na(X))) return(NA)
 
-  SUM <-  sum(-log((1+(1/(2*BETA))*(((OBSERVATIONS[2,-1]-sapply(1:4,objective,y=tail(X,1),parameter=parameters[5:6],USE.NAMES = TRUE))^2)))^(ALPHA+0.5)))
+  SUM <-  sum(-log((1+(1/(2*BETA))*(((OBSERVATIONS[2,-1]-sapply(1:length(OBSERVATIONS[2,-1]),objective,y=tail(X,1),parameter=parameters,USE.NAMES = TRUE))^2)))^(ALPHA+0.5)))
         
   
   return(SUM)

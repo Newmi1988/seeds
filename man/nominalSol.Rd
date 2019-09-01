@@ -3,20 +3,15 @@
 \docType{methods}
 \name{nominalSol}
 \alias{nominalSol}
-\alias{nominalSol,odeModel,missing-method}
-\alias{nominalSol,odeModel,numeric-method}
+\alias{nominalSol,odeModel-method}
 \title{Calculate the nominal solution of the model}
 \usage{
-nominalSol(odeModel, logTrans)
+nominalSol(odeModel)
 
-\S4method{nominalSol}{odeModel,missing}(odeModel, logTrans)
-
-\S4method{nominalSol}{odeModel,numeric}(odeModel, logTrans)
+\S4method{nominalSol}{odeModel}(odeModel)
 }
 \arguments{
 \item{odeModel}{a object of the class ode model describing the experiment}
-
-\item{logTrans}{a vector indicating which of the state vector componenets should be log transformed}
 }
 \description{
 Calculate the nominal solution of the model

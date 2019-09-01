@@ -102,7 +102,8 @@ plotResultsSeeds  <- function(x,y) {
   plot1 <- ggplot2::ggplot(reformatOrder(tidyr::gather(smoothRes(seedsobj@stateEstimates),state, value, -1)), ggplot2::aes(x=t, y=value, colour='red'))+ 
     ggplot2::geom_line()+
     ggplot2::geom_line(data = reformatOrder(tidyr::gather(smoothRes(seedsobj@stateNominal),state, value, -1)), ggplot2::aes(x=t, y=value, colour='blue'))+ 
-    ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@stateUnscertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@stateUnscertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+  # ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@stateUnscertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@stateUnscertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@stateUnscertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@stateUnscertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
     ggplot2::labs(x= 't', y='value',color = "states")+
     ggplot2::scale_color_manual(breaks= c("red","blue"), labels = c("estimate","nominal"), values = c("blue","red"))+
     ggplot2::theme(strip.background = ggplot2::element_blank(),
@@ -116,7 +117,8 @@ plotResultsSeeds  <- function(x,y) {
   
   plot2 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(smoothRes(seedsobj@hiddenInputEstimates),state,value,-1)), ggplot2::aes(x=t,y=value, colour="red"))+
     ggplot2::geom_line()+
-    ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+  # ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
     ggplot2::theme(legend.position = "none",
                    strip.background = ggplot2::element_blank(),
                    panel.background = ggplot2::element_blank(),
@@ -127,7 +129,8 @@ plotResultsSeeds  <- function(x,y) {
   
   plot3 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(smoothRes(seedsobj@outputEstimates),state,value, -1)), ggplot2::aes(x=t, y=value, colour=state))+
     ggplot2::geom_line()+
-    ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@outputEstimatesUncUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@outputEstimatesUncLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+  # ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@outputEstimatesUncUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@outputEstimatesUncLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@outputEstimatesUncUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@outputEstimatesUncLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
     ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(seedsobj@Data, state,value, -1), tidyr::gather(seedsobj@DataError,state,value, -1), by=c("t","state"))), ggplot2::aes(x=t, ymin= value.x - value.y , ymax = value.x + value.y), inherit.aes = FALSE)+
     ggplot2::geom_point(data =reformatOrder(tidyr::gather(seedsobj@Data,state,value,-1)), ggplot2::aes(x=t, y=value), colour="black") +
     ggplot2::labs(x= 't', y='value',color = "Estimated \n measurements")+
@@ -179,11 +182,24 @@ printSeedsResults <- function(x) {
 #' 
 
 setMethod(f = 'print',
+          signature = 'list',
+          definition = function(x) 
+          {
+            results <- x[[length(x)]]
+            printSeedsResults(results)
+          }
+          
+          
+          )
+
+setMethod(f = 'print',
           signature = 'resultsSeeds',
           definition = function(x) 
           {
             printSeedsResults(x)
           }
+          
+          
           )
 
 
@@ -209,11 +225,14 @@ setMethod(f = "plot",
           signature = c(x="resultsSeeds",y="missing"),
           definition = function(x,y)
           {
+            
             plotList <- plotResultsSeeds(x,y)
+            
             return(plotList)
           }
 )
 
+ 
 
 
 #' Create annotated plot
@@ -252,78 +271,6 @@ setMethod(f = "plotAnno",
           }
 )
 
-
-#### plot states ####
-#' Plot the estimated states
-#' 
-#' @param resultsSeeds
-#' 
-#' @export
-#'
-
-
-#' @rdname plotStates
-setGeneric(name = "plotStates", function(x,y) standardGeneric("plotStates"))
-
-
-#' @rdname plotStates
-setMethod(f = "plotStates",
-          signature = c("resultsSeeds","missing"),
-          definition = function(x,y) {
-            
-            plotList <- plotResultsSeeds(x,y)
-
-            return(plotList[[1]])
-          }
-          )
-
-##### plot hidden inputs ####
-#' Plot the estimated states
-#' 
-#' @param resultsSeeds
-#' 
-#' @export
-#'
-
-
-#' @rdname plotHiddenInputs
-setGeneric(name = "plotHiddenInputs", function(x,y) standardGeneric("plotHiddenInputs"))
-
-
-#' @rdname plotHiddenInputs
-setMethod(f = "plotHiddenInputs",
-          signature = c("resultsSeeds","missing"),
-          definition = function(x,y) {
-            
-            plotList <- plotResultsSeeds(x,y)
-
-            return(plotList[[2]])
-          }
-          )
-
-### plot measurements ####
-#' Plot the estimated states
-#' 
-#' @param resultsSeeds
-#' 
-#' @export
-#'
-
-
-#' @rdname plotStates
-setGeneric(name = "plotMeas", function(x,y) standardGeneric("plotMeas"))
-
-
-#' @rdname plotStates
-setMethod(f = "plotMeas",
-          signature = c("resultsSeeds","missing"),
-          definition = function(x,y) {
-            
-            plotList <- plotResultsSeeds(x,y)
-
-            return(plotList[[3]])
-          }
-          )
 
 #### return hidden Inputs ####
 #' Get the estimated hidden inputs
@@ -566,6 +513,4 @@ summary.resultsSeeds <- function(resultsSeeds) {
   
   return(list("est. states"=states, "est. hiddenInputs" = hiddenInputs))
 }
-
-# setMethod()
 

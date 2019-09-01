@@ -64,6 +64,8 @@ symbolicDiff <- function(odeObj){
     }
     # format for dynamic elastic net
     # create predErrorTerm
+    
+    
     Jh = matrix(unlist(Jh),nrow = n)
     multi <- strMatrixMulti(Jh,t(Jh))
     multi = vectorFormat(simMaExpr(multi))
@@ -71,8 +73,7 @@ symbolicDiff <- function(odeObj){
     return(list(multi,Jh))
     
   }
- 
-  # calculate the derivations of the cost function 
+  
   costFuncDeriv <- function(odeObj,format){
     n <- length(odeObj@origEq)
     Jl <- rep("",n)
@@ -104,8 +105,6 @@ symbolicDiff <- function(odeObj){
     return(ret)
   }
   
-  
-  # reformat the derivations matrix so the code can be parsed later
   formatDerivMatrix <- function(derivMatrix,costDeriveState){
     n <- ncol(derivMatrix)
     p <- character(length = n)
@@ -126,8 +125,6 @@ symbolicDiff <- function(odeObj){
     }
     return(formatedCharVec)
   }
-  
-  
   
   createHamilton <- function(odeEq) {
     n <- length(odeEq@origEq)
@@ -153,7 +150,6 @@ symbolicDiff <- function(odeObj){
     return(Hamilton)
   }
   
-  # a costum function to 'multiply' matrices of equation strings
   strMatrixMulti <- function(M1,M2){ 
     if(ncol(M1) != nrow(M2)) {
       cat('multiplication not possible. Dimensions dont match')

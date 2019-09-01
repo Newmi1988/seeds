@@ -1,6 +1,5 @@
-# Function for writing the created functions into a dummy file
-# for every function that is loaded the same file is used
-# after sourcing the file it is not longer needed (is only used as a buffer)
+# write a dummy function to parse string to odeModel class
+
 writeDummy <- function(eqList){
   
   funcStr = paste(paste0('dx',1:length(eqList$reac)),eqList$reac, sep = ' = ')

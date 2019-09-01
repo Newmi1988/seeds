@@ -6,7 +6,7 @@
 #'  
 #' @param VARIANCE             standard error of the observed stat dynamics (per time point)
 #' @param N                    number of system states
-#' @param BETA_LAMDBA          time step of the sample algorithm corresponding to the given vector of time points 
+#' @param BETA_LAMDBA          mcmc tuning paramter (weigthing of observed states)
 #' @param alphainit            mcmc tuning paramter (weigthing of observed states)
 #' @param betainit             mcmc tuning paramter (weigthing of observed states)
 #' 
@@ -14,13 +14,11 @@
 #'
 #'
 #'
-SETTINGS <- function(VARIANCE,N,BETA_LAMDBA,alphainit,betainit){
+SETTINGS <- function(VARIANCE,N,BETA_LAMDBA,alphainit,betainit,R=c(1000,1000),ROH=c(10,10)){
   
     if (length(alphainit)!=N) alphainit = rep(1,N)
     if (length(betainit)!=N)  {betainit  = rep(1,N)}
     
-    R     <- rep(0,2)
-    ROH   <- rep(0,2)
     
     CONTAINER  <- VARIANCE[,2]
     
@@ -28,6 +26,7 @@ SETTINGS <- function(VARIANCE,N,BETA_LAMDBA,alphainit,betainit){
       CONTAINER= c(CONTAINER,VARIANCE[,i])
     }
     
+
 
     PHI   <- MASS::fitdistr(1/CONTAINER, "gamma")
     

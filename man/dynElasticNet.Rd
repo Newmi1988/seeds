@@ -6,7 +6,7 @@
 \usage{
 dynElasticNet(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
   measData, constStr, SD, modelFunc, measFunc, modelInput, optW, origAUC,
-  maxIteration, plotEsti, conjGrad, eps, logTransf)
+  maxIteration, plotEsti, conjGrad, eps, nnStates)
 }
 \arguments{
 \item{alphaStep}{starting value of the stepsize for the gradient descent, will be calculate to minimize the costfunction by backtracking algorithm}
@@ -45,7 +45,7 @@ dynElasticNet(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
 
 \item{eps}{citeria for stopping the algorithm}
 
-\item{logTransf}{a vector indicating which state variables should be log transformed to force positive solutions for the states}
+\item{nnStates}{a bit vector indicating the states that should be non negative}
 }
 \value{
 A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the costfunction

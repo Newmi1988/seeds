@@ -21,14 +21,14 @@
 #' @param GIBBS_par            GIBBS_PAR[["BETA"]] and GIBBS_PAR[["ALPHA"]]; prespecified or calculated vector of state weights
 #' @param N                    number of system states
 #' @param BURNIN               number of dismissed samples during burnin
-#' @param LogTransform         use the log transformed ODE system 
+
 
 
 #' @return                     A matrix with the sampled hidden inputs (row-wise)
 
 
 MCMC_component <- function(LOGLIKELIHOOD_func, STEP_SIZE, STEP_SIZE_INNER , EPSILON, JUMP_SCALE,
-                           STEP,OBSERVATIONS,Y0,INPUTDATA,PARAMETER,EPSILON_ACT,SIGMA,DIAG,GIBBS_par, N, BURNIN,objective,LogTrans){
+                           STEP,OBSERVATIONS,Y0,INPUTDATA,PARAMETER,EPSILON_ACT,SIGMA,DIAG,GIBBS_par, N, BURNIN,objective){
 
   number_species <- N
   epsilon_container <- matrix(rep(0,(STEP_SIZE+1)*number_species),((STEP_SIZE+1)))
@@ -37,8 +37,8 @@ MCMC_component <- function(LOGLIKELIHOOD_func, STEP_SIZE, STEP_SIZE_INNER , EPSI
     
     epsilon_container[2,] <- EPSILON_ACT[2,]
     
-  
-    JUMP_SCALE <- JUMP_SCALE/2
+    #JUMP_SCALE <- 0.3825*1.2
+
 
 for (ii in 2:STEP_SIZE+1){
 
@@ -54,9 +54,9 @@ for (ii in 2:STEP_SIZE+1){
   eps1[,k] <- rnorm(STEP_SIZE_INNER,MU_jump,JUMP_SCALE)
 
         ratio_new <- sapply(eps1[,k],LOGLIKELIHOOD_func,Step=STEP,OBSERVATIONS=OBSERVATIONS,x_0=Y0,parameters=PARAMETER,EPS_inner=EPSILON_ACT[1,],
-                        D=DIAG*SIGMA,GIBBS_PAR=GIBBS_par,k=k,MU_JUMP=MU_jump,SIGMA_JUMP=JUMP_SCALE,eps_new=eps1[1,],INPUT=INPUTDATA,objectivfunc=objective,LogTransform=LogTrans)
+                        D=DIAG*SIGMA,GIBBS_PAR=GIBBS_par,k=k,MU_JUMP=MU_jump,SIGMA_JUMP=JUMP_SCALE,eps_new=eps1[1,],INPUT=INPUTDATA,objectivfunc=objective)
     
-        ratio_old <- LOGLIKELIHOOD_func(epsilon_container[ii-1,k],STEP,OBSERVATIONS,Y0,PARAMETER,EPSILON_ACT[1,],INPUTDATA,DIAG*SIGMA,GIBBS_par,k,MU_jump,JUMP_SCALE,eps_new=epsilon_container[ii-1,],objective,LogTransform=LogTrans)
+        ratio_old <- LOGLIKELIHOOD_func(epsilon_container[ii-1,k],STEP,OBSERVATIONS,Y0,PARAMETER,EPSILON_ACT[1,],INPUTDATA,DIAG*SIGMA,GIBBS_par,k,MU_jump,JUMP_SCALE,eps_new=epsilon_container[ii-1,],objective)
 
         ratio     <- exp(ratio_new-ratio_old-dnorm(eps1[,k],MU_jump,JUMP_SCALE,log=TRUE)+dnorm(epsilon_container[ii-1,k],MU_jump,JUMP_SCALE,log=TRUE))
 
@@ -65,11 +65,10 @@ for (ii in 2:STEP_SIZE+1){
        epsilon_container[ii,] <- epsilon_container[ii-1,]
        }
     else{
-      if (0.95 < max((ratio),na.rm=T)){
-        
+     # if (0.95 < max((ratio),na.rm=T)){
+      if (0.95 < min(1,max((ratio),na.rm=T))){
         Dummy <- matrix(eps1[which(ratio==max((ratio),na.rm=T)),],ncol=number_species)
         epsilon_container[ii,] <- Dummy[which.min(Dummy[,k]),]
-        #epsilon_container[ii,] <- eps1[which.min(ratio),]
         
       }
       else{

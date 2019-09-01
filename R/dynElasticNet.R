@@ -18,19 +18,19 @@
 #' @param constStr  a string that represents constrains, can be used to calculate a hidden input for a komponent that gradient is zero
 #' @param maxIteration a upper bound for the maximal number of iterations
 #' @param eps citeria for stopping the algorithm
-#' @param logTransf a vector indicating which state variables should be log transformed to force positive solutions for the states
+#' @param nnStates a bit vector indicating the states that should be non negative
 #'
 #' @return A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the costfunction
 #' @export
-dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measData, constStr,
-                          SD,modelFunc,measFunc,modelInput,optW,origAUC,maxIteration,plotEsti, conjGrad, eps,logTransf) {
-  
+dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2, measData, constStr,
+                          SD, modelFunc, measFunc, modelInput, optW, origAUC, maxIteration, plotEsti, conjGrad, eps, nnStates) {
+
   source('stateHiddenInput.R')
   source('costate.R')
-  
+
   costate <- get('costate', envir = environment())
   hiddenInputState <- get('hiddenInputState', envir = environment())
-  
+
   #### initialization ####
   # optW 
   # startOptW     vectors that indicates states that should be optimized
@@ -42,37 +42,40 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
   # measureData   values of the measured data
   startOptW <- optW
   if (missing(optW)) {
-    optW <- rep(1,length(x0))
+    optW <- rep(1, length(x0))
   }
-  
+
   if (missing(plotEsti)) {
     plotEsti <- FALSE
   }
-  
-  # if no vector with indices for the log transformation is given
-  # create a vector with only zeros, so no log transformation is done
-  if (missing(logTransf)) {
-    logTransf <- rep(0,length(x0))
+
+  if (missing(nnStates)) {
+    nnStates <- rep(0, length(x0))
   }
-  
-  if(sum(logTransf)>0) {
-    x0[which(logTransf>0)] = log(x0[which(logTransf>0)])
-  } 
-  
-  # Parameters
-  # N - number of interpolation steps for the results of the odeEquation
+
   N <- 100
-  times <- measData[,1]
+  times <- measData[, 1]
   t0 <- times[1]
-  tf <- utils::tail(times, n=1)
+  tf <- utils::tail(times, n = 1)
   times <- seq(from = t0, to = tf, length.out = N)
-  tInt <- c(t0,tf)
-  
-  measureTimes <- measData[,1]
-  measureData <- measData[,-1]
-  
+  tInt <- c(t0, tf)
+
+  measureTimes <- measData[, 1]
+  measureData <- measData[, -1]
+
   alphaDynNet <- list(a1 = alpha1, a2 = alpha2)
+
+
+  ##### Create the neccessary function for event based ode solving
+  # RootFunc  - Function for finding the root of a given vector (x -> 0, tI < t < tF)
+  # EventFunc - Function that the output of the states after being triggered by the root function
+  eventTol <- 0.0
+  resetValue <- 0.0001
   
+
+  RootFunc <- eval(parse(text = createRoot(rootStates = nnStates)))
+  EventFunc <- eval(parse(text = createEvent(tollerance = eventTol, value = resetValue)))
+
   #### interpolation of the data ####
   # Q   matrix of weights based on a given standard deviation
   #     Two cases
@@ -86,78 +89,105 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
   #         uncertainty of the measurement when estimating the trajectories
   #
 
-  if(is.null(SD)) {
+  if (is.null(SD)) {
     # Case 1
     measureData <- as.matrix(measureData)
-    Q <- matrix(data = rep(1,length(measureData)), ncol = ncol(measureData))
-      Q = Q / abs(measureData)
-      Q[is.infinite(Q)] = 0
-      Q[is.na(Q)] = 0
-      
-    interpQ <- apply(X = Q, MARGIN = 2, FUN = function(t) stats::approx(x=measureTimes, y=t, xout = times))
-    interpQ = do.call(cbind, lapply(interpQ, FUN = function(t) cbind(t$y)) )
+    Q <- matrix(data = rep(1, length(measureData)), ncol = ncol(measureData))
+    Q = Q / abs(measureData)
+    Q[is.infinite(Q)] = 0
+    Q[is.na(Q)] = 0
+
+    interpQ <- apply(X = Q, MARGIN = 2, FUN = function(t) stats::approx(x = measureTimes, y = t, xout = times))
+    interpQ = do.call(cbind, lapply(interpQ, FUN = function(t) cbind(t$y)))
     Q <- interpQ
   }
   else {
     # Case 2
-    interpSD <- apply(X = SD, MARGIN = 2, FUN = function(t) stats::approx(x = measData[,1], y = t, xout = times))
+    interpSD <- apply(X = SD, MARGIN = 2, FUN = function(t) stats::approx(x = measData[, 1], y = t, xout = times))
     interpSD = do.call(cbind, lapply(interpSD, FUN = function(t) cbind(t$y)))
-    Q <- apply(X = interpSD, MARGIN = 2, FUN = function(t)  (1/t^2)/length(t) )
+    Q <- apply(X = interpSD, MARGIN = 2, FUN = function(t)(1 / t ^ 2) / length(t))
   }
-  
-  # set standard names for the state vector is no names are given
-  if(all(is.null(names(x0)))) {
-    names(x0) <- paste0(rep("x",length(x0)),1:length(x0))
+
+  if (all(is.null(names(x0)))) {
+    names(x0) <- paste0(rep("x", length(x0)), 1:length(x0))
   }
-  
-  if(!is.null(modelInput)){
+
+  if (!is.null(modelInput)) {
     # with external input
     inputInterp <- list()
-    inputInterp <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approxfun(x = modelInput[,1], y = x, rule = 2, method = 'linear'))
+    inputInterp <- apply(X = modelInput[, -1, drop = F], MARGIN = 2, FUN = function(x) stats::approxfun(x = modelInput[, 1], y = x, rule = 2, method = 'linear'))
   }
-  
+
   #### solve the nominal model ####
   #   Case
   #   1   use compiled code
   #   2   use standard deSolve ode function
-  if(grepl("Rtools",Sys.getenv('PATH'))|| (.Platform$OS.type!="windows")){
-    if(!is.null(modelInput)){
-      inputApprox <- apply(X = modelInput[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approx(x = modelInput[,1], y = x, xout = times, rule = 2))
-      inputApprox = list(cbind(times,inputApprox$u$y))
+  if (grepl("Rtools", Sys.getenv('PATH')) || (.Platform$OS.type != "windows")) {
+    if (!is.null(modelInput)) {
+      inputApprox <- apply(X = modelInput[, -1, drop = F], MARGIN = 2, FUN = function(x) stats::approx(x = modelInput[, 1], y = x, xout = times, rule = 2))
+      inputApprox = list(cbind(times, inputApprox$u$y))
     } else {
-      inputApprox <- list(cbind(times,rep(0,length(times))))
+      inputApprox <- list(cbind(times, rep(0, length(times))))
     }
-    
-    w <- matrix(rep(0,length(x0)*length(times)), ncol = length(x0))
+
+    w <- matrix(rep(0, length(x0) * length(times)), ncol = length(x0))
     wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
-    wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
+    wList <- lapply(wSplit, FUN = function(x) cbind(times, x))
     forcings <- c(inputApprox, wList)
-    
-    solNominal = deSolve::ode(y = x0, times, func = "derivsc",
-                              parms = parameters, dllname = "model", initforc="forcc",
+
+    if (sum(nnStates) == 0) {
+      solNominal = deSolve::ode(y = x0, times, func = "derivsc",
+                              parms = parameters, dllname = "model", initforc = "forcc",
                               forcings = forcings, initfunc = "parmsc")
-  } else {
-    if(!is.null(modelInput)){
-      # with external input
-      solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters, input = inputInterp))  
     } else {
-      solNominal <- as.data.frame(deSolve::ode(y = x0, times = times, func = modelFunc, parms = parameters))
+      solNominal = deSolve::lsoda(y = x0, times, func = "derivsc",
+                              parms = parameters, dllname = "model", initforc = "forcc",
+                              forcings = forcings, initfunc = "parmsc", nroot = sum(nnStates),
+                              rootfunc = "myroot", events = list(func = EventFunc, root = TRUE))
+
+    }
+  } else {
+    if (!is.null(modelInput)) {
+      # with external input
+      if (sum(nnStates) == 0) {
+        solNominal <- as.data.frame(deSolve::ode(y = x0,
+                                                  times = times,
+                                                  func = modelFunc,
+                                                  parms = parameters,
+                                                  input = inputInterp))
+      } else {
+        solNominal <- as.data.frame(deSolve::ode(y = x0,
+                                                  times = times,
+                                                  func = modelFunc,
+                                                  parms = parameters,
+                                                  input = inputInterp,
+                                                  events = list(func = EventFunc, root = TRUE),
+                                                  rootfun = RootFunc))
+      }
+    } else {
+      if (sum(nnStates) == 0) {
+        solNominal <- as.data.frame(deSolve::ode(y = x0,
+                                                  times = times,
+                                                  func = modelFunc,
+                                                  parms = parameters))
+      } else {
+        solNominal <- as.data.frame(deSolve::ode(y = x0,
+                                                  times = times,
+                                                  func = modelFunc,
+                                                  parms = parameters,
+                                                  events = list(func = EventFunc, root = TRUE),
+                                                  rootfun = RootFunc))
+      }
     }
   }
- 
-  # seperate the measurements times and the values of the states 
-  Tx <- solNominal[,1]
-  x <- solNominal[,-1, drop=FALSE]
-  
-  # log-transform indicated state components
-  if(sum(logTransf)>0) {
-    x[,which(logTransf>0)] = exp(x[,which(logTransf>0)])
-  } 
-  
+
+  Tx <- solNominal[, 1]
+  x <- solNominal[, -1, drop = FALSE]
+
   # initialize the hidden inputs as matrix with columns representing the inputs for each state
-  w = matrix(rep(0,nrow(x)*ncol(x)), nrow = nrow(x))
-  colnames(w) <- paste0(rep("w",ncol(w)),1:ncol(w))
-  
+  w = matrix(rep(0, nrow(x) * ncol(x)), nrow = nrow(x))
+  colnames(w) <- paste0(rep("w", ncol(w)), 1:ncol(w))
+
   # calculate the measurements
   #   Arguments
   #   x         nummerical solution to the system calculated by deSolver
@@ -165,77 +195,99 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
   #             Cases
   #             1     a measurement function is given
   #             2     if no function is given all states are considered observable
-  getMeassures <- function(x,measFunc) {
-    if(missing(measFunc)) {
+  getMeassures <- function(x, measFunc) {
+    if (missing(measFunc)) {
       cat('No meassurement function defined. Assuming all states are observable.\n')
-      y <- x[,-1, drop=FALSE]
+      y <- x[, -1, drop = FALSE]
     } else {
-      y <- do.call(cbind,measFunc(x[,-1,drop=FALSE]))
+      y <- do.call(cbind, measFunc(x[, -1, drop = FALSE]))
     }
-    y = as.data.frame(cbind(x[,1],y))
+    y = as.data.frame(cbind(x[, 1], y))
     names(y)[1] <- 't'
-    names(y)[-1] <- paste0(rep("y",ncol(y)-1),1:(ncol(y)-1))
+    names(y)[-1] <- paste0(rep("y", ncol(y) - 1), 1:(ncol(y) - 1))
     return(y)
   }
-  
+
   # calculate the stepsize of the gradient decent
   #   based on cubic interpolation of the last two values of the costfunction
   #   of the backtracking line search
   #   
-  getAlphaBacktracking <- function(oldW,W,Q,y,gradStep,J,currIter,alphaDynNet,alphaS,stepBeta,optW,para,tInt,Tp,measFunc,input,measureTimes,logTransf) {
-    
-    
+  getAlphaBacktracking <- function(oldW, W, Q, y, gradStep, J, currIter, alphaDynNet, alphaS, stepBeta, optW, para, tInt, Tp, measFunc, input, measureTimes, nnStates, rootFunc, eventFunc) {
+
+
     iter = 500
     alpha = alphaS
-    arrayJ = rep(0,iter)
-    
+    arrayJ = rep(0, iter)
+
     time <- seq(from = tInt[1], to = tInt[2], length.out = 100)
-    solX <- matrix( rep(0,length(time)*(length(optW)+1)),ncol = length(optW)+1)
-    Tx <- rep(0,length(time))
-    x <- matrix(0,length(optW)*length(time), ncol = length(optW))
-    yHat <- matrix(rep(0,length(measData)), ncol = ncol(measData))
-    
-    
+    solX <- matrix(rep(0, length(time) * (length(optW) + 1)), ncol = length(optW) + 1)
+    Tx <- rep(0, length(time))
+    x <- matrix(0, length(optW) * length(time), ncol = length(optW))
+    yHat <- matrix(rep(0, length(measData)), ncol = ncol(measData))
+
+
     for (i in 1:iter) {
-      newW = oldW + alpha*gradStep
-      input$w = apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
-      
-      if(grepl("Rtools",Sys.getenv('PATH'))|| (.Platform$OS.type!="windows")){
+      flagNext <- FALSE
+      newW = oldW + alpha * gradStep
+      input$w = apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule = 2))
+
+      if (grepl("Rtools", Sys.getenv('PATH')) || (.Platform$OS.type != "windows")) {
         wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
-        wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
+        wList <- lapply(wSplit, FUN = function(x) cbind(times, x))
         forcings <- c(inputApprox, wList)
-        
-        tryCatch(
-          {
-            # used the compiled code for faster execution
-            R.utils::captureOutput( solX <- deSolve::ode(y = x0, time, func = "derivsc",
-                                            parms = parameters, dllname = "model", initforc="forcc",
+
+        tryCatch({
+
+          if (sum(nnStates) == 0) {
+            R.utils::captureOutput(
+              solX <- deSolve::ode(y = x0, times = time, func = "derivsc",
+                                            parms = parameters, dllname = "model", initforc = "forcc",
                                             forcings = forcings, initfunc = "parmsc")
             )
-          },
+          } else {
+            R.utils::capture.output(
+              solX <- deSolve::lsoda(y = x0, times = time, func = "derivsc",
+                                     parms = parameters, dllname = "model", initforc = "forcc",
+                                     forcings = forcings, initfunc = "parmsc", nroot = sum(nnStates),
+                                     rootfunc = "myroot", events = list(func = eventFunc, root = TRUE))
+            )
+          }
+        },
           error = function(cond) {
-            message('Error during calculating the stepsize of the gradient decent:')
-            message('Error while solving the ode system.')
-            message('Try to decrease alphaStep and see if the ode can then be solved.')
+            # message('Error during calculating the stepsize of the gradient decent:')
+            # message('Error while solving the ode system.')
+            # message('Try to decrease alphaStep and see if the ode can then be solved.')
+            flagNext <<- TRUE
           },
           warning = function(cond) {
-            message('Warning while solving the ode system with the deSolve-package:')
-            message('Original error message:')
-            message(cond)
+            # message('Warning while solving the ode system with the deSolve-package:')
+            # message('Original error message:')
+            # message(cond)
           },
           finally = {
 
-          }
+        }
         )
       } else {
-        # fallback to the original deSolve functionality if compilation is not possible (missing Rtoosl)
         input$optW = optW
-        tryCatch(
-          {
+        tryCatch({
+
+          if (sum(nnStates) == 0) {
             R.utils::captureOutput(
-              solX <- deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
+              solX <- deSolve::ode(y = x0, times = time, func = hiddenInputState, parms = parameters, input = input)
             )
-          },
+          } else {
+
+            R.utils::captureOutput(
+                solX <- deSolve::ode(y = x0,
+                                     times = time,
+                                     func = hiddenInputState,
+                                     parms = parameters,
+                                     input = input,
+                                     events = list(func = eventFunc, root = TRUE),
+                                     rootfun = rootFunc))
+          }
+        },
           error = function(cond) {
             message('Error during calculating the stepsize of the gradient decent:')
             message('Error while solving the ode system.')
@@ -247,189 +299,210 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
             message(cond)
           },
           finally = {
-            
-          }
+
+        }
         )
       }
-      
-      
-      
-      Tx = solX[,1]
-      x = solX[,-1, drop=FALSE]
-      
-      # reverse the logTransformation to get the real state value
-      if(sum(logTransf)>0) {
-        x[,which(logTransf>0)] = exp(x[,which(logTransf>0)])
-      } 
-      
-      yHat = getMeassures(solX,measFunc)
-      if(sum(is.nan(colSums(x)))>0  || sum(colSums(x))==0) {
+
+      if (flagNext) {
+        next
+      }
+
+
+
+      Tx = solX[, 1]
+      x = solX[, -1, drop = FALSE]
+
+      yHat = getMeassures(solX, measFunc)
+      if (sum(is.nan(colSums(x))) > 0 || sum(colSums(x)) == 0) {
         stop('\nThe numerical solution of the ode system failed. See above message.')
       }
-      input$interpX = apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
-      input$interpyHat = apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
-      
-      arrayJ[i] = costFunction(measureTimes,input,alphaDynNet)
+      input$interpX = apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule = 2, method = 'linear'))
+      input$interpyHat = apply(X = yHat[, -1, drop = FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[, 1], y = x, rule = 2, method = 'linear'))
 
-      if ( i>1 && (arrayJ[i]>arrayJ[i-1]) && (arrayJ[i] < J[currIter])) {
-        alpha = alphaS*stepBeta^(i-2)
+      arrayJ[i] = costFunction(measureTimes, input, alphaDynNet)
+
+      if (i > 1 && (arrayJ[i] > arrayJ[i - 1]) && (arrayJ[i] < J[currIter])) {
+        alpha = alphaS * stepBeta ^ (i - 2)
         break
       }
-      alpha = alpha*stepBeta
+      alpha = alpha * stepBeta
     }
-    
+
+
     # cubic interpolation to find the minimum of the costfunction given the 
     # calculated gradient
     intAlpha1 <- alpha
-    intAlpha2 <- alpha*stepBeta
-    costAlpha1 <- arrayJ[i-1]
+    intAlpha2 <- alpha * stepBeta
+    costAlpha1 <- arrayJ[i - 1]
     costAlpha2 <- arrayJ[i]
-    
+
     # recursive function to find the minimum
-    cubicInterpolMin <- function(alphaA,alphaB,jA,jB,logTransf){
-      alpha3 <- 0.5*(alphaA+alphaB)
-      newW = oldW + alpha3*gradStep
-      
-      if(grepl("Rtools",Sys.getenv('PATH'))|| (.Platform$OS.type!="windows")){
+    cubicInterpolMin <- function(alphaA, alphaB, jA, jB, nnStates, rootFunc, eventFunc) {
+      alpha3 <- 0.5 * (alphaA + alphaB)
+      newW = oldW + alpha3 * gradStep
+
+      if (grepl("Rtools", Sys.getenv('PATH')) || (.Platform$OS.type != "windows")) {
         wSplit <- split(newW, rep(1:ncol(newW), each = nrow(newW)))
-        wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
+        wList <- lapply(wSplit, FUN = function(x) cbind(times, x))
         forcings <- c(inputApprox, wList)
-        solX = deSolve::ode(y = x0, time, func = "derivsc",
-                            parms = parameters, dllname = "model", initforc="forcc",
+
+        if (sum(nnStates) == 0) {
+          solX <- deSolve::ode(y = x0, time, func = "derivsc",
+                            parms = parameters, dllname = "model", initforc = "forcc",
                             forcings = forcings, initfunc = "parmsc")
+        } else {
+          solX <- deSolve::lsoda(y = x0, times = time, func = "derivsc",
+                                  parms = parameters, dllname = "model", initforc = "forcc",
+                                  forcings = forcings, initfunc = "parmsc", nroot = sum(nnStates),
+                                  rootfunc = "myroot", events = list(func = eventFunc, root = TRUE))
+        }
       } else {
         input$optW <- optW
-        input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
+        input$w <- apply(X = newW, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule = 2))
         time <- seq(from = tInt[1], to = tInt[2], length.out = 300)
-        solX <- deSolve::ode(y = x0, times = time,func = hiddenInputState, parms = parameters, input=input)
+
+        if (sum(nnStates) == 0) {
+          solX <- deSolve::ode(y = x0,
+                              times = time,
+                              func = hiddenInputState,
+                              parms = parameters,
+                              input = input)
+        } else {
+          solX <- deSolve::ode(y = x0,
+                              times = time,
+                              func = hiddenInputState,
+                              parms = parameters,
+                              input = input,
+                              events = list(func = eventFunc, root = TRUE),
+                              rootfun = rootFunc)
+
+        }
       }
-      
-      
-      
-      
-      Tx <- solX[,1]
-      x <- solX[,-1, drop=FALSE]
-      
-      if(sum(logTransf)>0) {
-        x[,which(logTransf>0)] = exp(x[,which(logTransf>0)])
-      } 
-      
-      yHat <- getMeassures(solX,measFunc)
-      
-      if(sum(is.nan(colSums(x)))>0) {
+
+
+
+
+      Tx <- solX[, 1]
+      x <- solX[, -1, drop = FALSE]
+
+      yHat <- getMeassures(solX, measFunc)
+
+      if (sum(is.nan(colSums(x))) > 0) {
         cat('Numeric Integration failed. Returning last working step.\n')
         return(alphaA)
       }
-      
-      input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
-      input$interpyHat <- apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
-      
-      j3 = costFunction(measureTimes,input,alphaDynNet)
-      
-      alphaT = alpha3 - (alphaB-alphaA)/4 * (jB - jA)/(jB-2*j3+jA)
-      
-      if(is.nan(alphaT) || (length(alphaT)==0)){
+
+      input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule = 2, method = 'linear'))
+      input$interpyHat <- apply(X = yHat[, -1, drop = FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[, 1], y = x, rule = 2, method = 'linear'))
+
+      j3 = costFunction(measureTimes, input, alphaDynNet)
+
+      alphaT = alpha3 - (alphaB - alphaA) / 4 * (jB - jA) / (jB - 2 * j3 + jA)
+
+      if (is.nan(alphaT) || (length(alphaT) == 0)) {
         return(alphaA)
       } else {
-        if(alphaT > 0 ){
+        if (alphaT > 0) {
           alpha = alphaT
           return(alpha)
         } else {
-          alpha <- cubicInterpolMin(alphaA = alphaA, alphaB = alpha3, jA = jA, jB = j3, logTransf = logTransf)
+          alpha <- cubicInterpolMin(alphaA = alphaA, alphaB = alpha3, jA = jA, jB = j3, nnStates = nnStates, rootFunc = rootFunc, eventFunc = eventFunc)
           return(alpha)
         }
       }
     }
-    
-    
+
+
     #check if the cubicInterpolation gives a lower value as the last iteration
     #   cubic interpolation can result in an rise of the cost function
     #   check if the calculated alpha is an descent
-    
-    alphaTemp <- cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2, logTransf = logTransf)
-    
+
+    alphaTemp <- cubicInterpolMin(alphaA = intAlpha1, alphaB = intAlpha2, jA = costAlpha1, jB = costAlpha2, nnStates = nnStates, rootFunc = rootFunc, eventFunc = eventFunc)
+
     return(alphaTemp)
+
   }
-  
+
   # function that plots the current estimates for each iteration
-  showEstimates <- function(measureTimes,AUCs,input, alpha2, J, nomSol, SD){
-    tPlot <- seq(from=measureTimes[1], to = measureTimes[length(measureTimes)], length.out = 50)
-    
+  showEstimates <- function(measureTimes, AUCs, input, alpha2, J, nomSol, SD) {
+    tPlot <- seq(from = measureTimes[1], to = measureTimes[length(measureTimes)], length.out = 50)
+
     y <- sapply(input$interpY, mapply, measureTimes)
     yhat <- sapply(input$interpyHat, mapply, tPlot)
     w <- sapply(input$w, mapply, tPlot)
     yNom <- sapply(nomSol, mapply, tPlot)
-    
+
     J <- unlist(J)
-    J = J[J!=0]
-    
+    J = J[J != 0]
+
     width = 2
     numMeas <- ncol(y)
-    if((numMeas+3)%% 3 == 0){
+    if ((numMeas + 3) %% 3 == 0) {
       n <- (numMeas + 3) %/% 3
     } else {
       n <- (numMeas + 3) %/% 3 + 1
     }
     m <- 3
-    par(mfrow=c(n,m), ask=F)
+    par(mfrow = c(n, m), ask = F)
     barplot(unlist(AUCs[1,]), col = 'red', xlab = 'hidden inputs', main = 'AUC (a.u)')
-    for( i in 1:numMeas) {
-      yLab <- paste0('y',as.character(i))
-      yMax <- max(max(y[,i]),max(yhat[,i]),max(yNom[,i]))
-      yMin <- min(min(y[,i]),min(yhat[,i]),min(yNom[,i]))
-      if(is.null(SD)){
-        plot(x = measureTimes, y = y[,i], type = 'p', pch = 20, col = 'black', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
+    for (i in 1:numMeas) {
+      yLab <- paste0('y', as.character(i))
+      yMax <- max(max(y[, i]), max(yhat[, i]), max(yNom[, i]))
+      yMin <- min(min(y[, i]), min(yhat[, i]), min(yNom[, i]))
+      if (is.null(SD)) {
+        plot(x = measureTimes, y = y[, i], type = 'p', pch = 20, col = 'black', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
       } else {
-        Hmisc::errbar(x = measureTimes, y = y[,i], yplus = y[,i]+SD[,i], yminus = y[,i]-SD[,i], ylab = yLab, xlab = 't', ylim = c(yMin, yMax), add = FALSE)
+        Hmisc::errbar(x = measureTimes, y = y[, i], yplus = y[, i] + SD[, i], yminus = y[, i] - SD[, i], ylab = yLab, xlab = 't', ylim = c(yMin, yMax), add = FALSE)
       }
-      par(new=T)
-      plot(x = tPlot, y = yhat[,i], type='l', col = 'red', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
-      par(new=T)
-      plot(x = tPlot, y = yNom[,i], type='l', col = 'blue', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
+      par(new = T)
+      plot(x = tPlot, y = yhat[, i], type = 'l', col = 'red', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
+      par(new = T)
+      plot(x = tPlot, y = yNom[, i], type = 'l', col = 'blue', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
     }
     plot(J, type = 'l', xlab = 'iteration', ylab = 'J[w]', lwd = width)
-    matplot(x = tPlot, y = w, type='l', col = 'red', xlab = 't', lwd = width)
+    matplot(x = tPlot, y = w, type = 'l', col = 'red', xlab = 't', lwd = width)
   }
-  
-  
+
+
   # cost function that is to be optimized
-  costFunction <- function(measureTimes,input,alphaDynNet) {
+  costFunction <- function(measureTimes, input, alphaDynNet) {
     y <- sapply(input$interpY, mapply, measureTimes)
     yhat <- sapply(input$interpyHat, mapply, measureTimes)
     q <- sapply(input$q, mapply, measureTimes)
     w <- sapply(input$w, mapply, measureTimes)
-    
+
     yCost <- list()
     # cost of the deviation of the calculated measurements to the given data
     for (i in 1:ncol(yhat)) {
-      yCost$Start[[i]] = sum((yhat[1,i]- y[1,i]) * q[1,i] * (yhat[1,i]- y[1,i]))
-      yCost$Middle[[i]] = sum((yhat[,i]- y[,i]) * q[,i] * (yhat[,i]- y[,i]))
-      yCost$End[[i]] = sum((yhat[nrow(yhat),i]- y[nrow(y),i]) * q[nrow(q),i] * (yhat[nrow(yhat),i]- y[nrow(y),i]))
+      yCost$Start[[i]] = sum((yhat[1, i] - y[1, i]) * q[1, i] * (yhat[1, i] - y[1, i]))
+      yCost$Middle[[i]] = sum((yhat[, i] - y[, i]) * q[, i] * (yhat[, i] - y[, i]))
+      yCost$End[[i]] = sum((yhat[nrow(yhat), i] - y[nrow(y), i]) * q[nrow(q), i] * (yhat[nrow(yhat), i] - y[nrow(y), i]))
     }
-    
+
     # cost for the inputs
     wCost <- list(L1 = 0, L2 = 0)
     for (i in 1:ncol(w)) {
-      wCost$L1 = wCost$L1 + sum(abs(w[,i]))
-      wCost$L2 = wCost$L2 + sum(abs(w[,i]^2))
+      wCost$L1 = wCost$L1 + sum(abs(w[, i]))
+      wCost$L2 = wCost$L2 + sum(abs(w[, i] ^ 2))
     }
-    
+
     #combining the costs
-    cost = sum(yCost$Start)  + sum(yCost$Middle) + sum(yCost$End) + alphaDynNet$a1*wCost$L1 + alphaDynNet$a2*wCost$L2
+    cost = sum(yCost$Start) + sum(yCost$Middle) + sum(yCost$End) + alphaDynNet$a1 * wCost$L1 + alphaDynNet$a2 * wCost$L2
     return(cost)
   }
-  
-  yHat <- getMeassures(solNominal,measFunc)
-  yNominal <- apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
-  
+
+  yHat <- getMeassures(solNominal, measFunc)
+  yNominal <- apply(X = yHat[, -1, drop = FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[, 1], y = x, rule = 2, method = 'linear'))
+
   #### constraint based calculations ####
-  createConst <- function(constString,needGrad) {
+  createConst <- function(constString, needGrad) {
     trim <- function(x) gsub(pattern = '\\s', replacement = "", x = x)
     cont = strsplit(x = trim(constString), split = "==")[[1]][2]
-    
+
     eqs <- character(length = length(needGrad))
-    for(i in 1:length(needGrad)) {
-      str <- paste0('Solve({',trim(constString),'},{x',needGrad[i],'})\n')
+    for (i in 1:length(needGrad)) {
+      str <- paste0('Solve({', trim(constString), '},{x', needGrad[i], '})\n')
       eqs[i] <- as.character(suppressWarnings(Ryacas::yacas(str)))
     }
     eq <- trim(gsub(pattern = 'list\\(||\\)\\)', replacement = "", x = eqs))
@@ -438,87 +511,86 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
     eq = gsub(pattern = cont, replacement = '', x = eq)
     return(eq)
   }
-  
-  evalGrad <- function(constStr,gradM, optW) {
+
+  evalGrad <- function(constStr, gradM, optW) {
     gradzero <- which(colSums(gradM) == 0)
     optCur <- which(optW > 0)
-    
+
     nG <- optCur[optCur %in% gradzero]
-    
-    if(length(nG)>0) {
+
+    if (length(nG) > 0) {
       cP <- createConst(constString = constStr, needGrad = nG)
     }
     return(cP)
   }
-  
-  
+
+
   #### interpolation and initiation of main loop ####
   #   initializing the object save time in contrast to letting R manage the memory
   #   possible because to format of all calculated object stays the same
-  xInterp <- apply(X = x, MARGIN = 2, 
-                  FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
-  
-  yInterp <- apply(X = measData[,-1, drop=FALSE], MARGIN = 2,
-                  FUN = function(x) stats::approxfun(x = measData[,1], y = x, rule=2, method = 'linear'))
-  
-  yHatInterp <- apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, 
-                  FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
-  
-  qInterp <- apply(X = Q, MARGIN = 2, 
-                  FUN = function(x) stats::approxfun(x =times, y = x, rule = 2, method = 'linear'))
-  
-  wInterp <- apply(X = w, MARGIN = 2, 
+  xInterp <- apply(X = x, MARGIN = 2,
                   FUN = function(x) stats::approxfun(x = Tx, y = x, rule = 2, method = 'linear'))
-  
-  
+
+  yInterp <- apply(X = measData[, -1, drop = FALSE], MARGIN = 2,
+                  FUN = function(x) stats::approxfun(x = measData[, 1], y = x, rule = 2, method = 'linear'))
+
+  yHatInterp <- apply(X = yHat[, -1, drop = FALSE], MARGIN = 2,
+                  FUN = function(x) stats::approxfun(x = yHat[, 1], y = x, rule = 2, method = 'linear'))
+
+  qInterp <- apply(X = Q, MARGIN = 2,
+                  FUN = function(x) stats::approxfun(x = times, y = x, rule = 2, method = 'linear'))
+
+  wInterp <- apply(X = w, MARGIN = 2,
+                  FUN = function(x) stats::approxfun(x = Tx, y = x, rule = 2, method = 'linear'))
+
+
   # all data that have to be interpolated are stored in a list with name 'input"
-  if(is.null(modelInput)) {
-    input <- list(optW= optW,interpX =xInterp,interpY = yInterp, 
-                  interpyHat= yHatInterp, q=qInterp, w = wInterp)
+  if (is.null(modelInput)) {
+    input <- list(optW = optW, interpX = xInterp, interpY = yInterp,
+                  interpyHat = yHatInterp, q = qInterp, w = wInterp)
   } else {
     uInterp <- inputInterp
-    input <- list(optW= optW,interpX =xInterp,interpY = yInterp, 
-                  interpyHat= yHatInterp, q=qInterp, w = wInterp, u = uInterp)
+    input <- list(optW = optW, interpX = xInterp, interpY = yInterp,
+                  interpyHat = yHatInterp, q = qInterp, w = wInterp, u = uInterp)
   }
-  
+
   cP <- NULL
-  
-  if(missing(maxIteration)) {
+
+  if (missing(maxIteration)) {
     maxIter <- 100
   } else {
     maxIter <- maxIteration
   }
-  
-  J <- rep(0,maxIter)
+
+  J <- rep(0, maxIter)
   # cost of the nominal model is stores in vector J as starting value 
   # of the gradient descent
-  J[1] = costFunction(measureTimes,input,alphaDynNet)
+  J[1] = costFunction(measureTimes, input, alphaDynNet)
   cat('\n')
-  cat(paste0('Cost nominal model J[w]= ',J[1],'\n'))
-  
+  cat(paste0('Cost nominal model J[w]= ', J[1], '\n'))
 
-  lT <- rep(0.,ncol(x))
-  timesCostate <- seq(from = tf, to= t0, length.out =N)
-  solCostate <- matrix(rep(0.,(length(optW)+1)*length(timesCostate)),ncol = length(optW)+1)
-  Tp <- rep(0.,length(timesCostate))
-  P <- matrix(rep(0.,length(timesCostate)*length(optW)), ncol=length(optW))
-  oldW <- matrix(rep(0.,length(optW)*length(timesCostate)),ncol = length(optW))
+
+  lT <- rep(0., ncol(x))
+  timesCostate <- seq(from = tf, to = t0, length.out = N)
+  solCostate <- matrix(rep(0., (length(optW) + 1) * length(timesCostate)), ncol = length(optW) + 1)
+  Tp <- rep(0., length(timesCostate))
+  P <- matrix(rep(0., length(timesCostate) * length(optW)), ncol = length(optW))
+  oldW <- matrix(rep(0., length(optW) * length(timesCostate)), ncol = length(optW))
   inputState <- list()
   inputState$optW <- optW
-  solX <- matrix(rep(0.,length(optW)*length(times)))
+  solX <- matrix(rep(0., length(optW) * length(times)))
   alphaS = alphaStep
-  
-  wApprox <- matrix(rep(0.,length(times)*2), ncol=2)
-  wApprox[,1] = times
-  
+
+  wApprox <- matrix(rep(0., length(times) * 2), ncol = 2)
+  wApprox[, 1] = times
+
   #### MAIN LOOP ####
   for (i in 1:maxIter) {
-    tryCatch(
-      {
-        R.utils::captureOutput(
-          solCostate <- deSolve::ode(y = lT, times = timesCostate, func = costate, parms = parameters, input=input)
+    tryCatch({
+      R.utils::captureOutput(
+          solCostate <- deSolve::ode(y = lT, times = timesCostate, func = costate, parms = parameters, input = input)
         )
-      },
+    },
       error = function(cond) {
         message('Error while solving the costate equation of the model:')
         message('Original error message')
@@ -529,80 +601,86 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
         message('Original error message:')
         message(cond)
       },
-      finally = {}
+      finally = { }
     )
-    
-    
+
+
     solCostate = solCostate[nrow(solCostate):1,]
-    Tp = solCostate[,1]
-    P = solCostate[,-1, drop=FALSE]
-    
-    if(!is.null(constStr) && i == 1) {
+    Tp = solCostate[, 1]
+    P = solCostate[, -1, drop = FALSE]
+
+    if (!is.null(constStr) && i == 1) {
       cP = evalGrad(gradM = P, optW = optW, constStr = constStr)
     }
-    if(!is.null(cP)){
+    if (!is.null(cP)) {
       eval(parse(text = cP))
     }
-    
+
     oldW = w
-    
-    if(conjGrad){
-      # conjugrate gradients method
-      gNeg = P + alpha2*w
-      if(i==1){
+
+    if (conjGrad) {
+      gNeg = P + alpha2 * w
+      if (i == 1) {
         oldGrad = -gNeg
         step = gNeg
       }
       else {
-        # gradient descent method
+
         newGrad <- gNeg * (gNeg + oldGrad)
         newInt <- apply(X = newGrad, MARGIN = 2, FUN = function(x) pracma::trapz(Tp, x))
-        
-        oldInt <- apply(X = oldGrad, MARGIN = 2, FUN = function(x) pracma::trapz(Tp, x^2))
-        
-        # check if values are nan and set them to zero
+
+        oldInt <- apply(X = oldGrad, MARGIN = 2, FUN = function(x) pracma::trapz(Tp, x ^ 2))
+
         newInt[is.nan(newInt)] <- 0
         oldInt[is.nan(oldInt)] <- 0
-        betaTest <- sum(newInt)/sum(oldInt)
-        step = gNeg + betaTest*step
-        
+        betaTest <- sum(newInt) / sum(oldInt)
+        step = gNeg + betaTest * step
+
         oldGrad = -gNeg
-        
+
       }
     } else {
-      step = P + alpha2*w
+      step = P + alpha2 * w
     }
-    
-    
-    # calculate the stepsize based on a backtracking algorithm
-    alpha = getAlphaBacktracking(oldW = oldW,W = w,Q = Q,y = measData,
-                                 gradStep = step,J = J,currIter = i,alphaDynNet = alphaDynNet,
-                                 alphaS = alphaS,stepBeta = armijoBeta,optW = optW,para = parameters,
-                                 tInt = tInt,Tp = Tp,measFunc = measFunc,input = input,measureTimes = measureTimes, logTransf = logTransf)
-    
-    # calculate the new hidden inputs (apply gradient)
-    w = oldW + alpha*step
 
-    if(sum(is.na(colSums(w)))>0  ) {
+
+
+    alpha = getAlphaBacktracking(oldW = oldW, W = w, Q = Q, y = measData,
+                                 gradStep = step, J = J, currIter = i, alphaDynNet = alphaDynNet,
+                                 alphaS = alphaS, stepBeta = armijoBeta, optW = optW, para = parameters,
+                                 tInt = tInt, Tp = Tp, measFunc = measFunc, input = input, measureTimes = measureTimes, nnStates = nnStates, rootFunc = RootFunc, eventFunc = EventFunc)
+
+    # calculate the new hidden inputs
+    w = oldW + alpha * step
+
+    if (sum(is.na(colSums(w))) > 0) {
       warning("WARNING: Numerical solution of the ode system failed.\n\t This could result the observability of the system.\n")
       break
     }
-    inputState$wInterp <- apply(X = w, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule=2))
-    
-    if(grepl("Rtools",Sys.getenv('PATH'))|| (.Platform$OS.type!="windows")){
+    inputState$wInterp <- apply(X = w, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule = 2))
+
+    if (grepl("Rtools", Sys.getenv('PATH')) || (.Platform$OS.type != "windows")) {
       ### c solver
       wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
-      wList <- lapply(wSplit, FUN = function(x) cbind(times,x))
-      
+      wList <- lapply(wSplit, FUN = function(x) cbind(times, x))
+
       forcings <- c(inputApprox, wList)
-      tryCatch(
-        {
+      tryCatch({
+
+        if (sum(nnStates) == 0) {
           R.utils::captureOutput(
             solX <- deSolve::ode(y = x0, times, func = "derivsc",
-                                parms = parameters, dllname = "model", initforc="forcc",
+                                parms = parameters, dllname = "model", initforc = "forcc",
                                 forcings = forcings, initfunc = "parmsc")
           )
-        },
+
+        } else {
+          solX <- deSolve::lsoda(y = x0, times, func = "derivsc",
+                                parms = parameters, dllname = "model", initforc = "forcc",
+                                forcings = forcings, initfunc = "parmsc", nroot = sum(nnStates),
+                                rootfunc = "myroot", events = list(func = EventFunc, root = TRUE))
+        }
+      },
         error = function(cond) {
           message('Error while solving the ode system of the model with the calculated hidden inputs:')
           message('Original error message:\n')
@@ -613,19 +691,34 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
           message('Original error message:')
           message(cond)
         },
-        finally = {}
+        finally = { }
       )
-      
+
     } else {
-      if(!is.null(modelInput)){
+      if (!is.null(modelInput)) {
         inputState$u <- inputInterp
       }
-      tryCatch(
-        {
+      tryCatch({
+        if (sum(nnStates) == 0) {
           R.utils::captureOutput(
-            solX <- deSolve::ode(y = x0, times = times,func = hiddenInputState, parms = parameters, input=inputState)
+            solX <- deSolve::ode(y = x0,
+                                  times = times,
+                                  func = hiddenInputState,
+                                  parms = parameters,
+                                  input = inputState)
           )
-        },
+        } else {
+          R.utils::captureOutput(
+            solX <- deSolve::ode(y = x0,
+                                  times = times,
+                                  func = hiddenInputState,
+                                  parms = parameters,
+                                  input = inputState,
+                                  events = list(func = EventFunc, root = TRUE),
+                                  rootfun = RootFunc)
+          )
+        }
+      },
         error = function(cond) {
           message('Error while solving the ode system of the model with the calculated hidden inputs:')
           message('Original error message:\n')
@@ -636,98 +729,91 @@ dynElasticNet <- function(alphaStep,armijoBeta,x0,parameters,alpha1,alpha2,measD
           message('Original error message:')
           message(cond)
         },
-        finally = {}
+        finally = { }
       )
-      
+
     }
-    
-    Tx = solX[,1]
-    x = solX[,-1, drop=FALSE]
-    
-    # transform the logtransformed values back
-    if(sum(logTransf)>0) {
-      x[,which(logTransf>0)] = exp(x[,which(logTransf>0)])
-    } 
-    
-    
-    yHat <- getMeassures(solX,measFunc)
-    input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule=2, method = 'linear'))
-    input$interpyHat <- apply(X = yHat[,-1, drop=FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[,1], y = x, rule=2, method = 'linear'))
+    ####
+    Tx = solX[, 1]
+    x = solX[, -1, drop = FALSE]
+
+
+    yHat <- getMeassures(solX, measFunc)
+    input$interpX <- apply(X = x, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tx, y = x, rule = 2, method = 'linear'))
+    input$interpyHat <- apply(X = yHat[, -1, drop = FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[, 1], y = x, rule = 2, method = 'linear'))
     input$w <- inputState$wInterp
-    
-    # save the cost for the iteration
-    J[i+1] = costFunction(measureTimes,input,alphaDynNet)
-    
-    
-    #### Calculate the AUC ####
+
+    J[i + 1] = costFunction(measureTimes, input, alphaDynNet)
+
     tAUC <- measureTimes
     absW <- abs(sapply(input$w, mapply, tAUC))
-    interpAbsW <- apply(X = absW, MARGIN = 2, FUN = function(x) stats::approxfun(x = tAUC, y = x, rule=2, method = 'linear'))
-    
+    interpAbsW <- apply(X = absW, MARGIN = 2, FUN = function(x) stats::approxfun(x = tAUC, y = x, rule = 2, method = 'linear'))
+
     AUCs <- sapply(X = interpAbsW, FUN = function(x) pracma::trapzfun(f = x, a = t0, b = tf))
-    cat(paste0('Iteration ',i,' J[w]=',round(J[i+1],2),'     change J[w]: ',round((1-abs(J[i+1]/J[i]))*100,4),' % \t\talpha=',alpha,'\n'))
-    
-    
-    if(plotEsti == TRUE) {
-      showEstimates(measureTimes,AUCs,input,alpha2,J, yNominal,SD)
+    cat(paste0('Iteration ', i, ' J[w]=', round(J[i + 1], 2), '     change J[w]: ', round((1 - abs(J[i + 1] / J[i])) * 100, 4), ' % \t\talpha=', alpha, '\n'))
+
+
+    if (plotEsti == TRUE) {
+      showEstimates(measureTimes, AUCs, input, alpha2, J, yNominal, SD)
     }
     # breaking condition of the loop
     #   if the percent wise change of the cost function is smaller than the given
     #   epsilon the alogithm will stop
-    if (( abs(J[i+1]/J[i]) > 1-(eps/100))) {
+    if ((abs(J[i + 1] / J[i]) > 1 - (eps / 100))) {
       break
     }
   }
-  
+
   if (missing(origAUC)) {
     origAUC <- AUCs
   }
-  
+
   #### Selection of AUC and return ####
-  greedySelection <- function(AUC, optW,origAUC) {
-    orderAUCs <- order(-do.call(cbind,as.list(origAUC[1,])))
-    tempOptW = rep(0,ncol(AUC))
-    
-    if(sum(unlist(origAUC[1,]))==sum(unlist(AUC[1,]))) {
+  greedySelection <- function(AUC, optW, origAUC) {
+    orderAUCs <- order(-do.call(cbind, as.list(origAUC[1,])))
+    tempOptW = rep(0, ncol(AUC))
+
+    if (sum(unlist(origAUC[1, ])) == sum(unlist(AUC[1, ]))) {
       # if no aucs are given (first optimisation is running) -> select bigges AUCs
       tempOptW[orderAUCs[1]] = 1
     }
     else {
-      tempOptW[orderAUCs[1:(sum(optW)+1)]] = 1
+      tempOptW[orderAUCs[1:(sum(optW) + 1)]] = 1
     }
     return(tempOptW)
   }
-  
+
   # root mean squared error as measure of the fit
-  rmse <- function(measureTimes,input){
+  rmse <- function(measureTimes, input) {
     y <- sapply(input$interpY, mapply, measureTimes)
     yhat <- sapply(input$interpyHat, mapply, measureTimes)
-    
+
     # feature scaling of the data
-    y = apply(y, MARGIN = 2, FUN = function(X) (X - min(X))/diff(range(X)))
-    yhat = apply(yhat, MARGIN = 2, FUN = function(X) (X - min(X))/diff(range(X)))
-    
+    y = apply(y, MARGIN = 2, FUN = function(X)(X - min(X)) / diff(range(X)))
+    yhat = apply(yhat, MARGIN = 2, FUN = function(X)(X - min(X)) / diff(range(X)))
+
     y[is.nan(y)] <- 0
     yhat[is.nan(yhat)] <- 0
-    
-    return((colSums((yhat - y)^2))/nrow(yhat))
+
+    return((colSums((yhat - y) ^ 2)) / nrow(yhat))
   }
-  
-  colnames(yHat) <- append('t', paste0('y',1:(ncol(yHat)-1)))
-  
+
+  colnames(yHat) <- append('t', paste0('y', 1:(ncol(yHat) - 1)))
+
   results <- list()
-  results$w <- cbind(Tp,w)
-  results$AUC <- do.call(cbind,AUCs[1,])
+  results$w <- cbind(Tp, w)
+  results$AUC <- do.call(cbind, AUCs[1,])
   results$optW <- greedySelection(AUCs, optW, origAUC)
   results$nomX <- solNominal
   results$x <- solX
   results$y <- yHat
-  results$rmse <- rmse(measureTimes,input)
-  lastJ = J[J>0]
+  results$rmse <- rmse(measureTimes, input)
+  lastJ = J[J > 0]
   lastJ = lastJ[length(lastJ)]
   results$J <- lastJ
   results$totalJ <- J
-  
+
+
   return(results)
-  
+
 }
