@@ -499,16 +499,16 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
   createConst <- function(constString, needGrad) {
     trim <- function(x) gsub(pattern = '\\s', replacement = "", x = x)
     cont = strsplit(x = trim(constString), split = "==")[[1]][2]
-
+    
     eqs <- character(length = length(needGrad))
     for (i in 1:length(needGrad)) {
-      str <- paste0('Solve({', trim(constString), '},{x', needGrad[i], '})\n')
-      eqs[i] <- as.character(suppressWarnings(Ryacas::yacas(str)))
+      str <- paste0('Solve(', trim(constString), ',x', needGrad[i], ')')
+      eqs[i] <- Ryacas::yac_str(str)
     }
     eq <- trim(gsub(pattern = 'list\\(||\\)\\)', replacement = "", x = eqs))
     eq = gsub(pattern = '==', replacement = '=', x = eq)
     eq = gsub(pattern = "(x)([0-9]*)", replacement = 'P[,\\2]', x = eq)
-    eq = gsub(pattern = cont, replacement = '', x = eq)
+    eq = gsub(pattern = paste0("[+-]*[*/]",cont), replacement = '', x = eq)
     return(eq)
   }
 

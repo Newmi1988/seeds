@@ -27,3 +27,4 @@ slm1.tex
 BIOMD0000000545_url.xml
 tmp.R
 seeds.Rproj
+.Rbuildignore
