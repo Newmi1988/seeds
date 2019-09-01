@@ -3,4 +3,4 @@ seeds package for R.
 
 The package makes use of automatic differentiation and the princibles of optimal control to estimate system uncertainties.
 
-It features two algorithms: A basian and a greedy approach.
+It features two algorithms: A basian and a greedy approach to calculate a sparse solution for missing interactions.
