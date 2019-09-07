@@ -46,7 +46,7 @@ sd <- data.frame(measure[,3], measure[,5])
 JakStatConst <- '2*x4+ 2*x3 + x1 + x2 == N'
 
 # create the model object
-JakStatModel <- odeModel(func = modelJakStat, parms = parameters, input = inputData, 
+JakStatModel <- odeModel(func = modelJakStat, parms = parameters, input = inputData, times = times,
                          measFunc = measJakStat, y = x0, meas = y, sd = sd)
 
 # calculate the nominal model states and plot them
