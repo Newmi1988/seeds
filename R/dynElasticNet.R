@@ -508,7 +508,11 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
     eq <- trim(gsub(pattern = 'list\\(||\\)\\)', replacement = "", x = eqs))
     eq = gsub(pattern = '==', replacement = '=', x = eq)
     eq = gsub(pattern = "(x)([0-9]*)", replacement = 'P[,\\2]', x = eq)
-    eq = gsub(pattern = paste0("[+-]*[*/]",cont), replacement = '', x = eq)
+    eq = gsub(pattern = paste0("[+-]*[*/]*",cont), replacement = '', x = eq)
+
+    print(cont)
+    print(eq)
+
     return(eq)
   }
 
@@ -645,16 +649,32 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
 
 
 
-    alpha = getAlphaBacktracking(oldW = oldW, W = w, Q = Q, y = measData,
-                                 gradStep = step, J = J, currIter = i, alphaDynNet = alphaDynNet,
-                                 alphaS = alphaS, stepBeta = armijoBeta, optW = optW, para = parameters,
-                                 tInt = tInt, Tp = Tp, measFunc = measFunc, input = input, measureTimes = measureTimes, nnStates = nnStates, rootFunc = RootFunc, eventFunc = EventFunc)
+    alpha = getAlphaBacktracking(oldW = oldW, 
+                                 W = w, 
+                                 Q = Q, 
+                                 y = measData,
+                                 gradStep = step, 
+                                 J = J, 
+                                 currIter = i, 
+                                 alphaDynNet = alphaDynNet,
+                                 alphaS = alphaS, 
+                                 stepBeta = armijoBeta, 
+                                 optW = optW, 
+                                 para = parameters,
+                                 tInt = tInt, 
+                                 Tp = Tp, 
+                                 measFunc = measFunc, 
+                                 input = input, 
+                                 measureTimes = measureTimes, 
+                                 nnStates = nnStates, 
+                                 rootFunc = RootFunc, 
+                                 eventFunc = EventFunc)
 
     # calculate the new hidden inputs
     w = oldW + alpha * step
 
     if (sum(is.na(colSums(w))) > 0) {
-      warning("WARNING: Numerical solution of the ode system failed.\n\t This could result the observability of the system.\n")
+      warning("WARNING: Numerical solution of the ode system failed.\n\t This could result out of the observability of the system.\n")
       break
     }
     inputState$wInterp <- apply(X = w, MARGIN = 2, FUN = function(x) stats::approxfun(x = Tp, y = x, method = 'linear', rule = 2))
