@@ -57,6 +57,10 @@ odeModel <- setClass(
   validity = function(object) {
     # check inputs of matrix slot
 
+    if(sum(object@times) == 0) {
+      # print(sum(times))
+      return("You have to specify the times on which the equation should be evaluated. A solution can only be calculated if the a intervall or specific timesteps are given. Set the 'times'' parameter.")
+    }
     
     if(length(object@y) != 0 && object@custom == FALSE && colSums(object@meas)!=0) {
       m <- matrix(rep(0,length(object@y)),ncol = length(object@y))
@@ -369,7 +373,8 @@ setMethod(f = 'nominalSol',
               if(is.loaded('derivsc')){
                 dyn.unload(compiledModel)
               }
-              createCompModel(modelFunc = odeModel@func,parameters = odeModel@parms, nnStates = nnStates)
+
+              createCompModel(modelFunc = odeModel@func,parameters = odeModel@parms, nnStates = odeModel@nnStates)
               system("R CMD SHLIB model.c")
               dyn.load(compiledModel)
               
