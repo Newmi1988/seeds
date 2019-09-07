@@ -102,45 +102,46 @@ plotResultsSeeds  <- function(x,y) {
   plot1 <- ggplot2::ggplot(reformatOrder(tidyr::gather(smoothRes(seedsobj@stateEstimates),state, value, -1)), ggplot2::aes(x=t, y=value, colour='red'))+ 
     ggplot2::geom_line()+
     ggplot2::geom_line(data = reformatOrder(tidyr::gather(smoothRes(seedsobj@stateNominal),state, value, -1)), ggplot2::aes(x=t, y=value, colour='blue'))+ 
-  # ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@stateUnscertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@stateUnscertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
-    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@stateUnscertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@stateUnscertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@stateUnscertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@stateUnscertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE, na.rm = TRUE)+
     ggplot2::labs(x= 't', y='value',color = "states")+
     ggplot2::scale_color_manual(breaks= c("red","blue"), labels = c("estimate","nominal"), values = c("blue","red"))+
-    ggplot2::theme(strip.background = ggplot2::element_blank(),
-                   panel.background = ggplot2::element_blank(),
-                   panel.border = ggplot2::element_blank(),
-                   panel.grid.major = ggplot2::element_blank(),
-                   panel.grid.minor = ggplot2::element_blank())+
+    ggplot2::theme(legend.position = "none",
+                  strip.background = ggplot2::element_blank(),
+                  # panel.background = ggplot2::element_blank(),
+                  panel.border = ggplot2::element_blank(),
+                  panel.grid = ggplot2::element_line(),
+                  panel.grid.major = ggplot2::element_line(),
+                  panel.grid.minor = ggplot2::element_line())+
     ggplot2::facet_wrap(~facet, labeller = labelX)
 
   
   
   plot2 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(smoothRes(seedsobj@hiddenInputEstimates),state,value,-1)), ggplot2::aes(x=t,y=value, colour="red"))+
     ggplot2::geom_line()+
-  # ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
-    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
+    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE, na.rm = TRUE)+
     ggplot2::theme(legend.position = "none",
-                   strip.background = ggplot2::element_blank(),
-                   panel.background = ggplot2::element_blank(),
-                   panel.border = ggplot2::element_blank(),
-                   panel.grid.major = ggplot2::element_blank(),
-                   panel.grid.minor = ggplot2::element_blank())+
+                  strip.background = ggplot2::element_blank(),
+                  # panel.background = ggplot2::element_blank(),
+                  panel.border = ggplot2::element_blank(),
+                  panel.grid = ggplot2::element_line(),
+                  panel.grid.major = ggplot2::element_line(),
+                  panel.grid.minor = ggplot2::element_line())+
     ggplot2::facet_wrap(~facet)
   
   plot3 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(smoothRes(seedsobj@outputEstimates),state,value, -1)), ggplot2::aes(x=t, y=value, colour=state))+
     ggplot2::geom_line()+
-  # ggplot2::geom_ribbon(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@outputEstimatesUncUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@outputEstimatesUncLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
-    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@outputEstimatesUncUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@outputEstimatesUncLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE)+
-    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(seedsobj@Data, state,value, -1), tidyr::gather(seedsobj@DataError,state,value, -1), by=c("t","state"))), ggplot2::aes(x=t, ymin= value.x - value.y , ymax = value.x + value.y), inherit.aes = FALSE)+
+    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@outputEstimatesUncUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@outputEstimatesUncLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE, na.rm = TRUE)+
+    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(seedsobj@Data, state,value, -1), tidyr::gather(seedsobj@DataError,state,value, -1), by=c("t","state"))), ggplot2::aes(x=t, ymin= value.x - value.y , ymax = value.x + value.y), inherit.aes = FALSE, na.rm = TRUE)+
     ggplot2::geom_point(data =reformatOrder(tidyr::gather(seedsobj@Data,state,value,-1)), ggplot2::aes(x=t, y=value), colour="black") +
     ggplot2::labs(x= 't', y='value',color = "Estimated \n measurements")+
     ggplot2::scale_color_manual(labels = labels(seedsobj@outputEstimates[,-1])[[2]], values = rep("red",length(labels(seedsobj@outputEstimates[,-1])[[2]])))+
     ggplot2::theme(legend.position = "none",
                   strip.background = ggplot2::element_blank(),
-                  panel.background = ggplot2::element_blank(),
+                  # panel.background = ggplot2::element_blank(),
                   panel.border = ggplot2::element_blank(),
-                  panel.grid.major = ggplot2::element_blank(),
-                  panel.grid.minor = ggplot2::element_blank())+
+                  panel.grid = ggplot2::element_line(),
+                  panel.grid.major = ggplot2::element_line(),
+                  panel.grid.minor = ggplot2::element_line())+
     ggplot2::facet_wrap(~facet, drop = TRUE, labeller = labelY)
   
   return(list(plot1,plot2, plot3))
