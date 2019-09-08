@@ -61,7 +61,7 @@ statesAnno <- c("STAT5 cyt.", "STAT5p cyt.", "STAT5p-d cyt.", "stat5-d nucl")
 measurAnno <- c("total STAT5p", "total STAT5")
 
 # plot with annotations
-plotAnno(results,stateAnno = statesAnno, measAnno =  measurAnno)
+plotAnno(results, stateAnno = statesAnno, measAnno =  measurAnno)
 # new summary function for resultsSeeds objects
 summary(results[[3]])
 
