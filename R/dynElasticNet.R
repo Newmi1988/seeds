@@ -508,7 +508,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
     eq <- trim(gsub(pattern = 'list\\(||\\)\\)', replacement = "", x = eqs))
     eq = gsub(pattern = '==', replacement = '=', x = eq)
     eq = gsub(pattern = "(x)([0-9]*)", replacement = 'P[,\\2]', x = eq)
-    eq = gsub(pattern = paste0("[+-]*[*/]*",cont), replacement = '', x = eq)
+    eq = gsub(pattern = paste0("[*/]*[+-]*",cont), replacement = '', x = eq)
 
 
     return(eq)
