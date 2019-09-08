@@ -37,23 +37,23 @@
 #' @param Beta          skaling parameter for the backtracking to approximate the stepsize of the gradient descent. Is set to  0.8
 #'                 if no value is given to the function
 #'
-#' @param sd     standard deviation of the measurement; used to weight the errors of the estimates in the cost function
+#' @param sd      Standard deviation of the measurement. Is used to weight the errors of the estimates in the cost function. Optional parameter. 
 #' 
-#' @param conjGrad boolean that indicates the usage of conjugate gradient method over the normal steepest descent
+#' @param conjGrad Boolean that indicates the usage of conjugate gradient method over the normal steepest descent. Defaults to true if not specified.
 #' 
-#' @param cString  a string that represents constrains, can be used to calculate a hidden input for a komponent that gradient is zero
+#' @param cString Optional parameter: A string that represents constants, can be used to calculate a hidden input for a component that gradient is zero.
 #'
-#' @param systemInput an dataset that discribes the external input of the system
+#' @param systemInput A dataset that discribes the external input of the system. The time steps should be given in the first column for the interpolation.
 #' 
 #' @param epsilon parameter that defines the stopping criteria for the algorithm, in this case percent change in cost function J[w]
 #'
-#' @param nnStates a bit vector indicating the states that should be non negative
+#' @param nnStates A bit vector indicating the states that should be non negative. Default behaviour will calculete positive and negative states.
 #'
-#' @return returns a results-object with default plot function. The plot shows the estimated best sparse fit
+#' @return returns a list of results objects. The default plot function can be used to plot the results.
 #'
 #' @export
 
-greedyApproach <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, measData, sd, epsilon,
+sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, measData, sd, epsilon,
                            parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString, nnStates) {
 
   #### new object implementation ####

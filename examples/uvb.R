@@ -71,7 +71,7 @@ y <- uvbData[,1:6]
 t <- uvbData$t
 sd <- uvbData[,7:11]
 system.time(
-res <- greedyApproach(alphaStep = 500, alpha2 = 0.0001, optW = rep(1,13), x0 = x0, sd = sd,
+res <- sgdn(alphaStep = 500, alpha2 = 0.0001, optW = rep(1,13), x0 = x0, sd = sd,
                measFunc = uvbMeasure, measData = y, epsilon = 0.1, Beta = 0.8,
                parameters = uvbParameter, modelFunc = uvbModel, plotEstimates = TRUE, conjGrad = TRUE)
 )

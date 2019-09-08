@@ -6,7 +6,7 @@
 \usage{
 MCMC_component(LOGLIKELIHOOD_func, STEP_SIZE, STEP_SIZE_INNER, EPSILON,
   JUMP_SCALE, STEP, OBSERVATIONS, Y0, INPUTDATA, PARAMETER, EPSILON_ACT,
-  SIGMA, DIAG, GIBBS_par, N, BURNIN, objective, LogTrans)
+  SIGMA, DIAG, GIBBS_par, N, BURNIN, objective)
 }
 \arguments{
 \item{LOGLIKELIHOOD_func}{used likelihood function}
@@ -42,8 +42,6 @@ MCMC_component(LOGLIKELIHOOD_func, STEP_SIZE, STEP_SIZE_INNER, EPSILON,
 \item{BURNIN}{number of dismissed samples during burnin}
 
 \item{mcmc_component}{used sampling algorithm}
-
-\item{LogTransform}{use the log transformed ODE system}
 }
 \value{
 A matrix with the sampled hidden inputs (row-wise)

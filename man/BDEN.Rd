@@ -5,10 +5,10 @@
 \title{Bayesian Dynamic Elastic Net}
 \usage{
 BDEN(odeModel, settings, mcmc_component, loglikelihood_func, gibbs_update,
-  ode_sol, LogTransform = FALSE, numbertrialsstep = 15,
-  numbertrialseps = 500 * 4, numbertrialinner = 10, lambda = 0.001,
+  ode_sol, NegativeStates = FALSE, numbertrialsstep = 15,
+  numbertrialseps = NA, numbertrialinner = 25, lambda = 0.001,
   Grad_correct = 0, alpha = c(1, 1, 1, 1), beta_init = c(1, 1, 1,
-  0.1))
+  0.1), printstatesignore = FALSE)
 }
 \arguments{
 \item{odeModel}{a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis.}
@@ -23,7 +23,7 @@ BDEN(odeModel, settings, mcmc_component, loglikelihood_func, gibbs_update,
 
 \item{ode_sol}{ode solver}
 
-\item{LogTransform}{log transformed ODE system}
+\item{NegativeStates}{Negative states are allowed}
 
 \item{numbertrialsstep}{number of gibbs updates per timepoint. This should be at least 10. Values have direct influnce on the runtime.}
 
@@ -33,9 +33,11 @@ BDEN(odeModel, settings, mcmc_component, loglikelihood_func, gibbs_update,
 
 \item{lambda}{inital shrinkage parameter.}
 
-\item{Grad_correct}{intial mcmc step size calculation}
+\item{Grad_correct}{correction factor for initial sigma estimate}
 
 \item{alpha}{mcmc tuning paramter (weigthing of observed states)}
+
+\item{printstatesignore}{states ignored in final output (default = FALSE)}
 
 \item{beta}{mcmc tunig parameter (weigthing of observed states)}
 }

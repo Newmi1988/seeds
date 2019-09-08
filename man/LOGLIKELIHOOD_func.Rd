@@ -5,8 +5,7 @@
 \title{Calculates the Log Likelihood for a new sample given the current state (i.e. log[L(G|x)P(G)])}
 \usage{
 LOGLIKELIHOOD_func(pars, Step, OBSERVATIONS, x_0, parameters, EPS_inner,
-  INPUT, D, GIBBS_PAR, k, MU_JUMP, SIGMA_JUMP, eps_new, objectivfunc,
-  LogTransform)
+  INPUT, D, GIBBS_PAR, k, MU_JUMP, SIGMA_JUMP, eps_new, objectivfunc)
 }
 \arguments{
 \item{pars}{sampled hidden influence for state k (w_new) at time tn+1}
@@ -36,8 +35,6 @@ LOGLIKELIHOOD_func(pars, Step, OBSERVATIONS, x_0, parameters, EPS_inner,
 \item{eps_new}{current sample vector of the hidden influences (including all states)}
 
 \item{objectivfunc, }{link function to match observations with modeled states}
-
-\item{LogTransform}{use the log transformed ODE system}
 }
 \value{
 returns the log-likelihood for two given hidden inputs

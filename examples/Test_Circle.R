@@ -100,7 +100,7 @@ optW <- c(1,1,1,1)
 STD <- NULL
 
 
-results <- greedyApproach(alphaStep = 1, alpha2 = 0.05, 
+results <- sgdn(alphaStep = 1, alpha2 = 0.05, 
                           x0 = x0, optW = optW, 
                           measFunc= testMessure,  measData = y,
                           parameters = parameters, 

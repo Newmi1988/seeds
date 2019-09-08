@@ -7,5 +7,5 @@ uvb <- setMeas(theObject = uvb, y)
 # Plot the nominal solution
 plot(nominalSol(odeModel = uvb))
 
-res <- greedyApproach(odeModel = uvb, alphaStep = 400, alpha2 = 0.0001, plotEstimates = TRUE)
+res <- sgdn(odeModel = uvb, alphaStep = 400, alpha2 = 0.0001, plotEstimates = TRUE)
 plot(res)

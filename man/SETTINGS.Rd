@@ -4,14 +4,15 @@
 \alias{SETTINGS}
 \title{Automatic Calculation of optimal Initial Parameters}
 \usage{
-SETTINGS(VARIANCE, N, BETA_LAMDBA, alphainit, betainit)
+SETTINGS(VARIANCE, N, BETA_LAMDBA, alphainit, betainit, R = c(1000,
+  1000), ROH = c(10, 10))
 }
 \arguments{
 \item{VARIANCE}{standard error of the observed stat dynamics (per time point)}
 
 \item{N}{number of system states}
 
-\item{BETA_LAMDBA}{time step of the sample algorithm corresponding to the given vector of time points}
+\item{BETA_LAMDBA}{mcmc tuning paramter (weigthing of observed states)}
 
 \item{alphainit}{mcmc tuning paramter (weigthing of observed states)}
 

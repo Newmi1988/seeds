@@ -4,7 +4,7 @@
 \alias{ode_solv}
 \title{Wrapper to the ODE Solver}
 \usage{
-ode_solv(TIME, x_0, parameter, input, w_estimate, LogTransform)
+ode_solv(TIME, x_0, parameter, input, w_estimate)
 }
 \description{
 Wrapper to the ODE Solver
