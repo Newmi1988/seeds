@@ -14,12 +14,12 @@ example <- function(t,x, parms) {
   })
 }
 
-t           <- seq(0.1,10,0.1)
+t           <- seq(0.1,4.1,1)
 parameters  = c(a = 1, b = 1)
 x0          = c(x1 = 0, x2 = 1, x3 = 1)
 
 # indicator which states should be non negative
-nnStates = c(0,1,1)
+nnStates = c(0,1,0)
 
 # 'createEvent' erstellt automatisch eine event-funktion, die durch eval einer aus text einer variable zugewiesen werden kann
 # der zweite parameter gibt den wert an auf den die funktion gesetzt werden soll
@@ -42,17 +42,31 @@ dyn.load(compiledModel)
 ## dummy inputs - nacher selber setzen
 input <- rep(0,length(t))
 uList = list(cbind(t,input)) 
-w <- matrix(rep(0,length(x0)*length(t)), ncol = length(x0))
+w0 <- rep(0, length(t))
+w1 <- rep(0, length(t))
+w1[as.integer(length(w1)/2+2):length(w1)] = 3
+
+w <- matrix(c(w0,w1,w0), ncol = length(x0))
 wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
 wList <- lapply(wSplit, FUN = function(x) cbind(t,x))
 forcings <- c(uList, wList)
 
 
 ## lösung
-resOde <- deSolve::lsoda(y = model@y, times = t, func = "derivsc",
+resConstant <- deSolve::lsoda(y = model@y, times = t, func = "derivsc",
                          parms = model@parms, dllname = "model", initforc="forcc",
                          forcings = forcings, initfunc = "parmsc", nroot = sum(model@nnStates),
                          rootfunc = "myroot", events = list(func = myEvent, root = TRUE),
-                         fcontrol = list( method = "constant", rule = 2))
+                         fcontrol = list( method = "constant", f=0.0, rule = 2))
 
-plot(resOde)
+plot(resConstant)
+max(resConstant)
+
+resLinear <- deSolve::lsoda(y = model@y, times = t, func = "derivsc",
+                         parms = model@parms, dllname = "model", initforc="forcc",
+                         forcings = forcings, initfunc = "parmsc", nroot = sum(model@nnStates),
+                         rootfunc = "myroot", events = list(func = myEvent, root = TRUE),
+                         fcontrol = list( method = "linear", f=0.0, rule = 2))
+
+plot(resLinear)
+max(resLinear)
