@@ -52,6 +52,7 @@ forcings <- c(uList, wList)
 resOde <- deSolve::lsoda(y = model@y, times = t, func = "derivsc",
                          parms = model@parms, dllname = "model", initforc="forcc",
                          forcings = forcings, initfunc = "parmsc", nroot = sum(model@nnStates),
-                         rootfunc = "myroot", events = list(func = myEvent, root = TRUE))
+                         rootfunc = "myroot", events = list(func = myEvent, root = TRUE),
+                         fcontrol = list( method = "constant", rule = 2))
 
 plot(resOde)
