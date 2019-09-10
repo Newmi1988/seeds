@@ -188,7 +188,7 @@ createCompModel <- function(modelFunc, parameters, bden, nnStates) {
   odeEq <- new("odeEquations")
   odeEq <- createModelEqClass(odeEq, modelFunc)
 
-  if (missing(nnStates)) {
+  if (missing(nnStates) || sum(nnStates)==0) {
     nnStates <- rep(0, length(odeEq@origEq))
   }
 
