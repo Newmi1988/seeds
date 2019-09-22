@@ -355,7 +355,8 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
           solX <- deSolve::lsoda(y = x0, times = time, func = "derivsc",
                                   parms = parameters, dllname = "model", initforc = "forcc",
                                   forcings = forcings, initfunc = "parmsc", nroot = sum(nnStates),
-                                  rootfunc = "myroot", events = list(func = eventFunc, root = TRUE))
+                                  rootfunc = "myroot", events = list(func = eventFunc, root = TRUE),
+                                  fcontrol = list( method = "constant", f=1.0, rule = 2))
         }
       } else {
         input$optW <- optW
@@ -696,7 +697,8 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
           solX <- deSolve::lsoda(y = x0, times, func = "derivsc",
                                 parms = parameters, dllname = "model", initforc = "forcc",
                                 forcings = forcings, initfunc = "parmsc", nroot = sum(nnStates),
-                                rootfunc = "myroot", events = list(func = EventFunc, root = TRUE))
+                                rootfunc = "myroot", events = list(func = EventFunc, root = TRUE),
+                                fcontrol = list( method = "constant", f=1.0, rule = 2))
         }
       },
         error = function(cond) {
