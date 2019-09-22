@@ -200,7 +200,6 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
       cat('No meassurement function defined. Assuming all states are observable.\n')
       y <- x[, -1, drop = FALSE]
     } else {
-      # y <- do.call(cbind, measFunc(x[, -1, drop = FALSE]))
       y = measFunc(x[,-1, drop = FALSE])
     }
     y = as.data.frame(cbind(x[, 1], y))
