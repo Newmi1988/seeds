@@ -34,7 +34,7 @@ testMessure <- function(x) {
   y1 = x[,1] + x[,2] + 2*x[,3] 
   y2 = x[,2] + 2*x[,3]
   
-  return(list(y1,y2))
+  return(cbind(y1,y2))
 }
 
 
@@ -91,7 +91,7 @@ stepAlpha <- 1
 times <- t.data
 
 X <- out[,-1]
-meas <- as.data.frame(do.call(cbind,testMessure(X)))
+meas <- as.data.frame(testMessure(X))
 meas = as.data.frame(cbind(times,meas))
 
 y <- meas

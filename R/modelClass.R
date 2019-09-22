@@ -64,7 +64,8 @@ odeModel <- setClass(
     
     if(length(object@y) != 0 && object@custom == FALSE && colSums(object@meas)!=0) {
       m <- matrix(rep(0,length(object@y)),ncol = length(object@y))
-      testMeas <- do.call(cbind,object@measFunc(m))
+      # testMeas <- do.call(cbind,object@measFunc(m))
+      testMeas <- object@measFunc(m)
       
       if(ncol(testMeas) != (ncol(object@meas)-1)){
         return("The returned results of the measurement function does not have the same

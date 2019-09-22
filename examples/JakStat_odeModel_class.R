@@ -37,7 +37,7 @@ measJakStat <- function(x) {
   y1 = s1*(x[,2]+ 2*x[,3])
   y2 = s2*(x[,1] + x[,2] + 2*x[,3])
   
-  return(list(y1,y2))
+  return(cbind(y1,y2))
 }
 
 y <- data.frame(measure[,1], measure[,2], measure[,4])

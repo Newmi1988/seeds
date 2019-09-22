@@ -64,7 +64,7 @@ uvbMeasure <- function(x) {
   y4 = x[,11]
   y5 = x[,4]
   
-  return(list(y1,y2,y3,y4,y5))
+  return(cbind(y1,y2,y3,y4,y5))
 }
 
 y <- uvbData[,1:6]
