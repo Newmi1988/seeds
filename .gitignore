@@ -4,3 +4,7 @@ model.c
 model.o
 model.so
 stateHiddenInput.R
+.RData
+.Rbuildignore
+.Rproj.user/
+model.dll
