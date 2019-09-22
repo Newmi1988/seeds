@@ -350,7 +350,8 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
         if (sum(nnStates) == 0) {
           solX <- deSolve::ode(y = x0, time, func = "derivsc",
                             parms = parameters, dllname = "model", initforc = "forcc",
-                            forcings = forcings, initfunc = "parmsc")
+                            forcings = forcings, initfunc = "parmsc",
+                            fcontrol = list( method = "constant", f=1.0, rule = 2))
         } else {
           solX <- deSolve::lsoda(y = x0, times = time, func = "derivsc",
                                   parms = parameters, dllname = "model", initforc = "forcc",
@@ -690,7 +691,8 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
           R.utils::captureOutput(
             solX <- deSolve::ode(y = x0, times, func = "derivsc",
                                 parms = parameters, dllname = "model", initforc = "forcc",
-                                forcings = forcings, initfunc = "parmsc")
+                                forcings = forcings, initfunc = "parmsc",
+                                fcontrol = list( method = "constant", f=1.0, rule = 2))
           )
 
         } else {
