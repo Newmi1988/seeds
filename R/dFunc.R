@@ -15,7 +15,7 @@ writeDummy <- function(eqList){
     } else {
       funcHead <- 'measFunc <- function(x) {\n'
       funcBody <- paste0('\t',gsub('(x{1})([0-9]+)', replacement = '\\1[,\\2]',str))
-      funcEnd <- paste('\n\treturn(list(',paste0('y',1:length(str),collapse = ','),')) \n}')
+      funcEnd <- paste('\n\treturn(cbind(',paste0('y',1:length(str),collapse = ','),')) \n}')
     }
      
     str <- c(funcHead,funcBody,funcEnd)

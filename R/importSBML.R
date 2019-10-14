@@ -1,9 +1,21 @@
-importSBML <- function(modelStr) {
+#'  Import SBML Models using the Bioconductor package 'rsbml'
+#'
+#'  A simple function for importing sbml models from a extensive markup language file.
+#'  
+#'  @param  filename name of the import file. Should lay in the working directory.
+#'  @param  times     timestep at which the function should be evaluated
+#'  @param  y measurements of the model
+#'
+#'  @export importSBML
+#'
+importSBML <- function(filename, times, y) {
+
   if(!require('rsbml',character.only = TRUE)) {
     cat('Please install rsbml from the Bioconducture reposotory')
   } else {
     requireNamespace("rsbml")
-    model <- rsbml::rsbml_read(filename = modelStr, dom = TRUE)
+    model <- rsbml::rsbml_read(filename = filename, dom = TRUE)
+    
     
     states <- model@model@species
     parameter <- model@model@parameters
@@ -97,7 +109,7 @@ importSBML <- function(modelStr) {
     initState = initState[rowSums(stoichM)!=0] 
     eqFuncList = writeDummy(eqList)
     
-    model <- odeModel(func = eqFuncList$reac, parms = namedParaVec, measFunc = eqFuncList$meas, y = initState)
+    model <- odeModel(func = eqFuncList$reac, parms = namedParaVec, measFunc = eqFuncList$meas, y = initState, times = times, meas = y)
   }
   unloadNamespace('rsbml')
   

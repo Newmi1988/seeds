@@ -1,13 +1,12 @@
 # For testing use http://biomodels.caltech.edu/BIOMD0000000545#Files
 
-xmlfile <- 'BIOMD0000000545_url.xml'
-uvb <- importSBML(xmlfile)
-
+t <- uvbData[,1]
 y <- uvbData[,1:3]
-uvb <- setMeas(theObject = uvb, y)
+uvb <- importSBML("BIOMD0000000545_url.xml", times = t, y = y)
+
 
 # Plot the nominal solution
 plot(nominalSol(odeModel = uvb))
 
-res <- sgdn(odeModel = uvb, alphaStep = 400, alpha2 = 0.0001, plotEstimates = TRUE)
+res <- sgdn(odeModel = uvb, alphaStep = 400, alpha2 = 0.0001, plotEstimates = TRUE, measData = y)
 plot(res)
