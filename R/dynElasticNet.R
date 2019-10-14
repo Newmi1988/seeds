@@ -451,7 +451,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
       yMax <- max(max(y[, i]), max(yhat[, i]), max(yNom[, i]))
       yMin <- min(min(y[, i]), min(yhat[, i]), min(yNom[, i]))
       if (is.null(SD)) {
-        plot(x = measureTimes, y = y[, i], type = 'p', pch = 20, col = 'black', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
+        scatter(x = measureTimes, y = y[, i], type = 'p', pch = 20, col = 'black', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
       } else {
         Hmisc::errbar(x = measureTimes, y = y[, i], yplus = y[, i] + SD[, i], yminus = y[, i] - SD[, i], ylab = yLab, xlab = 't', ylim = c(yMin, yMax), add = FALSE)
       }
