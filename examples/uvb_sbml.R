@@ -1,5 +1,7 @@
-modelStr <- 'BIOMD0000000545_url.xml'
-uvb <- importSBML(modelStr)
+# For testing use http://biomodels.caltech.edu/BIOMD0000000545#Files
+
+xmlfile <- 'BIOMD0000000545_url.xml'
+uvb <- importSBML(xmlfile)
 
 y <- uvbData[,1:3]
 uvb <- setMeas(theObject = uvb, y)
