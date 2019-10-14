@@ -96,7 +96,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
     Q = Q / abs(measureData)
     Q[is.infinite(Q)] = 0
     Q[is.na(Q)] = 0
-
+    
     interpQ <- apply(X = Q, MARGIN = 2, FUN = function(t) stats::approx(x = measureTimes, y = t, xout = times))
     interpQ = do.call(cbind, lapply(interpQ, FUN = function(t) cbind(t$y)))
     Q <- interpQ
@@ -451,7 +451,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
       yMax <- max(max(y[, i]), max(yhat[, i]), max(yNom[, i]))
       yMin <- min(min(y[, i]), min(yhat[, i]), min(yNom[, i]))
       if (is.null(SD)) {
-        scatter(x = measureTimes, y = y[, i], type = 'p', pch = 20, col = 'black', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
+        plot(x = measureTimes, y = y[, i], type = 'p', pch = 20, col = 'black', xlab = 't', ylab = yLab, ylim = c(yMin, yMax), lwd = width)
       } else {
         Hmisc::errbar(x = measureTimes, y = y[, i], yplus = y[, i] + SD[, i], yminus = y[, i] - SD[, i], ylab = yLab, xlab = 't', ylim = c(yMin, yMax), add = FALSE)
       }
@@ -599,7 +599,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
         message(cond)
       },
       warning = function(cond) {
-        message('Warning while solving the ode system with the deSolve-package:')
+        message('Warning while solving the costate ode system with the deSolve-package:')
         message('Original error message:')
         message(cond)
       },

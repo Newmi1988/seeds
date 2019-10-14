@@ -110,13 +110,6 @@ plotResultsSeeds  <- function(x,y) {
                   panel.background = ggplot2::element_blank(),
                   panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1),
                   panel.grid.major = ggplot2::element_blank())+
-    # ggplot2::theme(legend.position = "none",
-    #               strip.background = ggplot2::element_blank(),
-    #               # panel.background = ggplot2::element_blank(),
-    #               panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1))+
-                  # panel.grid = ggplot2::element_line(),
-                  # panel.grid.major = ggplot2::element_line(),
-                  # panel.grid.minor = ggplot2::element_line())+
     ggplot2::facet_wrap(~facet, labeller = labelX)
 
   
@@ -129,13 +122,6 @@ plotResultsSeeds  <- function(x,y) {
                   panel.background = ggplot2::element_blank(),
                   panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1),
                   panel.grid.major = ggplot2::element_blank())+
-    # ggplot2::theme(legend.position = "none",
-    #               strip.background = ggplot2::element_blank(),
-    #               # panel.background = ggplot2::element_blank(),
-    #               panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1))+
-    #               # panel.grid = ggplot2::element_line(),
-                  # panel.grid.major = ggplot2::element_line(),
-                  # panel.grid.minor = ggplot2::element_line())+
     ggplot2::facet_wrap(~facet)
   
   plot3 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(smoothRes(seedsobj@outputEstimates),state,value, -1)), ggplot2::aes(x=t, y=value, colour=state))+
@@ -149,9 +135,7 @@ plotResultsSeeds  <- function(x,y) {
                   strip.background = ggplot2::element_blank(),
                   panel.background = ggplot2::element_blank(),
                   panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1),
-                  # panel.grid = ggplot2::element_line(),
                   panel.grid.major = ggplot2::element_blank())+
-                  # panel.grid.minor = ggplot2::element_line())+
     ggplot2::facet_wrap(~facet, drop = TRUE, labeller = labelY)
   
   return(list(plot1,plot2, plot3))

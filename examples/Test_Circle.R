@@ -91,7 +91,7 @@ stepAlpha <- 1
 times <- t.data
 
 X <- out[,-1]
-meas <- as.data.frame(testMessure(X))
+meas <- testMessure(X)
 meas = as.data.frame(cbind(times,meas))
 
 y <- meas
