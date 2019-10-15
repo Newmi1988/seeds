@@ -90,6 +90,10 @@ createCFile <- function(parameters, inputs, Eq, bden, nnStates) {
 
 
     # eqC = gsub(pattern = "(t)([^a-z])", replacement = "*\\1\\2", eqC)
+    eqC = gsub("([\\+\\-\\*/])", " \\1 ", eqC)
+    eqC = gsub("\\s(t)"," *\\1", eqC)
+    
+    eqC = gsub("[^a-z1-3](t)[^a-z1-3]", "(*\\1)", eqC)
 
     return(eqC)
   }
