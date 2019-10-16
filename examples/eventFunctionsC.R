@@ -7,15 +7,15 @@ graphics.off()
 example <- function(t,x, parms) {
   with(as.list( c(x, parms)),{
     dx1 = 1
-    dx2 = a * cos(t) * x[1]
-    dx3 = a * sin(t) * x[1]
+    dx2 = ta * cos(t) * x[1]
+    dx3 = ta * sin(t) * x[1]
 
     list(c(dx1,dx2, dx3))
   })
 }
 
 t           <- seq(0.1,4.1,1)
-parameters  = c(a = 1, b = 1)
+parameters  = c(ta = 1, b = 1)
 x0          = c(x1 = 0, x2 = 1, x3 = 1)
 
 # indicator which states should be non negative

@@ -88,13 +88,12 @@ createCFile <- function(parameters, inputs, Eq, bden, nnStates) {
     eqC = gsub(pattern = "exp\\((x\\[[0-9]*\\])\\)\\^([0-9]+)+", replacement = "pow(exp(\\1),\\2)", eqC)
     eqC = gsub(pattern = "exp\\((x\\[[0-9]*\\])\\)\\^([a-z]+)", replacement = "pow(exp(\\1),\\2)", eqC)
 
-
     # eqC = gsub(pattern = "(t)([^a-z])", replacement = "*\\1\\2", eqC)
     eqC = gsub("([\\+\\-\\*/])", " \\1 ", eqC)
-    eqC = gsub("\\s(t)"," *\\1", eqC)
-    
-    eqC = gsub("[^a-z1-3](t)[^a-z1-3]", "(*\\1)", eqC)
-
+    # eqC = gsub("\\s(t)"," *\\1", eqC)
+    # eqC = gsub("[^a-z1-3](t)[^a-z1-3]", "(*\\1)", eqC)
+    eqC = gsub("([^a-z1-9]*)(t)([^a-z1-9])", "\\1*\\2\\3", eqC)
+  
     return(eqC)
   }
 
