@@ -48,17 +48,13 @@ LOGLIKELIHOOD_func  <- function(pars,Step,OBSERVATIONS,x_0,parameters,EPS_inner,
 PARTIALLIKELIHOOD_func <- function(STEP,OBSERVATIONS,x_0,parameters,input,W,BETA,ALPHA,objective){
 
   TIME <-  c(OBSERVATIONS[STEP-1,1],OBSERVATIONS[STEP,1])
-  
-  
-  X <- ode_solv(TIME,x_0,parameters,input,W)
-  
 
+  X <- ode_solv(TIME,x_0,parameters,input,W)
 
   if(any(is.na(X))) return(NA)
-
-  SUM <-  sum(-log((1+(1/(2*BETA))*(((OBSERVATIONS[2,-1]-sapply(1:length(OBSERVATIONS[2,-1]),objective,y=tail(X,1),parameter=parameters,USE.NAMES = TRUE))^2)))^(ALPHA+0.5)))
-        
-  
+# SUM <-  sum(-log((1+(1/(2*BETA))*(((OBSERVATIONS[2,-1]-sapply(1:length(OBSERVATIONS[2,-1]),objective(tail(X,1),parameters),y=tail(X,1),parameter=parameters,USE.NAMES = TRUE))^2)))^(ALPHA+0.5)))
+ SUM <-  sum(-log((1+(1/(2*BETA))*(((OBSERVATIONS[2,-1]-objective(tail(X,1),parameters))^2)))^(ALPHA+0.5)))
+ 
   return(SUM)
   
   

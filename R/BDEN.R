@@ -56,7 +56,7 @@ BDEN <- function(odeModel,
                  lambda            = .001,
                  Grad_correct      = 0,
                  alpha             = c(1,1,1,1),
-                 beta_init         = c(1,1,1,0.1),
+                 beta_init         = c(1,1,1,1),
                  printstatesignore = FALSE){
   
   if(!missing(odeModel)){
@@ -81,9 +81,14 @@ BDEN <- function(odeModel,
     
   }
   
-  if (length(alpha) != length(observations[1,]))     {alpha=rep(1,length(observations[1,]))}
-  if (length(beta_init) != length(observations[1,])) {beta_init=rep(1,length(observations[1,]))}
+  if (length(inputData[,1]) == 0) {inputData=cbind(measData[,1],measData[,1]*0)
   
+                                    colnames(inputData)=c('t','u')}
+
+  if (length(alpha) != length(observations[1,])-1)     {alpha=rep(1,length(observations[1,]))}
+  if (length(beta_init) != length(observations[1,])-1) {beta_init=rep(1,length(observations[1,]))}
+  
+
   
   if(NegativeStates){
   createCompModel(modelFunc = model, parameters = parameters, bden = TRUE, nnStates = rep(0, numberstates))}
@@ -103,27 +108,23 @@ BDEN <- function(odeModel,
   
   dyn.load(compiledModel)
   
-  
+
   ##################################################################################
   X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*numberstates),2))
 
-  print('Nominal State Dynamics')
-  base::print(X_MODEL)
+
+  base::print('Algorithm started. Sampling may take a while')
   print('################# BDEN INITIALIZED ################')
   
-  X_ERROR        <- matrix(0,length(observation_time),numberstates)
+  X_ERROR        <- abs(abs(observations[,-1])-abs(measFunc(X_MODEL,parameters)))
+
+  GRADIENT        <- matrix(0,length(observation_time)-1,length(observations[1,])-1-1)
   
-  for (i in 1:length(observation_time)){
-    X_ERROR [i,] <- abs(abs(as.numeric(observations[i,-1]))-abs(as.numeric(sapply(1:numberstates,measFunc,y=X_MODEL[i,],parameter=parameters,USE.NAMES = TRUE))))
-  }
-  
-  GRADIENT        <- matrix(0,length(observation_time)-1,numberstates-1)
-  
-  for (i in 1:(numberstates-(1+Grad_correct))){   
+  for (i in 1:(length(observations[1,])-1-(1+Grad_correct))){   
     GRADIENT[,i]       <- abs(diff(X_ERROR[,i])/diff(observation_time))
   }
-  
-  
+
+
   ##################################################################################
   COUNTER = 1
   COUNTER2 = 1
@@ -142,18 +143,20 @@ BDEN <- function(odeModel,
   EPSILONLOW       <- matrix(0, nrow = dim(X_MODEL)[1]  , ncol = numberstates)
   EPSILONUP        <- matrix(0, nrow = dim(X_MODEL)[1]  , ncol = numberstates)
   SIGMA            <- vector("list",dim(X_MODEL)[1]) 
-  S                <- mean(GRADIENT)*10*2.5
+  S                <- mean(GRADIENT)*1.2
 
   for (i in 1:length(SIGMA)){
 
-SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.5
+SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.25
   }
   BETA_LAMBDA      <- lambda
   
   
   GIBBS_PAR        <- SETTINGS(sd,numberstates,BETA_LAMBDA,alpha,beta_init)
+
   EPS_TIME         <- observation_time
   YINIT            <- initialvalues
+
   EPSILON_IT$CONT  <- matrix(0, nrow = MCMC_SET$STEP_trials  , ncol = numberstates)
   EPSILON_IT$ACT   <- matrix(0, nrow = 2  , ncol = numberstates)
   SOLUTION         <- YINIT
@@ -164,11 +167,12 @@ SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.5
   stateUnscertainlower_OUT <- dim(measData[,-1])[2]*0
   stateUnscertainupper_OUT <- dim(measData[,-1])[2]*0
 
-  X_OUTPUT                 <- as.numeric(sapply(1:numberstates,measFunc,y=YINIT,parameter=parameters,USE.NAMES = TRUE))
-  
-
 
   
+  X_OUTPUT                 <- measFunc(t(as.matrix(YINIT)),parameters)
+
+
+
   ##################################################################################
   
   
@@ -194,7 +198,7 @@ SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.5
       R.utils::increase(PROGRESS)
       
       VAR$DIAG                    <- diag((GIBBS_PAR_IT$TAU+GIBBS_PAR_IT$LAMBDA2)^-1)
-    
+
       
       MCMC_RESULTS                 <- mcmc_component(loglikelihood_func, MCMC_SET$EPS_step_size, MCMC_SET$EPS_step_size_inner, EPSILON_IT$CONT[TRIALS-1,],S,
                                                      STEP,observations,EPSILON_IT$Y0,inputData,parameters,EPSILON_IT$ACT,VAR$SIGMA,VAR$DIAG,GIBBS_PAR,numberstates,MCMC_SET$BURNIN_inner,measFunc)
@@ -203,9 +207,8 @@ SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.5
 
       
 
-      #EPSILON_IT$CONT[TRIALS,]    <- MCMC_RESULTS[length(MCMC_RESULTS[,1]),]
-      EPSILON_IT$CONT[TRIALS,]    <-  colMeans(MCMC_RESULTS[MCMC_SET$BURNIN:length(MCMC_RESULTS[,1]),],na.rm = TRUE)  
-    
+      EPSILON_IT$CONT[TRIALS,]    <- MCMC_RESULTS[length(MCMC_RESULTS[,1]),]
+
    
 
       EPSILON_IT$ACT[2,]          <- EPSILON_IT$CONT[TRIALS,] 
@@ -213,6 +216,8 @@ SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.5
       G_U                         <- gibbs_update(VAR$DIAG,EPSILON_IT$ACT,
                                                   GIBBS_PAR$R,GIBBS_PAR$ROH,SIGMA[[1]],numberstates,VAR$SIGMA,
                                                   GIBBS_PAR_IT$LAMBDA2,GIBBS_PAR_IT$LAMBDA1,GIBBS_PAR_IT$TAU)  
+
+
       VAR$SIGMA                   <- G_U$SIGMA 
       GIBBS_PAR_IT$LAMBDA2        <- G_U$LAMBDA2 
       GIBBS_PAR_IT$LAMBDA1        <- G_U$LAMBDA1 
@@ -224,8 +229,8 @@ SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.5
       
     }
 
-    #EPSILON[STEP,]              <- colMeans(EPSILON_IT$CONT[max(4,floor(MCMC_SET$STEP_trials/3)):length(EPSILON_IT$CONT[,1]),], na.rm = TRUE)
-    EPSILON[STEP,]              <- colMeans(EPSILON_IT$CONT[max(4,floor(MCMC_SET$STEP_trials/2)):length(EPSILON_IT$CONT[,1]),], na.rm = TRUE)
+    EPSILON[STEP,]              <- colMeans(EPSILON_IT$CONT[max(4,floor(MCMC_SET$STEP_trials/3)):length(EPSILON_IT$CONT[,1]),], na.rm = TRUE)
+
  
     
     
@@ -255,9 +260,10 @@ SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.5
     SOLUTIONUP                  <- rbind(SOLUTIONUP ,B)
     
     
-    stateUnscertainlower_OUT    <- rbind(stateUnscertainlower_OUT,as.numeric(sapply(1:numberstates,measFunc,y=A,parameter=parameters,USE.NAMES = TRUE))) 
-    stateUnscertainupper_OUT    <- rbind(stateUnscertainupper_OUT,as.numeric(sapply(1:numberstates,measFunc,y=B,parameter=parameters,USE.NAMES = TRUE)))
-    X_OUTPUT                    <- rbind(X_OUTPUT,as.numeric(sapply(1:numberstates,measFunc,y=C,parameter=parameters,USE.NAMES = TRUE)))
+    stateUnscertainlower_OUT    <- rbind(stateUnscertainlower_OUT,measFunc(t(as.matrix(A)),parameters))
+    stateUnscertainupper_OUT    <- rbind(stateUnscertainupper_OUT,measFunc(t(as.matrix(B)),parameters))
+    
+    X_OUTPUT                    <- rbind(X_OUTPUT,measFunc(t(as.matrix(C)),parameters))
     
     
     
@@ -300,7 +306,7 @@ SIGMA[[i]]      <- max(abs(diff(GRADIENT)))*0.5
   nomStates <- as.data.frame(cbind(observation_time,X_MODEL))
   colnames(nomStates) <- c("t",paste0('x',1: numberstates))
   
-  print('A')
+
   
   dataError <- sd
   colnames(dataError) <- c("t",paste0('s',1:(ncol(sd)-1)))

@@ -36,8 +36,7 @@ MCMC_component <- function(LOGLIKELIHOOD_func, STEP_SIZE, STEP_SIZE_INNER , EPSI
     
     
     epsilon_container[2,] <- EPSILON_ACT[2,]
-    
-    #JUMP_SCALE <- 0.3825*1.2
+
 
 
 for (ii in 2:STEP_SIZE+1){

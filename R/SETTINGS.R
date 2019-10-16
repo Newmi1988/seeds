@@ -16,6 +16,7 @@
 #'
 SETTINGS <- function(VARIANCE,N,BETA_LAMDBA,alphainit,betainit,R=c(1000,1000),ROH=c(10,10)){
   
+  
     if (length(alphainit)!=N) alphainit = rep(1,N)
     if (length(betainit)!=N)  {betainit  = rep(1,N)}
     
