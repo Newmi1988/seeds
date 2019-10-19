@@ -63,7 +63,7 @@ Model <- function(t,x,parameters) {
 }
 
 
-uvbMeasure <- function(x) {
+uvbMeasure <- function(x, parameters) {
   
   y1 = 2*x[,5] + x[,4] + x[,8]
   y2 = 2*x[,5] + 2* x[,3] + x[,1]
