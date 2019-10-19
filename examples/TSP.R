@@ -112,12 +112,16 @@ output <- data.frame("t" = out[,1],"x1" = out[,2], "x2" = out[,3], "x3" = out[,4
 
 sd=NULL
 
+model_class <- odeModel(func = Model, parms = parameters, times=t.data,
+                    measFunc = uvbMeasure, y = x0, meas = y,custom=TRUE)
 
-system.time(
-  res <- sgdn(alphaStep = 500, alpha2 = 0.0001, optW = rep(1,8), x0 = x0,
-              measFunc = uvbMeasure, measData = y, epsilon = 0.1, Beta = 0.8,
-              parameters = parameters, modelFunc = Model, plotEstimates = TRUE, conjGrad = TRUE)
-)
+sgdn(odeModel = model_class, alphaStep = 0.01, alpha2 = 0.4, plotEstimates = TRUE, conjGrad = FALSE)
+
+# system.time(
+#   res <- sgdn(alphaStep = 500, alpha2 = 0.0001, optW = rep(1,8), x0 = x0,
+#               measFunc = uvbMeasure, measData = y, epsilon = 0.1, Beta = 0.8,
+#               parameters = parameters, modelFunc = Model, plotEstimates = TRUE, conjGrad = TRUE)
+# )
 
 plot(res[[2]])
 

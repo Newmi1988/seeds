@@ -176,16 +176,16 @@ printSeedsResults <- function(x) {
 #' @rdname print-seeds
 #' 
 
-setMethod(f = 'print',
-          signature = 'list',
-          definition = function(x) 
-          {
-            results <- x[[length(x)]]
-            printSeedsResults(results)
-          }
+# setMethod(f = 'print',
+#           signature = 'list',
+#           definition = function(x) 
+#           {
+#             results <- x[[length(x)]]
+#             printSeedsResults(results)
+#           }
           
           
-          )
+          # )
 
 setMethod(f = 'print',
           signature = 'resultsSeeds',
