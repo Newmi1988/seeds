@@ -62,15 +62,22 @@ odeModel <- setClass(
       return("You have to specify the times on which the equation should be evaluated. A solution can only be calculated if the a intervall or specific timesteps are given. Set the 'times'' parameter.")
     }
     
-    if(length(object@y) != 0 && object@custom == FALSE && colSums(object@meas)!=0) {
-      m <- matrix(rep(0,length(object@y)),ncol = length(object@y))
-      testMeas <- object@measFunc(m)
+    
+    
       
-      if(ncol(testMeas) != (ncol(object@meas)-1)){
-        return("The returned results of the measurement function does not have the same
-               dimensions as the given measurements")
+      if(length(object@y) != 0 && object@custom == FALSE && sum(colSums(object@meas))!=0) {
+        m <- matrix(rep(0,length(object@y)),ncol = length(object@y))
+        if(is.null(object@measFunc(m)) == FALSE) {
+          testMeas <- object@measFunc(m)
+          if(ncol(testMeas) != (ncol(object@meas)-1)){
+            return("The returned results of the measurement function does not have the same
+                   dimensions as the given measurements")
+          }
+        }
       }
-    }
+    # }
+    
+    
     
     return(TRUE)
   }
