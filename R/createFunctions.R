@@ -95,7 +95,7 @@ createFunctions <- function(odeEq){
       res <- append(topMid,funcEndStr, after = length(topMid)+1)
       
       res <- gsub(pattern = "p(\\[[0-9]+\\])", replacement = paste0(var_name,"\\1"), x = res)
-      res <- gsub(pattern = "\\tdp([0-9])+", replacement = paste0(var_name,"\\1"), x = res)
+      res <- gsub(pattern = "\\tdp([0-9]+)", replacement = paste0(var_name,"\\1"), x = res)
     }
     else {
       stringOde <- odeEq@origEq

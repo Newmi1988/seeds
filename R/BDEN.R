@@ -81,9 +81,11 @@ BDEN <- function(odeModel,
     
   }
   
-  if (length(inputData[,1]) == 0) {inputData=cbind(measData[,1],measData[,1]*0)
+  # if (length(inputData[,1]) == 0) {inputData=cbind(measData[,1],measData[,1]*0)
+  if (  sum(inputData) == 0) {inputData=cbind(measData[,1],measData[,1]*0)
   
                                     colnames(inputData)=c('t','u')}
+
 
   if (length(alpha) != length(observations[1,])-1)     {alpha=rep(1,length(observations[1,]))}
   if (length(beta_init) != length(observations[1,])-1) {beta_init=rep(1,length(observations[1,]))}
@@ -111,7 +113,6 @@ BDEN <- function(odeModel,
 
   ##################################################################################
   X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*numberstates),2))
-
 
   base::print('Algorithm started. Sampling may take a while')
   print('################# BDEN INITIALIZED ################')

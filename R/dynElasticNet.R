@@ -768,8 +768,8 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
     interpAbsW <- apply(X = absW, MARGIN = 2, FUN = function(x) stats::approxfun(x = tAUC, y = x, rule = 2, method = 'linear'))
 
     AUCs <- sapply(X = interpAbsW, FUN = function(x) pracma::trapzfun(f = x, a = t0, b = tf))
-    cat(paste0('Iteration ', i, ' J[w]=', round(J[i + 1], 2), '     change J[w]: ', round((1 - abs(J[i + 1] / J[i])) * 100, 4), ' % \t\talpha=', alpha, '\n'))
 
+    cat(sprintf("Iteration %3d: \t J(w)= %6.4f  \t change J(w): %6.2f%%  \t alpha = %10.5f \n", i, J[i+1], (1 - abs(J[i + 1] / J[i])) * 100, alpha))
 
     if (plotEsti == TRUE) {
       showEstimates(measureTimes, AUCs, input, alpha2, J, yNominal, SD)

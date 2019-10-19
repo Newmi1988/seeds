@@ -120,7 +120,7 @@ plot(nominalSol(model_class))
 
 res <- sgdn(odeModel = model_class, alphaStep = 0.0001, alpha2 = 0.1, plotEstimates = TRUE, conjGrad = FALSE)
 
-plot(res[[2]])
+plot(res[[1]])
 
 BDENode <- odeModel(func = Model, parms = parameters, times=t.data,
                     measFunc = uvbMeasure, y = x0, meas = y,custom=TRUE)
