@@ -70,6 +70,10 @@ sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, 
     sd <- odeModel@sd
   }
 
+  if ("u" %in% names(parameters)) {
+    stop('Variable name u is reserved for the inputs of a system')
+  }
+
   if (missing(systemInput)) {
     systemInput <- NULL
   }

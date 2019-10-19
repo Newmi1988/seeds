@@ -38,6 +38,8 @@ createFunctions <- function(odeEq){
     formatStr <- gsub(pattern = "\\[|[1-9]|\\]",replacement = "", strsplit(odeEq@origEq,"=")[[1]][1])
     if(funcType=="costate"){
       stringOde <- odeEq@costateEq
+      
+      var_name <- "var_lambda"
       #generate new function 'header'
       
       #get additional parameters 
@@ -50,7 +52,7 @@ createFunctions <- function(odeEq){
       
       #addInputs = trimAddInputs(odeEq,addInputs,paraInput, formatStr)
 
-      funcStartStr <- paste0(funcType," <-function(t,p,parameters,input) {")
+      funcStartStr <- paste0(funcType,paste0(" <-function(t,",var_name,",parameters,input) {"))
       # funcStartStr <- append(funcStartStr,paste0("\twith (as.list(",paste(paraInput, collapse = ","),") {\n"),after = length(funcStartStr)+1)
       funcStartStr <- append(funcStartStr,paste0("\twith (as.list(parameters), {\n"),after = length(funcStartStr)+1)
       
@@ -82,13 +84,18 @@ createFunctions <- function(odeEq){
         
         funcStartStr = append(funcStartStr,dynNetInterpolate, after = length(funcStartStr)+2)
       }
-
+      
       #generate new function wrap up
       toList <- paste0(unlist(strsplit(x = stringOde, split = "="))[seq(1, 2*length(stringOde), by = 2)],collapse = ",")
+
       funcEndStr <- paste0("\n\t\t\t\tlist(c(",toList,"))\n","\n  })\n}")
+      funcEndStr <- gsub("dp([0-9]+)", paste0(var_name,"\\1"), x = funcEndStr)
       stringOde <- paste0("\t\t\t\t",stringOde)
       topMid <- append(funcStartStr,stringOde, after = length(funcStartStr)+2)
       res <- append(topMid,funcEndStr, after = length(topMid)+1)
+      
+      res <- gsub(pattern = "p(\\[[0-9]+\\])", replacement = paste0(var_name,"\\1"), x = res)
+      res <- gsub(pattern = "\\tdp([0-9])+", replacement = paste0(var_name,"\\1"), x = res)
     }
     else {
       stringOde <- odeEq@origEq

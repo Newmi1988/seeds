@@ -1,6 +1,7 @@
 # This script generates data to test the greedy-approach dynamic elastic net
 rm(list=ls())
 library(deSolve)
+devtools::load_all()
 
 parameters = c(  v1=1,
                    vi1=1,
@@ -78,7 +79,7 @@ state <- c( x1 = x0[1], x2 = x0[2] , x3 = x0[3], x4 = x0[4], x5 = x0[5], x6 = x0
 
 Perturbation <- function(t,x1,x2,x3,x4,x5,x6,x7,x8) {
   #perturbation function
-  perturbation.temp <-  1 / (1 + ( t - 5 )**2)
+  perturbation.temp <-  1 / (40 + ( t - 30 )**2)
   
   return(perturbation.temp)
 }
@@ -115,13 +116,9 @@ sd=NULL
 model_class <- odeModel(func = Model, parms = parameters, times=t.data,
                     measFunc = uvbMeasure, y = x0, meas = y,custom=TRUE)
 
-sgdn(odeModel = model_class, alphaStep = 0.01, alpha2 = 0.4, plotEstimates = TRUE, conjGrad = FALSE)
+plot(nominalSol(model_class))
 
-# system.time(
-#   res <- sgdn(alphaStep = 500, alpha2 = 0.0001, optW = rep(1,8), x0 = x0,
-#               measFunc = uvbMeasure, measData = y, epsilon = 0.1, Beta = 0.8,
-#               parameters = parameters, modelFunc = Model, plotEstimates = TRUE, conjGrad = TRUE)
-# )
+res <- sgdn(odeModel = model_class, alphaStep = 0.0001, alpha2 = 0.1, plotEstimates = TRUE, conjGrad = FALSE)
 
 plot(res[[2]])
 
