@@ -6,13 +6,16 @@
 \usage{
 importSBML(filename, times, y)
 }
+\arguments{
+\item{filename}{name of the import file. Should be located in the working directory.}
+
+\item{times}{timestep at which the function should be evaluated}
+
+\item{y}{measurements of the model}
+}
+\value{
+returns a odeModel-Object
+}
 \description{
 A simple function for importing sbml models from a extensive markup language file.
- 
- @param  filename name of the import file. Should lay in the working directory.
- @param  times     timestep at which the function should be evaluated
- @param  y measurements of the model
-}
-\details{
-@export importSBML
 }

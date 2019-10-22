@@ -7,8 +7,8 @@
 BDEN(odeModel, settings, mcmc_component, loglikelihood_func, gibbs_update,
   ode_sol, NegativeStates = FALSE, numbertrialsstep = 15,
   numbertrialseps = NA, numbertrialinner = 25, lambda = 0.001,
-  Grad_correct = 0, alpha = c(1, 1, 1, 1), beta_init = c(1, 1, 1,
-  0.1), printstatesignore = FALSE)
+  Grad_correct = 0, alpha = c(1, 1, 1, 1), beta_init = c(1, 1, 1, 1),
+  printstatesignore = FALSE)
 }
 \arguments{
 \item{odeModel}{a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis.}

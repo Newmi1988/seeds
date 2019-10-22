@@ -2,11 +2,13 @@
 #'
 #'  A simple function for importing sbml models from a extensive markup language file.
 #'  
-#'  @param  filename name of the import file. Should lay in the working directory.
-#'  @param  times     timestep at which the function should be evaluated
-#'  @param  y measurements of the model
+#' @param  filename name of the import file. Should be located in the working directory.
+#' @param  times     timestep at which the function should be evaluated
+#' @param  y measurements of the model
+#'  
+#' @return returns a odeModel-Object
 #'
-#'  @export importSBML
+#' @export importSBML
 #'
 importSBML <- function(filename, times, y) {
 
@@ -15,7 +17,6 @@ importSBML <- function(filename, times, y) {
   } else {
     requireNamespace("rsbml")
     model <- rsbml::rsbml_read(filename = filename, dom = TRUE)
-    
     
     states <- model@model@species
     parameter <- model@model@parameters
