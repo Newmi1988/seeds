@@ -18,8 +18,11 @@ importSBML <- function(filename, times, y) {
     requireNamespace("rsbml")
     model <- rsbml::rsbml_read(filename = filename, dom = TRUE)
     
+    # return(model)
+    
     states <- model@model@species
     parameter <- model@model@parameters
+    # print(parameter)
     
     # measurements
     rules <- model@model@rules
@@ -44,8 +47,11 @@ importSBML <- function(filename, times, y) {
     react <- combieReact(reacList,stoichM)
     
     meas <- c()
-    for (i in 1:length(rules)) {
-      meas[i] <- gsub(pattern = "expression", replacement = '', x = rules[[i]]@math)
+    if ( length(rules) != 0) {
+      for (i in 1:length(rules)) {
+        meas[i] <- gsub(pattern = "expression", replacement = '', x = rules[[i]]@math)
+      }
+      
     }
     
     reformatEqs <- function(reactions, states,  measureRules){
@@ -55,26 +61,33 @@ importSBML <- function(filename, times, y) {
       for (i in 1:length(states)) {
         regState <- paste0('\\b',states[i],'\\b')
         reactions = unlist(lapply(X = reactions,FUN = function(x) gsub(pattern = regState, replacement = xStates[i], x = x)))
-        measureRules = unlist(lapply(X = measureRules,FUN = function(x) gsub(pattern = regState, replacement = xStates[i], x = x)))
+        if (length(measureRules) != 0) {
+          measureRules = unlist(lapply(X = measureRules,FUN = function(x) gsub(pattern = regState, replacement = xStates[i], x = x)))
+        }
       }
-      res = list('reac' = reactions, 'meas'= measureRules) 
+      if ( length(measureRules) != 0 ) {
+        res = list('reac' = reactions, 'meas'= measureRules) 
+      } else {
+        res = list('reac' = reactions)
+      }
       return(res)
     }
     
     
     reactNames = rownames(stoichM[rowSums(stoichM)!=0,])
-    
     eqList <- reformatEqs(reactions = react, states = reactNames, measureRules= meas)
     
     # format the parameter and initial vector into names vectors
-    v <- c()
-    n <- c()
-    for (i in 1:length(parameter)){
-      v[i] <- parameter[[i]]@value
-      n[i] <- parameter[[i]]@name
+    if ( length(parameter) != 0 ) {
+      v <- c()
+      n <- c()
+      for (i in 1:length(parameter)){
+        v[i] <- parameter[[i]]@value
+        n[i] <- parameter[[i]]@name
+      }
+      namedParaVec <- v
+      names(namedParaVec) <- tolower(n)
     }
-    namedParaVec <- v
-    names(namedParaVec) <- tolower(n)
     
     initToPara <- function(model,namedParaV){
       const <- c()
@@ -95,21 +108,35 @@ importSBML <- function(filename, times, y) {
       namedParaV = c(namedParaV, nV)
       return(namedParaV)
     }
-    
-    namedParaVec = initToPara(model, namedParaVec)
+   
+    if ( length(parameter) != 0) {
+      namedParaVec = initToPara(model, namedParaVec)
+    } 
     
     initVec <- model@model@species
-    v <- c()
-    n <- c()
-    for (i in 1:length(initVec)){
-      v[i] <- initVec[[i]]@initialAmount
-      n[i] <- initVec[[i]]@name
-    }
-    initState <- v
-    names(initState) <- n
-    initState = initState[rowSums(stoichM)!=0] 
-    eqFuncList = writeDummy(eqList)
+    print(length(initVec))
     
+    if( length(initVec) != 0) {
+    
+      v <- c()
+      n <- c()
+      for (i in 1:length(initVec)){
+        v[i] <- initVec[[i]]@initialAmount
+      }
+      initState <- v
+      # names(initState) <- n
+      initState = initState[rowSums(stoichM)!=0] 
+      print(eqList)
+      eqFuncList = writeDummy(eqList)
+    } else {
+      test <- model@model@reactions[[1]]
+      split <- strsplit(split = 'where')
+      
+      print(split)
+    }
+      
+    # print(model@model@reactions)
+      
     model <- odeModel(func = eqFuncList$reac, parms = namedParaVec, measFunc = eqFuncList$meas, y = initState, times = times, meas = y)
   }
   unloadNamespace('rsbml')
