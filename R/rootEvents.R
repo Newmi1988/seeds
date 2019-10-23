@@ -18,7 +18,6 @@ createCLangRoot <- function(rootStates) {
 createRoot <- function(rootStates) {
   #' A function for creating a root function that can be used with the ode solver lsoda for triggering events
   #' @param rootStates Vector of the same length as the state, ones and zeros indicated which states can start an event
-  #'
 
   rootFunction <- 'function(t,x,param) x'
 
@@ -30,10 +29,9 @@ createEvent <- function(tollerance, value) {
   #' @param tollerance tollerance under which a state is set to a given value 'value'
   #' @param value value the states should be set to, very small values result in a much longer computation time
 
-
   head <- 'function(t,x,param) {\n\n'
-  
-  body <- paste0('\t x[which(x <= ',tollerance,')] = ',value)
+
+  body <- paste0('\t x[which(x <= ', tollerance, ')] = ', value)
 
   eventFunction <- paste0(head, body, '\n\n\treturn(x)\n}')
 

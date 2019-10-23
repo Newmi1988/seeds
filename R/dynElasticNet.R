@@ -54,7 +54,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
   }
 
   times <- measData[, 1]
-  N <- 10*length(times)
+  N <- 10 * length(times)
   t0 <- times[1]
   tf <- utils::tail(times, n = 1)
   times <- seq(from = t0, to = tf, length.out = N)
@@ -71,7 +71,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
   # EventFunc - Function that the output of the states after being triggered by the root function
   eventTol <- 0.0
   resetValue <- 0.0001
-  
+
 
   RootFunc <- eval(parse(text = createRoot(rootStates = nnStates)))
   EventFunc <- eval(parse(text = createEvent(tollerance = eventTol, value = resetValue)))
@@ -96,7 +96,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
     Q = Q / abs(measureData)
     Q[is.infinite(Q)] = 0
     Q[is.na(Q)] = 0
-    
+
     interpQ <- apply(X = Q, MARGIN = 2, FUN = function(t) stats::approx(x = measureTimes, y = t, xout = times))
     interpQ = do.call(cbind, lapply(interpQ, FUN = function(t) cbind(t$y)))
     Q <- interpQ
@@ -200,7 +200,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
       cat('No meassurement function defined. Assuming all states are observable.\n')
       y <- x[, -1, drop = FALSE]
     } else {
-      y = measFunc(x[,-1, drop = FALSE])
+      y = measFunc(x[, -1, drop = FALSE])
     }
     y = as.data.frame(cbind(x[, 1], y))
     names(y)[1] <- 't'
@@ -499,7 +499,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
   createConst <- function(constString, needGrad) {
     trim <- function(x) gsub(pattern = '\\s', replacement = "", x = x)
     cont = strsplit(x = trim(constString), split = "==")[[1]][2]
-    
+
     eqs <- character(length = length(needGrad))
     for (i in 1:length(needGrad)) {
       str <- paste0('Solve(', trim(constString), ',x', needGrad[i], ')')
@@ -508,7 +508,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
     eq <- trim(gsub(pattern = 'list\\(||\\)\\)', replacement = "", x = eqs))
     eq = gsub(pattern = '==', replacement = '=', x = eq)
     eq = gsub(pattern = "(x)([0-9]*)", replacement = 'P[,\\2]', x = eq)
-    eq = gsub(pattern = paste0("[*/]*[+-]*",cont), replacement = '', x = eq)
+    eq = gsub(pattern = paste0("[*/]*[+-]*", cont), replacement = '', x = eq)
 
 
     return(eq)
@@ -647,25 +647,25 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
 
 
 
-    alpha = getAlphaBacktracking(oldW = oldW, 
-                                 W = w, 
-                                 Q = Q, 
+    alpha = getAlphaBacktracking(oldW = oldW,
+                                 W = w,
+                                 Q = Q,
                                  y = measData,
-                                 gradStep = step, 
-                                 J = J, 
-                                 currIter = i, 
+                                 gradStep = step,
+                                 J = J,
+                                 currIter = i,
                                  alphaDynNet = alphaDynNet,
-                                 alphaS = alphaS, 
-                                 stepBeta = armijoBeta, 
-                                 optW = optW, 
+                                 alphaS = alphaS,
+                                 stepBeta = armijoBeta,
+                                 optW = optW,
                                  para = parameters,
-                                 tInt = tInt, 
-                                 Tp = Tp, 
-                                 measFunc = measFunc, 
-                                 input = input, 
-                                 measureTimes = measureTimes, 
-                                 nnStates = nnStates, 
-                                 rootFunc = RootFunc, 
+                                 tInt = tInt,
+                                 Tp = Tp,
+                                 measFunc = measFunc,
+                                 input = input,
+                                 measureTimes = measureTimes,
+                                 nnStates = nnStates,
+                                 rootFunc = RootFunc,
                                  eventFunc = EventFunc)
 
     # calculate the new hidden inputs
@@ -769,7 +769,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
 
     AUCs <- sapply(X = interpAbsW, FUN = function(x) pracma::trapzfun(f = x, a = t0, b = tf))
 
-    cat(sprintf("Iteration %3d: \t J(w)= %006.4f   change J(w): %6.2f%%  \t alpha = %10.5f \n", i, J[i+1], (1 - abs(J[i + 1] / J[i])) * 100, alpha))
+    cat(sprintf("Iteration %3d: \t J(w)= %006.4f   change J(w): %6.2f%%  \t alpha = %10.5f \n", i, J[i + 1], (1 - abs(J[i + 1] / J[i])) * 100, alpha))
 
     if (plotEsti == TRUE) {
       showEstimates(measureTimes, AUCs, input, alpha2, J, yNominal, SD)

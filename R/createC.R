@@ -19,9 +19,6 @@ createCFile <- function(parameters, inputs, Eq, bden, nnStates) {
 
 
   inpStr <- paste0('static double forc[', inputs + 1, '];')
-
-
-
   StringC = append(StringC, values = c('', paraStr, inpStr))
 
   #define parameters
@@ -93,7 +90,7 @@ createCFile <- function(parameters, inputs, Eq, bden, nnStates) {
     # eqC = gsub("\\s(t)"," *\\1", eqC)
     # eqC = gsub("[^a-z1-3](t)[^a-z1-3]", "(*\\1)", eqC)
     eqC = gsub("([^a-z1-9]*)(t)([^a-z1-9])", "\\1*\\2\\3", eqC)
-  
+
     return(eqC)
   }
 
@@ -191,7 +188,7 @@ createCompModel <- function(modelFunc, parameters, bden, nnStates) {
   odeEq <- new("odeEquations")
   odeEq <- createModelEqClass(odeEq, modelFunc)
 
-  if (missing(nnStates) || sum(nnStates)==0) {
+  if (missing(nnStates) || sum(nnStates) == 0) {
     nnStates <- rep(0, length(odeEq@origEq))
   }
 

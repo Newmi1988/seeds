@@ -54,108 +54,108 @@ resultsSeeds <- setClass(
 )
 
 
-plotResultsSeeds  <- function(x,y) {
-  
+plotResultsSeeds <- function(x, y) {
+
   seedsobj = x
 
-  if(!missing(y)){
+  if (!missing(y)) {
     annoX <- y[[1]]
     annoY <- y[[2]]
-    if(length(annoX) != length(names(seedsobj@stateEstimates[,-1]))){
+    if (length(annoX) != length(names(seedsobj@stateEstimates[, -1]))) {
       stop('Number of names has to be be equal to the number of states')
     }
-    
-    if(length(annoY) != length(names(seedsobj@outputEstimates[,-1]))){
+
+    if (length(annoY) != length(names(seedsobj@outputEstimates[, -1]))) {
       stop('Length of measurement annotations character vector has to be equal to the number of states')
     }
-    
+
   } else {
-    annoX <- names(seedsobj@stateEstimates[,-1])
-    annoY <- names(seedsobj@outputEstimates[,-1])
+    annoX <- names(seedsobj@stateEstimates[, -1])
+    annoY <- names(seedsobj@outputEstimates[, -1])
   }
-  
-  labelX <- function(ls,val) {
+
+  labelX <- function(ls, val) {
     dic <- list(annoX)
     return(dic[val])
   }
-  
-  labelY <- function(ls,val) {
+
+  labelY <- function(ls, val) {
     dic <- list(annoY)
     return(dic[val])
   }
 
-  
+
   # added formating for plotting the states in the right order
-  reformatOrder <- function(df,annoT){
+  reformatOrder <- function(df, annoT) {
     df$facet = factor(df$state, levels = as.character(unique(factor(df$state))))
-    
+
     return(df)
   }
 
-  
+
   smoothRes <- function(df) {
-    omitNan <- df[, !is.nan(colSums(df)), drop=FALSE]
-    df[,!is.nan(colSums(df))] = apply(X = omitNan, MARGIN = 2, FUN = function(x) stats::smooth(x = x))
+    omitNan <- df[, !is.nan(colSums(df)), drop = FALSE]
+    df[, !is.nan(colSums(df))] = apply(X = omitNan, MARGIN = 2, FUN = function(x) stats::smooth(x = x))
     return(df)
   }
-  
+
   line_width <- 0.75
-  
-  plot1 <- ggplot2::ggplot(reformatOrder(tidyr::gather(smoothRes(seedsobj@stateEstimates),state, value, -1)), ggplot2::aes(x=t, y=value, colour='red'))+ 
-    ggplot2::geom_line(size = 1)+
-    ggplot2::geom_line(data = reformatOrder(tidyr::gather(smoothRes(seedsobj@stateNominal),state, value, -1)), ggplot2::aes(x=t, y=value, colour='blue'), size = line_width)+ 
-    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@stateUnscertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@stateUnscertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE, na.rm = TRUE)+
-    ggplot2::labs(x= 't', y='value',color = "states")+
-    ggplot2::scale_color_manual(breaks= c("red","blue"), labels = c("estimate","nominal"), values = c("blue","red"))+
+
+  plot1 <- ggplot2::ggplot(reformatOrder(tidyr::gather(smoothRes(seedsobj@stateEstimates), state, value, -1)), ggplot2::aes(x = t, y = value, colour = 'red')) +
+    ggplot2::geom_line(size = 1) +
+    ggplot2::geom_line(data = reformatOrder(tidyr::gather(smoothRes(seedsobj@stateNominal), state, value, -1)), ggplot2::aes(x = t, y = value, colour = 'blue'), size = line_width) +
+    ggplot2::geom_errorbar(data = reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@stateUnscertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@stateUnscertainLower), state, value, -1), by = c("t", "state"))), ggplot2::aes(x = t, ymin = value.y, ymax = value.x), alpha = 0.2, inherit.aes = FALSE, na.rm = TRUE) +
+    ggplot2::labs(x = 't', y = 'value', color = "states") +
+    ggplot2::scale_color_manual(breaks = c("red", "blue"), labels = c("estimate", "nominal"), values = c("blue", "red")) +
     ggplot2::theme(legend.position = "none",
                   strip.background = ggplot2::element_blank(),
                   panel.background = ggplot2::element_blank(),
-                  panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1),
-                  panel.grid.major = ggplot2::element_blank())+
+                  panel.border = ggplot2::element_rect(colour = "black", fill = NA, size = 1),
+                  panel.grid.major = ggplot2::element_blank()) +
     ggplot2::facet_wrap(~facet, labeller = labelX)
 
-  
-  
-  plot2 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(smoothRes(seedsobj@hiddenInputEstimates),state,value,-1)), ggplot2::aes(x=t,y=value, colour="red"))+
-    ggplot2::geom_line(size = line_width)+
-    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE, na.rm = TRUE)+
+
+
+  plot2 <- ggplot2::ggplot(data = reformatOrder(tidyr::gather(smoothRes(seedsobj@hiddenInputEstimates), state, value, -1)), ggplot2::aes(x = t, y = value, colour = "red")) +
+    ggplot2::geom_line(size = line_width) +
+    ggplot2::geom_errorbar(data = reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@hiddenInputUncertainLower), state, value, -1), by = c("t", "state"))), ggplot2::aes(x = t, ymin = value.y, ymax = value.x), alpha = 0.2, inherit.aes = FALSE, na.rm = TRUE) +
     ggplot2::theme(legend.position = "none",
                   strip.background = ggplot2::element_blank(),
                   panel.background = ggplot2::element_blank(),
-                  panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1),
-                  panel.grid.major = ggplot2::element_blank())+
+                  panel.border = ggplot2::element_rect(colour = "black", fill = NA, size = 1),
+                  panel.grid.major = ggplot2::element_blank()) +
     ggplot2::facet_wrap(~facet)
-  
-  plot3 <- ggplot2::ggplot(data=reformatOrder(tidyr::gather(smoothRes(seedsobj@outputEstimates),state,value, -1)), ggplot2::aes(x=t, y=value, colour=state))+
-    ggplot2::geom_line(size = line_width)+
-    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@outputEstimatesUncUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@outputEstimatesUncLower), state, value, -1), by = c("t","state"))), ggplot2::aes(x= t, ymin = value.y, ymax=value.x), alpha=0.2, inherit.aes = FALSE, na.rm = TRUE)+
-    ggplot2::geom_errorbar(data=reformatOrder(dplyr::inner_join(tidyr::gather(seedsobj@Data, state,value, -1), tidyr::gather(seedsobj@DataError,state,value, -1), by=c("t","state"))), ggplot2::aes(x=t, ymin= value.x - value.y , ymax = value.x + value.y), inherit.aes = FALSE, na.rm = TRUE)+
-    ggplot2::geom_point(data =reformatOrder(tidyr::gather(seedsobj@Data,state,value,-1)), ggplot2::aes(x=t, y=value), colour="black") +
-    ggplot2::labs(x= 't', y='value',color = "Estimated \n measurements")+
-    ggplot2::scale_color_manual(labels = labels(seedsobj@outputEstimates[,-1])[[2]], values = rep("red",length(labels(seedsobj@outputEstimates[,-1])[[2]])))+
+
+  plot3 <- ggplot2::ggplot(data = reformatOrder(tidyr::gather(smoothRes(seedsobj@outputEstimates), state, value, -1)), ggplot2::aes(x = t, y = value, colour = state)) +
+    ggplot2::geom_line(size = line_width) +
+    ggplot2::geom_errorbar(data = reformatOrder(dplyr::inner_join(tidyr::gather(smoothRes(seedsobj@outputEstimatesUncUpper), state, value, -1), tidyr::gather(smoothRes(seedsobj@outputEstimatesUncLower), state, value, -1), by = c("t", "state"))), ggplot2::aes(x = t, ymin = value.y, ymax = value.x), alpha = 0.2, inherit.aes = FALSE, na.rm = TRUE) +
+    ggplot2::geom_errorbar(data = reformatOrder(dplyr::inner_join(tidyr::gather(seedsobj@Data, state, value, -1), tidyr::gather(seedsobj@DataError, state, value, -1), by = c("t", "state"))), ggplot2::aes(x = t, ymin = value.x - value.y, ymax = value.x + value.y), inherit.aes = FALSE, na.rm = TRUE) +
+    ggplot2::geom_point(data = reformatOrder(tidyr::gather(seedsobj@Data, state, value, -1)), ggplot2::aes(x = t, y = value), colour = "black") +
+    ggplot2::labs(x = 't', y = 'value', color = "Estimated \n measurements") +
+    ggplot2::scale_color_manual(labels = labels(seedsobj@outputEstimates[, -1])[[2]], values = rep("red", length(labels(seedsobj@outputEstimates[, -1])[[2]]))) +
     ggplot2::theme(legend.position = "none",
                   strip.background = ggplot2::element_blank(),
                   panel.background = ggplot2::element_blank(),
-                  panel.border = ggplot2::element_rect(colour = "black", fill=NA, size=1),
-                  panel.grid.major = ggplot2::element_blank())+
+                  panel.border = ggplot2::element_rect(colour = "black", fill = NA, size = 1),
+                  panel.grid.major = ggplot2::element_blank()) +
     ggplot2::facet_wrap(~facet, drop = TRUE, labeller = labelY)
-  
-  return(list(plot1,plot2, plot3))
-  
+
+  return(list(plot1, plot2, plot3))
+
 }
 
 printSeedsResults <- function(x) {
-  cat('Number of observations',ncol(x@Data)-1,'\n')
-  cat('Number of states',ncol(x@stateEstimates)-1,'\n')
+  cat('Number of observations', ncol(x@Data) - 1, '\n')
+  cat('Number of states', ncol(x@stateEstimates) - 1, '\n')
   cat('Mean deviation states: ')
-  cat(colMeans(x@DataError[,-1]),'\n\n')
+  cat(colMeans(x@DataError[, -1]), '\n\n')
   cat('Estimated states interpolated by given measuerment points\n')
-  
-  tOut <- x@Data[,1] 
-  tIn <- x@stateEstimates[,1]
-  interpStates <- apply(X = x@stateEstimates[,-1], MARGIN = 2, FUN = function(x) stats::approx(x = tIn, y = x, tOut,rule=2, method = 'linear'))
+
+  tOut <- x@Data[, 1]
+  tIn <- x@stateEstimates[, 1]
+  interpStates <- apply(X = x@stateEstimates[, -1], MARGIN = 2, FUN = function(x) stats::approx(x = tIn, y = x, tOut, rule = 2, method = 'linear'))
   interpStatesDf <- do.call(cbind, lapply(interpStates, FUN = function(x) cbind(x$y)))
-  interpStatesDf = cbind(tOut,interpStatesDf)
+  interpStatesDf = cbind(tOut, interpStatesDf)
   colnames(interpStatesDf) <- colnames(x@stateEstimates)
   print(interpStatesDf)
 }
@@ -185,19 +185,16 @@ printSeedsResults <- function(x) {
 #             results <- x[[length(x)]]
 #             printSeedsResults(results)
 #           }
-          
-          
-          # )
+
+
+# )
 
 setMethod(f = 'print',
           signature = 'resultsSeeds',
-          definition = function(x) 
-          {
+          definition = function(x) {
             printSeedsResults(x)
           }
-          
-          
-          )
+)
 
 
 
@@ -219,17 +216,16 @@ setMethod(f = 'print',
 
 #' @rdname plot-seeds
 setMethod(f = "plot",
-          signature = c(x="resultsSeeds",y="missing"),
-          definition = function(x,y)
-          {
-            
-            plotList <- plotResultsSeeds(x,y)
-            
+          signature = c(x = "resultsSeeds", y = "missing"),
+          definition = function(x, y) {
+
+            plotList <- plotResultsSeeds(x, y)
+
             return(plotList)
           }
 )
 
- 
+
 
 
 #' Create annotated plot
@@ -241,16 +237,15 @@ setMethod(f = "plot",
 #' @param measAnno a character vector describing the names of the measurements
 #' 
 #' @export
-setGeneric(name = "plotAnno", function(x,stateAnno,measAnno) standardGeneric("plotAnno"))
+setGeneric(name = "plotAnno", function(x, stateAnno, measAnno) standardGeneric("plotAnno"))
 
 #' @rdname plotAnno
 setMethod(f = "plotAnno",
           signature = "resultsSeeds",
-          definition = function(x,stateAnno,measAnno)
-          {
-            y <- list(stateAnno,measAnno)
-            plotList <- plotResultsSeeds(x,y)
-            
+          definition = function(x, stateAnno, measAnno) {
+            y <- list(stateAnno, measAnno)
+            plotList <- plotResultsSeeds(x, y)
+
             return(plotList)
           }
 )
@@ -258,12 +253,11 @@ setMethod(f = "plotAnno",
 #' @rdname plotAnno
 setMethod(f = "plotAnno",
           signature = "list",
-          definition = function(x,stateAnno,measAnno)
-          {
+          definition = function(x, stateAnno, measAnno) {
             x <- x[[length(x)]]
-            y <- list(stateAnno,measAnno)
-            plotList <- plotResultsSeeds(x,y)
-            
+            y <- list(stateAnno, measAnno)
+            plotList <- plotResultsSeeds(x, y)
+
             return(plotList)
           }
 )
@@ -277,27 +271,24 @@ setMethod(f = "plotAnno",
 #'
 #' @export
 
-setGeneric(name="hiddenInputs",
-           def = function(resultsSeeds, ind)
-           {
-             standardGeneric("hiddenInputs")
+setGeneric(name = "hiddenInputs",
+           def = function(resultsSeeds, ind) {
+            standardGeneric("hiddenInputs")
            }
 )
 
 #' @rdname hiddenInputs
 setMethod(f = "hiddenInputs",
-          signature = c("list","numeric"),
-          definition = function(resultsSeeds,ind)
-          {
+          signature = c("list", "numeric"),
+          definition = function(resultsSeeds, ind) {
             return(resultsSeeds[[ind]]@hiddenInputEstimates)
           }
 )
 
 #' @rdname hiddenInputs
 setMethod(f = "hiddenInputs",
-          signature =  c("list", "missing"),
-          definition = function(resultsSeeds, ind)
-          {
+          signature = c("list", "missing"),
+          definition = function(resultsSeeds, ind) {
             ind <- length(resultsSeeds)
             return(resultsSeeds[[ind]]@hiddenInputEstimates)
           }
@@ -305,9 +296,8 @@ setMethod(f = "hiddenInputs",
 
 #' @rdname hiddenInputs
 setMethod(f = "hiddenInputs",
-          signature = c("resultsSeeds","missing"),
-          definition = function(resultsSeeds,ind)
-          {
+          signature = c("resultsSeeds", "missing"),
+          definition = function(resultsSeeds, ind) {
             return(resultsSeeds@hiddenInputEstimates)
           }
 )
@@ -319,27 +309,24 @@ setMethod(f = "hiddenInputs",
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
 #' @export
-setGeneric(name="estiStates",
-           def = function(resultsSeeds, ind)
-           {
-             standardGeneric("estiStates")
+setGeneric(name = "estiStates",
+           def = function(resultsSeeds, ind) {
+            standardGeneric("estiStates")
            }
 )
 
 #' @rdname estiStates
 setMethod(f = "estiStates",
-          signature = c("list","numeric"),
-          definition = function(resultsSeeds,ind)
-          {
+          signature = c("list", "numeric"),
+          definition = function(resultsSeeds, ind) {
             return(resultsSeeds[[ind]]@stateEstimates)
           }
 )
 
 #' @rdname estiStates
 setMethod(f = "estiStates",
-          signature =  c("list", "missing"),
-          definition = function(resultsSeeds, ind)
-          {
+          signature = c("list", "missing"),
+          definition = function(resultsSeeds, ind) {
             ind <- length(resultsSeeds)
             return(resultsSeeds[[ind]]@stateEstimates)
           }
@@ -347,9 +334,8 @@ setMethod(f = "estiStates",
 
 #' @rdname estiStates
 setMethod(f = "estiStates",
-          signature =  c("resultsSeeds", "missing"),
-          definition = function(resultsSeeds, ind)
-          {
+          signature = c("resultsSeeds", "missing"),
+          definition = function(resultsSeeds, ind) {
             return(resultsSeeds@stateEstimates)
           }
 )
@@ -361,27 +347,24 @@ setMethod(f = "estiStates",
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
 #' @export
-setGeneric(name="outputEstimates",
-           def = function(resultsSeeds, ind)
-           {
-             standardGeneric("outputEstimates")
+setGeneric(name = "outputEstimates",
+           def = function(resultsSeeds, ind) {
+            standardGeneric("outputEstimates")
            }
 )
 
 #' @rdname outputEstimates
 setMethod(f = "outputEstimates",
-          signature = c("list","numeric"),
-          definition = function(resultsSeeds,ind)
-          {
+          signature = c("list", "numeric"),
+          definition = function(resultsSeeds, ind) {
             return(resultsSeeds[[ind]]@outputEstimates)
           }
 )
 
 #' @rdname outputEstimates
 setMethod(f = "outputEstimates",
-          signature =  c("list", "missing"),
-          definition = function(resultsSeeds, ind)
-          {
+          signature = c("list", "missing"),
+          definition = function(resultsSeeds, ind) {
             ind <- length(resultsSeeds)
             return(resultsSeeds[[ind]]@outputEstimates)
           }
@@ -389,9 +372,8 @@ setMethod(f = "outputEstimates",
 
 #' @rdname outputEstimates
 setMethod(f = "outputEstimates",
-          signature =  c("resultsSeeds", "missing"),
-          definition = function(resultsSeeds, ind)
-          {
+          signature = c("resultsSeeds", "missing"),
+          definition = function(resultsSeeds, ind) {
             return(resultsSeeds@outputEstimates)
           }
 )
@@ -404,28 +386,26 @@ setMethod(f = "outputEstimates",
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
 #' @export
-setGeneric(name="confidenceBands",
-           def = function(resultsSeeds, slot, ind)
-           {
-             standardGeneric("confidenceBands")
+setGeneric(name = "confidenceBands",
+           def = function(resultsSeeds, slot, ind) {
+            standardGeneric("confidenceBands")
            }
 )
 
 #' @rdname confidenceBands
 setMethod(f = "confidenceBands",
-          signature =  c("list","character","numeric"),
-          definition = function(resultsSeeds, slot, ind)
-          {
+          signature = c("list", "character", "numeric"),
+          definition = function(resultsSeeds, slot, ind) {
             res <- list()
-            if(slot =="states") {
+            if (slot == "states") {
               res$lower <- resultsSeeds[[ind]]@stateUnscertainLower
               res$upper <- resultsSeeds[[ind]]@stateUnscertainUpper
             }
-            if(slot == "hiddenInputs"){
+            if (slot == "hiddenInputs") {
               res$lower <- resultsSeeds[[ind]]@hiddenInputUncertainLower
               res$upper <- resultsSeeds[[ind]]@hiddenInputUncertainUpper
             }
-            if(slot == "output"){
+            if (slot == "output") {
               res$lower <- resultsSeeds[[ind]]@outputEstimatesUncLower
               res$upper <- resultsSeeds[[ind]]@outputEstimatesUncUpper
             }
@@ -435,20 +415,19 @@ setMethod(f = "confidenceBands",
 
 #' @rdname confidenceBands
 setMethod(f = "confidenceBands",
-          signature =  c("list","character","missing"),
-          definition = function(resultsSeeds, slot, ind)
-          {
+          signature = c("list", "character", "missing"),
+          definition = function(resultsSeeds, slot, ind) {
             ind <- length(resultsSeeds)
             res <- list()
-            if(slot =="states") {
+            if (slot == "states") {
               res$lower <- resultsSeeds[[ind]]@stateUnscertainLower
               res$upper <- resultsSeeds[[ind]]@stateUnscertainUpper
             }
-            if(slot == "hiddenInputs"){
+            if (slot == "hiddenInputs") {
               res$lower <- resultsSeeds[[ind]]@hiddenInputUncertainLower
               res$upper <- resultsSeeds[[ind]]@hiddenInputUncertainUpper
             }
-            if(slot == "output"){
+            if (slot == "output") {
               res$lower <- resultsSeeds[[ind]]@outputEstimatesUncLower
               res$upper <- resultsSeeds[[ind]]@outputEstimatesUncUpper
             }
@@ -458,20 +437,19 @@ setMethod(f = "confidenceBands",
 
 #' @rdname confidenceBands
 setMethod(f = "confidenceBands",
-          signature =  c("resultsSeeds","character","missing"),
-          definition = function(resultsSeeds, slot, ind)
-          {
+          signature = c("resultsSeeds", "character", "missing"),
+          definition = function(resultsSeeds, slot, ind) {
             ind <- length(resultsSeeds)
             res <- list()
-            if(slot =="states") {
+            if (slot == "states") {
               res$lower <- resultsSeeds@stateUnscertainLower
               res$upper <- resultsSeeds@stateUnscertainUpper
             }
-            if(slot == "hiddenInputs"){
+            if (slot == "hiddenInputs") {
               res$lower <- resultsSeeds@hiddenInputUncertainLower
               res$upper <- resultsSeeds@hiddenInputUncertainUpper
             }
-            if(slot == "output"){
+            if (slot == "output") {
               res$lower <- resultsSeeds@outputEstimatesUncLower
               res$upper <- resultsSeeds@outputEstimatesUncUpper
             }
@@ -481,33 +459,33 @@ setMethod(f = "confidenceBands",
 
 #### summary #####
 summary.resultsSeeds <- function(resultsSeeds) {
-  
+
   states <- list()
   hidInputs <- list()
-  
-  states$min <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) min(x))
-  hidInputs$min <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) min(x))
-  
-  states$q1 <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) stats::quantile(x, 0.25))
-  hidInputs$q1 <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) stats::quantile(x, 0.25))
-  
-  states$mean <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) mean(x))
-  hidInputs$mean <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) mean(x))
-  
-  states$median <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) stats::median(x))
-  hidInputs$median <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) stats::median(x))
-  
-  states$q3 <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) stats::quantile(x, 0.75))
-  hidInputs$q3 <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) stats::quantile(x, 0.75))
-  
-  states$max <- apply(X = resultsSeeds@stateEstimates ,MARGIN = 2, FUN = function(x) max(x))
-  hidInputs$max <- apply(X = resultsSeeds@hiddenInputEstimates ,MARGIN = 2, FUN = function(x) max(x))
-  
+
+  states$min <- apply(X = resultsSeeds@stateEstimates, MARGIN = 2, FUN = function(x) min(x))
+  hidInputs$min <- apply(X = resultsSeeds@hiddenInputEstimates, MARGIN = 2, FUN = function(x) min(x))
+
+  states$q1 <- apply(X = resultsSeeds@stateEstimates, MARGIN = 2, FUN = function(x) stats::quantile(x, 0.25))
+  hidInputs$q1 <- apply(X = resultsSeeds@hiddenInputEstimates, MARGIN = 2, FUN = function(x) stats::quantile(x, 0.25))
+
+  states$mean <- apply(X = resultsSeeds@stateEstimates, MARGIN = 2, FUN = function(x) mean(x))
+  hidInputs$mean <- apply(X = resultsSeeds@hiddenInputEstimates, MARGIN = 2, FUN = function(x) mean(x))
+
+  states$median <- apply(X = resultsSeeds@stateEstimates, MARGIN = 2, FUN = function(x) stats::median(x))
+  hidInputs$median <- apply(X = resultsSeeds@hiddenInputEstimates, MARGIN = 2, FUN = function(x) stats::median(x))
+
+  states$q3 <- apply(X = resultsSeeds@stateEstimates, MARGIN = 2, FUN = function(x) stats::quantile(x, 0.75))
+  hidInputs$q3 <- apply(X = resultsSeeds@hiddenInputEstimates, MARGIN = 2, FUN = function(x) stats::quantile(x, 0.75))
+
+  states$max <- apply(X = resultsSeeds@stateEstimates, MARGIN = 2, FUN = function(x) max(x))
+  hidInputs$max <- apply(X = resultsSeeds@hiddenInputEstimates, MARGIN = 2, FUN = function(x) max(x))
+
   states <- do.call(what = rbind, states)
   row.names(states) <- c('Min.', '1st Qu.', 'Median', 'Mean', '3rd Qu.', 'Max')
   hiddenInputs <- do.call(what = rbind, hidInputs)
   row.names(hiddenInputs) <- c('Min.', '1st Qu.', 'Median', 'Mean', '3rd Qu.', 'Max')
-  
-  return(list("est. states"=states, "est. hiddenInputs" = hiddenInputs))
+
+  return(list("est. states" = states, "est. hiddenInputs" = hiddenInputs))
 }
 

@@ -17,7 +17,7 @@
 #' @export odeEquations
 #' @exportClass odeEquations
 odeEquations <- setClass(
-  #name of Class
+#name of Class
   "odeEquations",
   slots = c(
     modelStr = "character",
@@ -39,11 +39,11 @@ odeEquations <- setClass(
     modelStr = character(0),
     measureStr = character(0),
     origEq = character(0),
-    measureFunction =  character(0),
+    measureFunction = character(0),
     costateEq = character(0),
     costFunction = character(0),
-    JhT = matrix(list(),nrow = 2, ncol = 2),
-    jacobian = matrix(list(),nrow = 2, ncol = 2),
+    JhT = matrix(list(), nrow = 2, ncol = 2),
+    jacobian = matrix(list(), nrow = 2, ncol = 2),
     costFunction = character(0),
     hamiltonian = character(0),
     dynamicElasticNet = FALSE,
@@ -56,73 +56,65 @@ odeEquations <- setClass(
   }
 )
 
-setMethod('initialize', "odeEquations", function(.Object,...){
-            .Object <- callNextMethod()
-            return(.Object)
-          })
+setMethod('initialize', "odeEquations", function(.Object, ...) {
+  .Object <- callNextMethod()
+  return(.Object)
+})
 
-setGeneric(name="setCostateEq",
-           def = function(theObject,costate)
-           {
-             standardGeneric("setCostateEq")
+setGeneric(name = "setCostateEq",
+           def = function(theObject, costate) {
+            standardGeneric("setCostateEq")
            }
 )
 
 setMethod(f = "setCostateEq",
           signature = "odeEquations",
-          definition = function(theObject,costate)
-          {
+          definition = function(theObject, costate) {
             theObject@costateEq <- costate
 
             return(theObject)
           }
 )
 
-setGeneric(name="setOrigEq",
-           def = function(theObject,origEq)
-           {
-             standardGeneric("setOrigEq")
+setGeneric(name = "setOrigEq",
+           def = function(theObject, origEq) {
+            standardGeneric("setOrigEq")
            }
 )
 
 setMethod(f = "setOrigEq",
           signature = "odeEquations",
-          definition = function(theObject,origEq)
-          {
+          definition = function(theObject, origEq) {
             theObject@origEq <- origEq
 
             return(theObject)
           }
 )
 
-setGeneric(name="setJacobian",
-           def = function(theObject,jacobian)
-           {
-             standardGeneric("setJacobian")
+setGeneric(name = "setJacobian",
+           def = function(theObject, jacobian) {
+            standardGeneric("setJacobian")
            }
 )
 
 setMethod(f = "setJacobian",
           signature = "odeEquations",
-          definition = function(theObject,jacobian)
-          {
+          definition = function(theObject, jacobian) {
             theObject@jacobian <- jacobian
 
             return(theObject)
           }
 )
 
-setGeneric(name="setHamiltonian",
-           def = function(theObject,hamiltonian)
-           {
-             standardGeneric("setHamiltonian")
+setGeneric(name = "setHamiltonian",
+           def = function(theObject, hamiltonian) {
+            standardGeneric("setHamiltonian")
            }
 )
 
 setMethod(f = "setHamiltonian",
           signature = "odeEquations",
-          definition = function(theObject,hamiltonian)
-          {
+          definition = function(theObject, hamiltonian) {
             theObject@hamiltonian <- hamiltonian
 
             return(theObject)
@@ -131,14 +123,13 @@ setMethod(f = "setHamiltonian",
 
 setGeneric(name = "calculateCostate",
            def = function(theObject) {
-             standardGeneric("calculateCostate")
+            standardGeneric("calculateCostate")
            }
 )
 
 setMethod(f = "calculateCostate",
           signature = "odeEquations",
-          definition = function(theObject)
-          {
+          definition = function(theObject) {
             tempList <- symbolicDiff(theObject)
             theObject@costateEq <- tempList$costate
             theObject@JhT <- tempList$JhT
@@ -150,16 +141,15 @@ setMethod(f = "calculateCostate",
 )
 
 setGeneric(name = "createModelEqClass",
-           def = function(theObject,theModel) {
-             standardGeneric("createModelEqClass")
+           def = function(theObject, theModel) {
+            standardGeneric("createModelEqClass")
            }
 )
 
 setMethod(f = "createModelEqClass",
           signature = "odeEquations",
-          definition = function(theObject,theModel)
-          {
-            theObject@modelStr <- deparse(theModel,width.cutoff = 500)
+          definition = function(theObject, theModel) {
+            theObject@modelStr <- deparse(theModel, width.cutoff = 500)
             tempList <- getEquations(theModel)
             theObject@origEq <- tempList$strM
             theObject@parameters <- tempList$strP
@@ -170,15 +160,14 @@ setMethod(f = "createModelEqClass",
 )
 
 setGeneric(name = "setCostFunc",
-           def = function(theObject,costFunction){
-             standardGeneric("setCostFunc")
+           def = function(theObject, costFunction) {
+            standardGeneric("setCostFunc")
            }
 )
 
 setMethod(f = "setCostFunc",
           signature = "odeEquations",
-          definition = function(theObject,costFunction)
-          {
+          definition = function(theObject, costFunction) {
             theObject@costFunction <- getEquations(costFunction)$strM
             theObject@dynamicElasticNet <- FALSE
 
@@ -187,16 +176,15 @@ setMethod(f = "setCostFunc",
 )
 
 setGeneric(name = "setMeassureFunc",
-           def = function(theObject,meassureFunc) {
-             standardGeneric("setMeassureFunc")
+           def = function(theObject, meassureFunc) {
+            standardGeneric("setMeassureFunc")
            }
 )
 
 setMethod(f = "setMeassureFunc",
           signature = "odeEquations",
-          definition = function(theObject,meassureFunc)
-          {
-            theObject@measureStr <- deparse(meassureFunc,width.cutoff = 500)
+          definition = function(theObject, meassureFunc) {
+            theObject@measureStr <- deparse(meassureFunc, width.cutoff = 500)
             theObject@measureFunction <- getEquations(meassureFunc)$strM
             return(theObject)
           }
@@ -204,14 +192,13 @@ setMethod(f = "setMeassureFunc",
 
 setGeneric(name = "isDynElaNet",
            def = function(theObject) {
-             standardGeneric("isDynElaNet")
+            standardGeneric("isDynElaNet")
            }
 )
 
 setMethod(f = "isDynElaNet",
           signature = "odeEquations",
-          definition = function(theObject)
-          {
+          definition = function(theObject) {
             theObject@dynamicElasticNet <- TRUE
             return(theObject)
           }
