@@ -769,7 +769,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
 
     AUCs <- sapply(X = interpAbsW, FUN = function(x) pracma::trapzfun(f = x, a = t0, b = tf))
 
-    cat(sprintf("Iteration %3d: \t J(w)= %006.4f  \t change J(w): %6.2f%%  \t alpha = %10.5f \n", i, J[i+1], (1 - abs(J[i + 1] / J[i])) * 100, alpha))
+    cat(sprintf("Iteration %3d: \t J(w)= %006.4f   change J(w): %6.2f%%  \t alpha = %10.5f \n", i, J[i+1], (1 - abs(J[i + 1] / J[i])) * 100, alpha))
 
     if (plotEsti == TRUE) {
       showEstimates(measureTimes, AUCs, input, alpha2, J, yNominal, SD)

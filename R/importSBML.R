@@ -3,14 +3,18 @@
 #'  A simple function for importing sbml models from a extensive markup language file.
 #'  
 #' @param  filename name of the import file. Should be located in the working directory.
-#' @param  times     timestep at which the function should be evaluated
-#' @param  y measurements of the model
+#' @param  times    timestep at which the function should be evaluated
+#' @param  meas     measurements have to be given in order to analyse the data
 #'  
 #' @return returns a odeModel-Object
 #'
 #' @export importSBML
 #'
-importSBML <- function(filename, times, y) {
+importSBML <- function(filename, times, meas_input) {
+  
+  if(missing(meas_input)) {
+    stop("Measurements have to be specified in order for the model to work.")
+  }
 
   if(!require('rsbml',character.only = TRUE)) {
     cat('Please install rsbml from the Bioconducture reposotory')
@@ -44,7 +48,6 @@ importSBML <- function(filename, times, y) {
     }
 
     react <- combieReact(reacList,stoichM)
-    
     meas <- c()
     if ( length(rules) != 0) {
       for (i in 1:length(rules)) {
@@ -62,19 +65,18 @@ importSBML <- function(filename, times, y) {
         reactions = unlist(lapply(X = reactions,FUN = function(x) gsub(pattern = regState, replacement = xStates[i], x = x)))
         if (length(measureRules) != 0) {
           measureRules = unlist(lapply(X = measureRules,FUN = function(x) gsub(pattern = regState, replacement = xStates[i], x = x)))
+        } else {
+          measureRules = paste0('x',1:length(reactions))
         }
       }
-      if ( length(measureRules) != 0 ) {
-        res = list('reac' = reactions, 'meas'= measureRules) 
-      } else {
-        res = list('reac' = reactions)
-      }
+      res = list('reac' = reactions, 'meas'= measureRules) 
       return(res)
     }
     
     
     reactNames = rownames(stoichM[rowSums(stoichM)!=0,])
     eqList <- reformatEqs(reactions = react, states = reactNames, measureRules= meas)
+    eqFuncList = writeDummy(eqList)
     
     # format the parameter and initial vector into names vectors
     if ( length(parameter) != 0 ) {
@@ -109,11 +111,36 @@ importSBML <- function(filename, times, y) {
     }
    
     if ( length(parameter) != 0) {
+      
       namedParaVec = initToPara(model, namedParaVec)
-    } 
+      
+    } else {
+      
+      reactionsList <- model@model@reactions
+      reaction_anno <- c()
+      for (i in 1:length(reactionsList)){
+        reaction <- reactionsList[[i]]
+        
+        parametersList <- reaction@kineticLaw@parameters
+        
+        values_vec <- c()
+        names_vec <- c()
+        for ( j in 1:length(parametersList)) {
+          values_vec[j] = parametersList[[j]]@value
+          names_vec[j] = parametersList[[j]]@id
+          
+        }
+        names(values_vec) <- names_vec
+        reaction_anno <- append(reaction_anno, values_vec)
+        
+      }
+      parameters_vec <- reaction_anno[order(names(reaction_anno))]
+      namedParaVec <- parameters_vec[!duplicated(names(parameters_vec))]
+      
+    }
+    
     
     initVec <- model@model@species
-    
     if( length(initVec) != 0) {
     
       v <- c()
@@ -122,13 +149,10 @@ importSBML <- function(filename, times, y) {
         v[i] <- initVec[[i]]@initialAmount
       }
       initState <- v
-      # names(initState) <- n
       initState = initState[rowSums(stoichM)!=0] 
-      eqFuncList = writeDummy(eqList)
     } 
-      
-      
-    model <- odeModel(func = eqFuncList$reac, parms = namedParaVec, measFunc = eqFuncList$meas, y = initState, times = times, meas = y)
+    
+    model <- odeModel(func = eqFuncList$reac, parms = namedParaVec, measFunc = eqFuncList$meas, y = initState, times = times, meas = meas_input)
   }
   unloadNamespace('rsbml')
   
