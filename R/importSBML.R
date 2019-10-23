@@ -22,7 +22,6 @@ importSBML <- function(filename, times, y) {
     
     states <- model@model@species
     parameter <- model@model@parameters
-    # print(parameter)
     
     # measurements
     rules <- model@model@rules
@@ -114,7 +113,6 @@ importSBML <- function(filename, times, y) {
     } 
     
     initVec <- model@model@species
-    print(length(initVec))
     
     if( length(initVec) != 0) {
     
@@ -126,16 +124,9 @@ importSBML <- function(filename, times, y) {
       initState <- v
       # names(initState) <- n
       initState = initState[rowSums(stoichM)!=0] 
-      print(eqList)
       eqFuncList = writeDummy(eqList)
-    } else {
-      test <- model@model@reactions[[1]]
-      split <- strsplit(split = 'where')
+    } 
       
-      print(split)
-    }
-      
-    # print(model@model@reactions)
       
     model <- odeModel(func = eqFuncList$reac, parms = namedParaVec, measFunc = eqFuncList$meas, y = initState, times = times, meas = y)
   }
