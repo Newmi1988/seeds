@@ -76,29 +76,22 @@ createCFile <- function(parameters, inputs, Eq, bden, nnStates) {
   formatIndeces <- function(eqC) {
     eqC = gsub(pattern = "(\\[[0-9]*)", replacement = "\\1 -1", eqC)
     eqC = unlist(lapply(X = eqC, FUN = Deriv::Simplify))
-    eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([a-z]+[0-9])+", replacement = "pow(\\1,\\2)", eqC)
+    eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([a-z]+[0-9]+)", replacement = "pow(\\1,\\2)", eqC)
     eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([0-9]+)+", replacement = "pow(\\1,\\2)", eqC)
     eqC = gsub(pattern = "(x*\\[[0-9]*\\])\\^([a-z]+)", replacement = "pow(\\1,\\2)", eqC)
-    eqC = gsub(pattern = "([a-zA-Z]*[1-9]*)\\^([a-z]+[0-9])+", replacement = "pow(\\1,\\2)", eqC)
+    eqC = gsub(pattern = "([a-zA-Z]*[1-9]*)\\^([a-z]+[0-9]+)", replacement = "pow(\\1,\\2)", eqC)
     # add cases for exponent
     eqC = gsub(pattern = "exp\\((x\\[[0-9]*\\])\\)\\^([a-z]+[0-9])+", replacement = "pow(exp(\\1),\\2)", eqC)
     eqC = gsub(pattern = "exp\\((x\\[[0-9]*\\])\\)\\^([0-9]+)+", replacement = "pow(exp(\\1),\\2)", eqC)
     eqC = gsub(pattern = "exp\\((x\\[[0-9]*\\])\\)\\^([a-z]+)", replacement = "pow(exp(\\1),\\2)", eqC)
 
-    # eqC = gsub(pattern = "(t)([^a-z])", replacement = "*\\1\\2", eqC)
     eqC = gsub("([\\+\\-\\*/])", " \\1 ", eqC)
-    # eqC = gsub("\\s(t)"," *\\1", eqC)
-    # eqC = gsub("[^a-z1-3](t)[^a-z1-3]", "(*\\1)", eqC)
-    eqC = gsub("([^a-z1-9]*)(t)([^a-z1-9])", "\\1*\\2\\3", eqC)
+    eqC = gsub("([^a-z1-9\\s]+)(t)([^a-zA-Z1-9]+)", "\\1*\\2\\3", eqC)
 
     return(eqC)
   }
 
   if (length(Eq@cond) > 0) {
-    # correct the indeces
-    # test <- lapply(X = Eq@cond, FUN = function(x) gsub(pattern = "(\\[[0-9]*)", replacement = "\\1 -1", x))
-    # test = lapply(X = test, FUN = Deriv::Simplify)
-
     reformCond <- function(x) {
       Str <- c(x[1], paste0(x[-1]), '}\n')
       return(Str)
@@ -128,11 +121,10 @@ createCFile <- function(parameters, inputs, Eq, bden, nnStates) {
     conditions = paste0('\t', conditions)
 
   }
+  
+  eqC <- gsub(pattern = "^(d*[x])([0-9]+)", replacement = "\\1[\\2]", Eq@origEq)
+  eqC <- gsub(pattern = "([^a-zA-Z0-9]d*[x])([0-9]+)", replacement = "\\1[\\2]", eqC)
 
-
-  eqC <- gsub(pattern = "(d*[x])([0-9]*)", replacement = "\\1[\\2]", Eq@origEq)
-
-  #### log transf cond####
   eqC = formatIndeces(eqC)
   eqC = paste0("\t", eqC, "+w", 1:length(eqC), ";")
 
@@ -141,6 +133,8 @@ createCFile <- function(parameters, inputs, Eq, bden, nnStates) {
   } else {
     StringC = append(StringC, values = c(startStr, eqC, '}'))
   }
+  
+  # print(StringC)
 
   if (sum(nnStates) > 0) {
     rootFuncStr = createCLangRoot(nnStates)

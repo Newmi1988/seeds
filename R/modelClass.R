@@ -58,7 +58,6 @@ odeModel <- setClass(
     # check inputs of matrix slot
 
     if (sum(object@times) == 0) {
-      # print(sum(times))
       return("You have to specify the times on which the equation should be evaluated. A solution can only be calculated if the a intervall or specific timesteps are given. Set the 'times'' parameter.")
     }
 
@@ -72,9 +71,6 @@ odeModel <- setClass(
         }
       }
     }
-    # }
-
-
 
     return(TRUE)
   }
@@ -369,8 +365,6 @@ setMethod(f = 'nominalSol',
               wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
               wList <- lapply(wSplit, FUN = function(x) cbind(times, x))
               forcings <- c(uList, wList)
-
-
 
               if (sum(odeModel@nnStates) == 0) {
 

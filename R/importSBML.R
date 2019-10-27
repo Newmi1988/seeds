@@ -13,7 +13,7 @@
 importSBML <- function(filename, times, meas_input) {
 
   if (missing(meas_input)) {
-    stop("Measurements have to be specified in order for the model to work.")
+    warning("No measurements given. Returned model can't directly be used with the algorithms. Use method 'setMeas' for adding them to the model.")
   }
 
   if (!require('rsbml', character.only = TRUE)) {
@@ -66,6 +66,7 @@ importSBML <- function(filename, times, meas_input) {
           measureRules = unlist(lapply(X = measureRules, FUN = function(x) gsub(pattern = regState, replacement = xStates[i], x = x)))
         } else {
           measureRules = paste0('x', 1:length(reactions))
+          warning('No measurement function found. Set it yourself. Model will use the identity of every state.')
         }
       }
       res = list('reac' = reactions, 'meas' = measureRules)
@@ -73,7 +74,7 @@ importSBML <- function(filename, times, meas_input) {
     }
 
 
-    reactNames = rownames(stoichM[rowSums(stoichM) != 0,])
+    reactNames = rownames(stoichM[rowSums(abs(stoichM)) != 0,])
     eqList <- reformatEqs(reactions = react, states = reactNames, measureRules = meas)
     eqFuncList = writeDummy(eqList)
 
@@ -131,7 +132,19 @@ importSBML <- function(filename, times, meas_input) {
       }
       parameters_vec <- reaction_anno[order(names(reaction_anno))]
       namedParaVec <- parameters_vec[!duplicated(names(parameters_vec))]
-
+      
+      # add constant values
+      constants <- model@model@species
+      const_idx <- which(rowSums(abs(stoichM)) == 0)
+      vec <- c()
+      names <- c()
+      for (i in 1:length(const_idx)) {
+        names[i] = tolower(constants[[const_idx[i]]]@id)
+        vec[i] = constants[[const_idx[i]]]@initialAmount
+      }
+      names(vec) <- names
+      namedParaVec <- append(namedParaVec,vec)
+      
     }
 
 
@@ -144,10 +157,15 @@ importSBML <- function(filename, times, meas_input) {
         v[i] <- initVec[[i]]@initialAmount
       }
       initState <- v
-      initState = initState[rowSums(stoichM) != 0]
+      initState = initState[rowSums(abs(stoichM)) != 0]
     }
-
-    model <- odeModel(func = eqFuncList$reac, parms = namedParaVec, measFunc = eqFuncList$meas, y = initState, times = times, meas = meas_input)
+    
+    
+    if (missing(meas_input)) {
+      model <- odeModel(func = eqFuncList$reac, parms = namedParaVec, measFunc = eqFuncList$meas, y = initState, times = times)
+    } else {
+      model <- odeModel(func = eqFuncList$reac, parms = namedParaVec, measFunc = eqFuncList$meas, y = initState, times = times, meas = meas_input)
+    }
   }
   unloadNamespace('rsbml')
 
