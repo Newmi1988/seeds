@@ -9,6 +9,7 @@
 #' The numerical solutions are calculated using the \pkg{deSolve} - package. 
 #' 
 #' @slot func A funtion containing the ode-equations of the model. For syntax look at the given examples of the \pkg{deSolve} package.
+#' @slot times timesteps on which the model should be evaluated
 #' @slot parms the parameters of the model
 #' @slot input matrix containing the inputs with the time points
 #' @slot measFunc function that converts the output of the ode solution
@@ -17,6 +18,8 @@
 #' @slot sd optional standard deviations of the measurements, is used by the algorithms as weights in the costfunction
 #' @slot custom customized link function
 #' @slot nnStates bit vector that indicates if states should be observed by the root function
+#' @slot nnTollerance tollerance at which a function is seen as zero
+#' @slot resetValue value a state should be set to by an event
 #' 
 #' @export odeModel
 #' @exportClass odeModel
@@ -415,10 +418,10 @@ setMethod(f = 'nominalSol',
                 myRoot <- eval(parse(text = createRoot(rootStates = odeModel@nnStates)))
                 myEvent <- eval(parse(text = createEvent(rootStates = odeModel@nnStates, odeModel@nnTollerance)))
 
-                resOde <- deSolve::ode(y = x0,
+                resOde <- deSolve::ode(y = odeModel@y,
                                         times = time,
                                         func = hiddenInputState,
-                                        parms = parameters,
+                                        parms = odeModel@params,
                                         input = input,
                                         events = list(func = myEvent, root = TRUE),
                                         rootfun = myRoot)

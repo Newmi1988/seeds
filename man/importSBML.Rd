@@ -4,14 +4,14 @@
 \alias{importSBML}
 \title{Import SBML Models using the Bioconductor package 'rsbml'}
 \usage{
-importSBML(filename, times, meas)
+importSBML(filename, times, meas_input)
 }
 \arguments{
 \item{filename}{name of the import file. Should be located in the working directory.}
 
 \item{times}{timestep at which the function should be evaluated}
 
-\item{meas}{measurements}
+\item{meas_input}{measurements have to be given in order to analyse the data}
 }
 \value{
 returns a odeModel-Object

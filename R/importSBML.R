@@ -4,7 +4,7 @@
 #'  
 #' @param  filename name of the import file. Should be located in the working directory.
 #' @param  times    timestep at which the function should be evaluated
-#' @param  meas     measurements have to be given in order to analyse the data
+#' @param  meas_input  measurements have to be given in order to analyse the data
 #'  
 #' @return returns a odeModel-Object
 #'
@@ -15,8 +15,8 @@ importSBML <- function(filename, times, meas_input) {
   if (missing(meas_input)) {
     warning("No measurements given. Returned model can't directly be used with the algorithms. Use method 'setMeas' for adding them to the model.")
   }
-
-  if (!require('rsbml', character.only = TRUE)) {
+  
+  if (!base::requireNamespace('rsbml', character.only = TRUE)) {
     cat('Please install rsbml from the Bioconducture reposotory')
   } else {
     requireNamespace("rsbml")

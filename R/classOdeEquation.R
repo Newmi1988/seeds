@@ -12,7 +12,7 @@
 #' @slot dynamicElasticNet boolean that indicates if the system equation should be calculated for the dynamic elastic net
 #' @slot parameters parameters of the model
 #' @slot cond a slot to save conditionals in equations, which are used for formating the c files
-#' @slot logInd a slot containing a vector which indicates state variables that should be log-transformed
+#' @slot nnStates vector indicating which states should have a non negative solution
 #' 
 #' @export odeEquations
 #' @exportClass odeEquations

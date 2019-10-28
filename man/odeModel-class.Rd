@@ -18,6 +18,8 @@ The numerical solutions are calculated using the \pkg{deSolve} - package.
 \describe{
 \item{\code{func}}{A funtion containing the ode-equations of the model. For syntax look at the given examples of the \pkg{deSolve} package.}
 
+\item{\code{times}}{timesteps on which the model should be evaluated}
+
 \item{\code{parms}}{the parameters of the model}
 
 \item{\code{input}}{matrix containing the inputs with the time points}
@@ -33,5 +35,9 @@ The numerical solutions are calculated using the \pkg{deSolve} - package.
 \item{\code{custom}}{customized link function}
 
 \item{\code{nnStates}}{bit vector that indicates if states should be observed by the root function}
+
+\item{\code{nnTollerance}}{tollerance at which a function is seen as zero}
+
+\item{\code{resetValue}}{value a state should be set to by an event}
 }}
 

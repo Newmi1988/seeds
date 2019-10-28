@@ -35,6 +35,6 @@ A S4 class used to handle formating ODE-Equation and calculate the needed functi
 
 \item{\code{cond}}{a slot to save conditionals in equations, which are used for formating the c files}
 
-\item{\code{logInd}}{a slot containing a vector which indicates state variables that should be log-transformed}
+\item{\code{nnStates}}{vector indicating which states should have a non negative solution}
 }}
 
