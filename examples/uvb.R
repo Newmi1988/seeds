@@ -1,4 +1,5 @@
 # usb network example
+devtools::load_all()
 uvbParameter = c(  ks1=0.23,
                  ks2=4.0526,
                  kdr1=0.1,

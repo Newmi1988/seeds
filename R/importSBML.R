@@ -16,7 +16,7 @@ importSBML <- function(filename, times, meas_input) {
     warning("No measurements given. Returned model can't directly be used with the algorithms. Use method 'setMeas' for adding them to the model.")
   }
   
-  if (!base::requireNamespace('rsbml', character.only = TRUE)) {
+  if (!base::require('rsbml', character.only = TRUE)) {
     cat('Please install rsbml from the Bioconducture reposotory')
   } else {
     requireNamespace("rsbml")
