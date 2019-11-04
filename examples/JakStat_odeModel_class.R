@@ -1,6 +1,3 @@
-devtools::load_all()
-rm(list=ls())
-
 N = 10^0.31
 x0 = c(N, 0.001, 0.001, 0.0001)
 y <- c(X = x0)
@@ -69,14 +66,14 @@ summary(results[[2]])
 # get the hidden inputs
 # if the object is a list of resultsSeeds object use argument ind to index them
 # default gives returns values of the last listed object
-hiddenInputs(resultsSeeds = results, ind = 3)
+hiddenInputs(resultsSeeds = results, ind = 2)
 
 # get the states
-estiStates(resultsSeeds = results)
+estiStates(resultsSeeds = results, ind = 2)
 
 # get the estimated outputs
-outputEstimates(resultsSeeds = results)
+outputEstimates(resultsSeeds = results, ind = 2)
 
 # get confidence bands of the results (only bden)
 # slot options: "states", "hiddenInputs", "output"
-confidenceBands(resultsSeeds = results, slot = "states")
+confidenceBands(resultsSeeds = results, slot = "states", ind = 2)

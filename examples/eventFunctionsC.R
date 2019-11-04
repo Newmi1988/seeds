@@ -1,9 +1,3 @@
-rm(list = ls())
-devtools::load_all()
-graphics.off()
-# library('deSolve')
-# 
-# testmodell
 example <- function(t, x, parms) {
   with(as.list(c(x, parms)), {
     dx1 = 1

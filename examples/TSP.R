@@ -1,7 +1,4 @@
 # This script generates data to test the greedy-approach dynamic elastic net
-rm(list=ls())
-library(deSolve)
-devtools::load_all()
 
 parameters = c(  v1=1,
                    vi1=1,
@@ -98,7 +95,7 @@ Lorenz <- function(t, state, parameters) {
   })
 }
 
-out <- ode(y = state, times = t.data, func = Lorenz, parms = parameters)
+out <- deSolve::ode(y = state, times = t.data, func = Lorenz, parms = parameters)
 
 # MAke plots
 

@@ -65,6 +65,7 @@ Lorenz <- function(t, state, parameters.solve) {
   })
 }
 
+library(deSolve)
 out <- ode(y = state, times = t.data, func = Lorenz, parms = parameters.solve)
 
 # MAke plots

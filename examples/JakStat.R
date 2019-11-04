@@ -1,6 +1,3 @@
-devtools::load_all()
-rm(list=ls())
-
 N = 10^0.31
 x0 = c(N, 0.001, 0.001, 0.0001)
 y <- c(X = x0)

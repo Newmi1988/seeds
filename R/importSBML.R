@@ -12,16 +12,16 @@
 #'
 importSBML <- function(filename, times, meas_input) {
 
-  if (missing(meas_input)) {
-    warning("No measurements given. Returned model can't directly be used with the algorithms. Use method 'setMeas' for adding them to the model.")
-  }
-  
   if (!base::require('rsbml', character.only = TRUE)) {
     cat('Please install rsbml from the Bioconducture reposotory')
   } else {
     requireNamespace("rsbml")
     model <- rsbml::rsbml_read(filename = filename, dom = TRUE)
 
+    if (missing(meas_input)) {
+      warning("No measurements given. Returned model can't directly be used with the algorithms. Use method 'setMeas' for adding them to the model.")
+    }
+    
     states <- model@model@species
     parameter <- model@model@parameters
 
