@@ -354,18 +354,27 @@ setMethod(f = 'nominalSol',
 
               ext <- .Platform$dynlib.ext
               compiledModel <- paste0('model', ext)
-
-              temp_compiled_model <- paste0(tempdir(),'\\',compiledModel)
-              temp_compiled_model = gsub('\\\\','/', temp_compiled_model)
-
+              
+              if (.Platform$OS.type != "windows"){
+                temp_compiled_model <- paste0(tempdir(),'/',compiledModel)
+              } else { 
+                temp_compiled_model <- paste0(tempdir(),'\\',compiledModel)
+                temp_compiled_model = gsub('\\\\','/', temp_compiled_model)
+              }
               if (is.loaded('derivsc')) {
                 dyn.unload(temp_compiled_model)
               }
 
               createCompModel(modelFunc = odeModel@func, parameters = odeModel@parms, nnStates = odeModel@nnStates)
               
-              temp_file_path <- paste0(tempdir(),'\\','model.c')
-              temp_file_path = gsub('\\\\', '/', temp_file_path)
+              
+              
+              if (.Platform$OS.type != "windows"){
+                temp_file_path <- paste0(tempdir(),'/','model.c')
+              } else {
+                temp_file_path <- paste0(tempdir(),'\\','model.c')
+                temp_file_path = gsub('\\\\', '/', temp_file_path)
+              }
               
               # compile the C function of the system
               system(paste0("R CMD SHLIB ",temp_file_path))
@@ -405,8 +414,14 @@ setMethod(f = 'nominalSol',
               odeEq <- isDynElaNet(odeModel)
               odeEq <- calculateCostate(odeModel)
               createFunctions(odeModel)
+              
+              
+              if (.Platform$OS.type != "windows"){
+                temp_hidden_input_path <- paste0(tempdir(),'/','stateHiddenInput.R')
+              } else {
+                temp_hidden_input_path <- paste0(tempdir(),'\\','stateHiddenInput.R')
+              }
 
-              temp_hidden_input_path <- paste0(tempdir(),'\\','stateHiddenInput.R')
               source(temp_hidden_input_path)
 
               hiddenInputState <- get('hiddenInputState', envir = environment())

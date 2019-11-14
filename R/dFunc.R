@@ -19,9 +19,11 @@ writeDummy <- function(eqList) {
     }
 
     str <- c(funcHead, funcBody, funcEnd)
-
-    temp_dummy_file <- paste0(tempdir(),'\\','tmp.R')
-    
+    if (.Platform$OS.type != "windows"){
+      temp_dummy_file <- paste0(tempdir(),'/','tmp.R')
+    } else {
+      temp_dummy_file <- paste0(tempdir(),'\\','tmp.R')
+    }
     file.create(temp_dummy_file)
     tmp <- file(temp_dummy_file)
     writeLines(str, tmp)

@@ -207,15 +207,23 @@ sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, 
     ext <- .Platform$dynlib.ext
     compiledModel <- paste0('model', ext)
 
-    temp_compiled_model <- paste0(tempdir(),'\\',compiledModel)
-    temp_compiled_model = gsub('\\\\','/', temp_compiled_model)
+    if (.Platform$OS.type != "windows"){
+      temp_compiled_model <- paste0(tempdir(),'/',compiledModel)
+    } else {
+      temp_compiled_model <- paste0(tempdir(),'\\',compiledModel)
+      temp_compiled_model = gsub('\\\\','/', temp_compiled_model)
+    }
     # check if the library is loaded, so changes can be applied
     if (is.loaded('derivsc')) {
       dyn.unload(temp_compiled_model)
     }
     
-    temp_file_path <- paste0(tempdir(),'\\','model.c')
-    temp_file_path = gsub('\\\\', '/', temp_file_path)
+    if (.Platform$OS.type != "windows"){
+      temp_file_path <- paste0(tempdir(),'/','model.c')
+    } else {
+      temp_file_path <- paste0(tempdir(),'\\','model.c')
+      temp_file_path = gsub('\\\\', '/', temp_file_path)
+    }
 
     # compile the C function of the system
     system(paste0("R CMD SHLIB ",temp_file_path))

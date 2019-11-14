@@ -14,7 +14,11 @@ createFunctions <- function(odeEq) {
   }
 
   createCostate <- function(modelODE) {
-    temp_costate_path <- paste0(tempdir(),'\\','costate.R')
+    if (.Platform$OS.type != "windows"){
+      temp_costate_path <- paste0(tempdir(),'/','costate.R')
+    } else {
+      temp_costate_path <- paste0(tempdir(),'\\','costate.R')
+    }
     file.create(temp_costate_path)
     fileCostate <- file(temp_costate_path)
     writeLines(modelODE, fileCostate)
@@ -22,7 +26,11 @@ createFunctions <- function(odeEq) {
   }
 
   createStateHiddenInput <- function(modelODE) {
-    temp_hidden_input_path <- paste0(tempdir(),'\\','stateHiddenInput.R')
+    if (.Platform$OS.type != "windows"){
+      temp_hidden_input_path <- paste0(tempdir(),'/','stateHiddenInput.R')
+    } else {
+      temp_hidden_input_path <- paste0(tempdir(),'\\','stateHiddenInput.R')
+    }
     file.create(temp_hidden_input_path)
     fileState <- file(temp_hidden_input_path)
     writeLines(modelODE, fileState)

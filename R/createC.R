@@ -144,7 +144,11 @@ createCFile <- function(parameters, inputs, Eq, bden, nnStates) {
 
 
   writeFileC <- function(string) {
-    temp_file_path <- paste0(tempdir(),'\\','model.c')
+    if (.Platform$OS.type != "windows"){
+      temp_file_path <- paste0(tempdir(),'/','model.c')
+    } else {
+      temp_file_path <- paste0(tempdir(),'\\','model.c')
+    }
     file.create(temp_file_path)
     fileC <- file(temp_file_path)
     writeLines(string, fileC)

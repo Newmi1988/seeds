@@ -24,9 +24,14 @@
 #' @export
 dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2, measData, constStr,
                           SD, modelFunc, measFunc, modelInput, optW, origAUC, maxIteration, plotEsti, conjGrad, eps, nnStates) {
-
-  temp_costate_path <- paste0(tempdir(),'\\','costate.R')
-  temp_hidden_input_path <- paste0(tempdir(),'\\','stateHiddenInput.R')
+  
+  if (.Platform$OS.type != "windows"){
+    temp_costate_path <- paste0(tempdir(),'/','costate.R')
+    temp_hidden_input_path <- paste0(tempdir(),'/','stateHiddenInput.R')
+  } else {
+    temp_costate_path <- paste0(tempdir(),'\\','costate.R')
+    temp_hidden_input_path <- paste0(tempdir(),'\\','stateHiddenInput.R')
+  }
   source(temp_hidden_input_path)
   source(temp_costate_path)
 
