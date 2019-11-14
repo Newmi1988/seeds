@@ -25,8 +25,10 @@
 dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2, measData, constStr,
                           SD, modelFunc, measFunc, modelInput, optW, origAUC, maxIteration, plotEsti, conjGrad, eps, nnStates) {
 
-  source('stateHiddenInput.R')
-  source('costate.R')
+  temp_costate_path <- paste0(tempdir(),'\\','costate.R')
+  temp_hidden_input_path <- paste0(tempdir(),'\\','stateHiddenInput.R')
+  source(temp_hidden_input_path)
+  source(temp_costate_path)
 
   costate <- get('costate', envir = environment())
   hiddenInputState <- get('hiddenInputState', envir = environment())

@@ -355,14 +355,24 @@ setMethod(f = 'nominalSol',
               ext <- .Platform$dynlib.ext
               compiledModel <- paste0('model', ext)
 
+              temp_compiled_model <- paste0(tempdir(),'\\',compiledModel)
+              temp_compiled_model = gsub('\\\\','/', temp_compiled_model)
 
               if (is.loaded('derivsc')) {
-                dyn.unload(compiledModel)
+                dyn.unload(temp_compiled_model)
               }
 
               createCompModel(modelFunc = odeModel@func, parameters = odeModel@parms, nnStates = odeModel@nnStates)
-              system("R CMD SHLIB model.c")
-              dyn.load(compiledModel)
+              
+              temp_file_path <- paste0(tempdir(),'\\','model.c')
+              temp_file_path = gsub('\\\\', '/', temp_file_path)
+              
+              # compile the C function of the system
+              system(paste0("R CMD SHLIB ",temp_file_path))
+              
+              
+              # system("R CMD SHLIB model.c")
+              dyn.load(temp_compiled_model)
 
 
               wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))

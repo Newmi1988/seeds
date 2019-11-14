@@ -144,8 +144,9 @@ createCFile <- function(parameters, inputs, Eq, bden, nnStates) {
 
 
   writeFileC <- function(string) {
-    file.create('model.c')
-    fileC <- file('model.c')
+    temp_file_path <- paste0(tempdir(),'\\','model.c')
+    file.create(temp_file_path)
+    fileC <- file(temp_file_path)
     writeLines(string, fileC)
     close(fileC)
   }

@@ -207,15 +207,22 @@ sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, 
     ext <- .Platform$dynlib.ext
     compiledModel <- paste0('model', ext)
 
+    temp_compiled_model <- paste0(tempdir(),'\\',compiledModel)
+    temp_compiled_model = gsub('\\\\','/', temp_compiled_model)
     # check if the library is loaded, so changes can be applied
     if (is.loaded('derivsc')) {
-      dyn.unload(compiledModel)
+      dyn.unload(temp_compiled_model)
     }
+    
+    temp_file_path <- paste0(tempdir(),'\\','model.c')
+    temp_file_path = gsub('\\\\', '/', temp_file_path)
 
     # compile the C function of the system
-    system("R CMD SHLIB model.c")
+    system(paste0("R CMD SHLIB ",temp_file_path))
     # load the dynamic link library
-    dyn.load(compiledModel)
+    
+    
+    dyn.load(temp_compiled_model)
   } else {
     cat('No installation of Rtools detected using the normal solver.\n')
   }
@@ -350,7 +357,7 @@ sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, 
     # unload the dynamic linked shared object library
     # has to be unleaded to makes changes
     if (grepl("Rtools", Sys.getenv('PATH')) || (.Platform$OS.type != "windows")) {
-      dyn.unload(compiledModel)
+      dyn.unload(temp_compiled_model)
     }
 
 

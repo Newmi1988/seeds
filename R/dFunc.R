@@ -20,12 +20,14 @@ writeDummy <- function(eqList) {
 
     str <- c(funcHead, funcBody, funcEnd)
 
-    file.create('tmp.R')
-    tmp <- file('tmp.R')
+    temp_dummy_file <- paste0(tempdir(),'\\','tmp.R')
+    
+    file.create(temp_dummy_file)
+    tmp <- file(temp_dummy_file)
     writeLines(str, tmp)
     close(tmp)
 
-    source('tmp.R')
+    source(temp_dummy_file)
     if (formatStr == 'x') {
       return(modelFunc)
     } else {

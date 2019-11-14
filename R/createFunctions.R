@@ -14,24 +14,19 @@ createFunctions <- function(odeEq) {
   }
 
   createCostate <- function(modelODE) {
-    file.create('costate.R')
-    fileCostate <- file('costate.R')
+    temp_costate_path <- paste0(tempdir(),'\\','costate.R')
+    file.create(temp_costate_path)
+    fileCostate <- file(temp_costate_path)
     writeLines(modelODE, fileCostate)
     close(fileCostate)
   }
 
   createStateHiddenInput <- function(modelODE) {
-    file.create('stateHiddenInput.R')
-    fileState <- file('stateHiddenInput.R')
+    temp_hidden_input_path <- paste0(tempdir(),'\\','stateHiddenInput.R')
+    file.create(temp_hidden_input_path)
+    fileState <- file(temp_hidden_input_path)
     writeLines(modelODE, fileState)
     close(fileState)
-  }
-
-  createCostateStart <- function(costateStartEq) {
-    file.create('costateStart.R')
-    fileCostateStart <- file('costateStart.R')
-    writeLines(costateStartEq, fileCostateStart)
-    close(fileCostateStart)
   }
 
   formatFuncString <- function(odeEq, funcType) {
