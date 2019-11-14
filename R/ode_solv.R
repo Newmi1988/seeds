@@ -1,7 +1,7 @@
 #' Wrapper to the ODE Solver
 
 ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
-  
+  options(warn=-1)
   myEvent <- eval(parse(text = createEvent(tollerance = 0., value = 0.0001)))
   
 
@@ -9,7 +9,8 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
   times = TIME
 
 
-  if(!is.null(input)){
+  # if(!is.null(input)){
+  if(sum(colSums(input)) != 0){
     inputApprox <- apply(X = input[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approx(x = input[,1], y = x, xout = times, rule = 2))
     
     inputApprox = list(cbind(times,inputApprox$u$y))
@@ -19,11 +20,6 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
   
 
   
-  #parametersW = c("t0"= TIME[1],
-  #                "w1t0" = w_estimate[1,1], 
-  #                "w2t0" = w_estimate[1,2], 
-   #               "w3t0" = w_estimate[1,3], 
-   #               "w4t0" = w_estimate[1,4])
   
   parametersW = c(TIME[1])
   NAMES <- 't0'
@@ -31,7 +27,7 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
     NAMES <- cbind(NAMES,paste0('w',i,'t0'))
     parametersW <-cbind(parametersW, w_estimate[1,i])}
   
-colnames(parametersW) <- NAMES
+  colnames(parametersW) <- NAMES
   
 
   wSplit <- split(w_estimate, rep(1:ncol(w_estimate), each = nrow(w_estimate)))
@@ -48,10 +44,9 @@ colnames(parametersW) <- NAMES
 
   
   runSilent <- function() {
-    #options(warn = -1)
-    #on.exit(options(warn = 0))
+
     
-   sol <- deSolve::ode(y = x_0, time=times, func = "derivsc",
+   sol <- deSolve::lsoda(y = x_0, time=times, func = "derivsc",
                                        parms = parameters, dllname = "model", initforc="forcc",
                                        forcings = forcings, initfunc = "parmsc",
                                        nroot = length(x_0),
@@ -59,18 +54,13 @@ colnames(parametersW) <- NAMES
                                        events = list(func = myEvent, root = TRUE))
     
     sol
+
+     # fcontrol=list(method="constant", f = 0),
   }
   
   
   sol <- runSilent()
-  
 
-    
-    #if (!is.null(sol)){
-     # sol[sol> -0.1&sol<0] <-0
-    #} 
-    
-    
     if (any(is.na(sol))|is.null(sol)|((sum(sol< 0)!=0))){
       
       print('Integration failed :: No success :: skip sample')
@@ -79,7 +69,7 @@ colnames(parametersW) <- NAMES
     
   
   
-  
+  options(warn=0)
   return(as.data.frame(sol[,1:length(x_0)+1]))
   
   

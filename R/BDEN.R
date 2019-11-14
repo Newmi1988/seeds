@@ -20,7 +20,7 @@
 #' 
 #' 
 #' @param odeModel             a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis. 
-#' @param settings             initial model specific settings (autmaticly calculated based on the nominal model and data)
+#' @param settings             initial model specific settings (automaticly calculated based on the nominal model and data)
 #' @param mcmc_component       sampling algorithm
 #' @param loglikelihood_func   likelihood function
 #' @param gibbs_update         gibbs algorithm
@@ -78,14 +78,14 @@ BDEN <- function(odeModel,
     inputData        <- as.matrix(systemInput)
     model            <- modelFunc
     numberstates     <- length(x0)
-    
   }
   
+  
   # if (length(inputData[,1]) == 0) {inputData=cbind(measData[,1],measData[,1]*0)
-  if (  sum(inputData) == 0) {inputData=cbind(measData[,1],measData[,1]*0)
+  if (missing(inputData)) {inputData=cbind(measData[,1],measData[,1]*0)
   
                                     colnames(inputData)=c('t','u')}
-
+  
 
   if (length(alpha) != length(observations[1,])-1)     {alpha=rep(1,length(observations[1,]))}
   if (length(beta_init) != length(observations[1,])-1) {beta_init=rep(1,length(observations[1,]))}
@@ -93,26 +93,43 @@ BDEN <- function(odeModel,
 
   
   if(NegativeStates){
-  createCompModel(modelFunc = model, parameters = parameters, bden = TRUE, nnStates = rep(0, numberstates))}
+    createCompModel(modelFunc = model, parameters = parameters, bden = TRUE, nnStates = rep(0, numberstates))}
   else{
     createCompModel(modelFunc = model, parameters = parameters, bden = TRUE, nnStates = rep(1, numberstates))}
   
-  ext <- .Platform$dynlib.ext 
-  
+  ext <- .Platform$dynlib.ext
   compiledModel <- paste0('model',ext)
-  
-  
-  if(is.loaded('derivsc')){
-    dyn.unload(compiledModel)
+
+  ### Neues Laden von Modellen ###
+  if (.Platform$OS.type != "windows"){
+    temp_compiled_model <- paste0(tempdir(),'/',compiledModel)
+  } else {
+    temp_compiled_model <- paste0(tempdir(),'\\',compiledModel)
+    temp_compiled_model = gsub('\\\\','/', temp_compiled_model)
+  }
+  # check if the library is loaded, so changes can be applied
+  if (is.loaded('derivsc')) {
+    dyn.unload(temp_compiled_model)
   }
   
-  system("R CMD SHLIB model.c")
+  if (.Platform$OS.type != "windows"){
+    temp_file_path <- paste0(tempdir(),'/','model.c')
+  } else {
+    temp_file_path <- paste0(tempdir(),'\\','model.c')
+    temp_file_path = gsub('\\\\', '/', temp_file_path)
+  }
   
-  dyn.load(compiledModel)
+  # compile the C function of the system
+  system(paste0("R CMD SHLIB ",temp_file_path))
+  # load the dynamic link library
+  
+  
+  dyn.load(temp_compiled_model)
   
 
   ##################################################################################
   X_MODEL        <- ode_sol(observation_time,initialvalues,parameters,inputData,matrix(rep(0,2*numberstates),2))
+
 
   base::print('Algorithm started. Sampling may take a while')
   print('################# BDEN INITIALIZED ################')

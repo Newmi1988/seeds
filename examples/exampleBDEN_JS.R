@@ -24,6 +24,8 @@ colnames(measure)            <- c("time","STAT5p_cyt" ,"sd_STAT5p_cyt","STAT5pto
 
 sd                           <- cbind(measure['time'],measure['sd_STAT5p_cyt'],measure['sd_STAT5ptot_cyt'])
 
+# uncertainty per timepoint and endpoint
+
 y                            <- cbind(measure['time'],
                                       ((measure['STAT5ptot_cyt']/parameters['s2'])-(measure['STAT5p_cyt']/parameters['s1'])),
                                       measure['STAT5p_cyt'],
@@ -75,7 +77,7 @@ modelJakStat  <- function(t, x, parameters, input) {
 
 
 
-objectiveJakStat<- function(x,parameter) {
+objectiveJakStat<- function(x,parameter=c(0,0)) {
   
   y1 = x[,1]
   y2 = parameter[5] * (x[,2] + 2 * x[,3])
