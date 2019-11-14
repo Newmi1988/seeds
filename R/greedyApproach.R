@@ -242,7 +242,7 @@ sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, 
 
     # load the dynamic linked shared object library
     worker.init <- function() {
-      dyn.load(compiledModel)
+      dyn.load(temp_compiled_model)
     }
 
     cat('More than 1 core detected, using parallel computing.\n')

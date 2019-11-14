@@ -397,7 +397,7 @@ setMethod(f = 'nominalSol',
               }
 
 
-              dyn.unload(compiledModel)
+              dyn.unload(temp_compiled_model)
 
             } else {
 
@@ -406,7 +406,8 @@ setMethod(f = 'nominalSol',
               odeEq <- calculateCostate(odeModel)
               createFunctions(odeModel)
 
-              source('stateHiddenInput.R')
+              temp_hidden_input_path <- paste0(tempdir(),'\\','stateHiddenInput.R')
+              source(temp_hidden_input_path)
 
               hiddenInputState <- get('hiddenInputState', envir = environment())
 

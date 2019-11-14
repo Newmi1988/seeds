@@ -7,4 +7,3 @@ uvb <- importSBML("BIOMD0000000545_url.xml", times = t, meas = y)
 # Plot the nominal solution
 # plot(nominalSol(odeModel = uvb))
 res <- sgdn(odeModel = uvb, alphaStep = 400, alpha2 = 0.0001, plotEstimates = TRUE, measData = y)
- 
