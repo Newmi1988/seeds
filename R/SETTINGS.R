@@ -28,9 +28,10 @@ SETTINGS <- function(VARIANCE,N,BETA_LAMDBA,alphainit,betainit,R=c(1000,1000),RO
     }
     
 
-
+    options(warn=-1)
     PHI   <- MASS::fitdistr(1/CONTAINER, "gamma")
-    
+    options(warn=0)
+
 
     ALPHA <- rep(1,N)*PHI[[1]][1]*alphainit
     BETA  <- rep(1,N)*(PHI[[1]][2])*BETA_LAMDBA*betainit

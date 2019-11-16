@@ -119,7 +119,7 @@ res <- sgdn(odeModel = model_class, alphaStep = 0.0001, alpha2 = 0.1, plotEstima
 
 plot(res[[1]])
 
-BDENode <- odeModel(func = Model, parms = parameters, times=t.data,
+BDENode <- odeModel(func = Model, parms = parameters, times=t.data,sd=y[-1]*0.05,
                     measFunc = uvbMeasure, y = x0, meas = y,custom=TRUE)
 
 
@@ -129,9 +129,8 @@ A <- BDEN(odeModel               = BDENode,
           loglikelihood_func     = LOGLIKELIHOOD_func,
           gibbs_update           = GIBBS_update,
           ode_sol                = ode_solv,
-          lambda            = .0001,
-          beta_init         = c(1,1,1,0.1),
+          lambda            = 1,
+          beta_init         = c(1,1,1,1,1),
           numbertrialsstep = 15,
           numbertrialseps  = 1000,
-          numbertrialinner  = 25,
-          printstatesignore =  c(1,4))
+          numbertrialinner  = 25)
