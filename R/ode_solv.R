@@ -1,5 +1,4 @@
-#' Wrapper to the ODE Solver
-
+#Wrapper to the ODE Solver
 ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
   options(warn=-1)
   myEvent <- eval(parse(text = createEvent(tollerance = 0., value = 0.0001)))
