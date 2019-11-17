@@ -5,7 +5,7 @@ Version: 1.0
 Authors@R: c(person("Tobias", "Newmiwaka", email = "tobias.newmiwaka@gmail.com",
                   role = c("aut", "cre")),
             person("Benjamin", "Engelhardt", email = "engelhar@bit.uni-bonn.de", 
-                    role = c("aut", "cbt")))
+                    role = c("aut", "ctb")))
 Description: A package combining two different algorithms for calculating hidden
   inputs. These hidden inputs can be interpreted as a controll that tries to minimize the
   discrepancies between a given model and given measurements. The method is 

@@ -28,8 +28,7 @@ The adjoint equations are calculated using the \code{\link{ode}} function of the
 \pkg{deSolve} package. For the usage of the algorithm please look into the 
 examples and documentation given for the functions 
 \describe{
-   \item{\code{\link{greedyApproach}}}{a greedy algorithm to calculate a sparse control}
-   \item{\code{\link{dynElasticNet}}}{a conjugate gradient optimal control algorithm with L2 regulation} 
+   \item{\code{\link{sgdn}}}{a greedy algorithm to calculate a sparse control}
 }
 }
 \references{
@@ -42,7 +41,7 @@ Learning (from) the errors of a systems biology model, \emph{Nature Scientific R
 
 Authors:
 \itemize{
-  \item Benjamin Engelhardt \email{engelhar@bit.uni-bonn.de}
+  \item Benjamin Engelhardt \email{engelhar@bit.uni-bonn.de} [contributor]
 }
 
 }

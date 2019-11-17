@@ -14,8 +14,7 @@
 #' \pkg{deSolve} package. For the usage of the algorithm please look into the 
 #' examples and documentation given for the functions 
 #' \describe{
-#'    \item{\code{\link{greedyApproach}}}{a greedy algorithm to calculate a sparse control}
-#'    \item{\code{\link{dynElasticNet}}}{a conjugate gradient optimal control algorithm with L2 regulation} 
+#'    \item{\code{\link{sgdn}}}{a greedy algorithm to calculate a sparse control}
 #' }
 #' 
 #' @references \strong{Benjamin Engelhardt, Holger Fröhlich, Maik Kschischo} 
