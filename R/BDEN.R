@@ -63,6 +63,13 @@ BDEN <- function(odeModel,
     modelFunc <- odeModel@func
     parameters <- odeModel@parms
     systemInput <- odeModel@input
+    #check if an input is assigned
+    if (sum(colSums(systemInput)) == 0) {
+      # the default initial value is a matrix with zero entries
+      inputData <- NULL # no values assigned
+    } else {
+      inputData <- as.matrix(systemInput) # convert to matrix
+    }
     measFunc <- odeModel@measFunc
     x0 <- odeModel@y
     measData <- odeModel@meas
@@ -72,20 +79,15 @@ BDEN <- function(odeModel,
     observation_time <- measData[,1]
     observations     <- measData
     
-    
-    
     initialvalues    <- x0
-    inputData        <- as.matrix(systemInput)
     model            <- modelFunc
     numberstates     <- length(x0)
   }
-  
-  
-  # if (length(inputData[,1]) == 0) {inputData=cbind(measData[,1],measData[,1]*0)
-  if (missing(inputData)) {inputData=cbind(measData[,1],measData[,1]*0)
-  
-                                    colnames(inputData)=c('t','u')}
-  
+ 
+  if (is.null(inputData)) {
+    inputData=cbind(measData[,1],measData[,1]*0)
+    colnames(inputData)=c('t','u')
+  }
 
   if (length(alpha) != length(observations[1,])-1)     {alpha=rep(1,length(observations[1,]))}
   if (length(beta_init) != length(observations[1,])-1) {beta_init=rep(1,length(observations[1,]))}
@@ -122,8 +124,6 @@ BDEN <- function(odeModel,
   # compile the C function of the system
   system(paste0("R CMD SHLIB ",temp_file_path))
   # load the dynamic link library
-  
-  
   dyn.load(temp_compiled_model)
   
 

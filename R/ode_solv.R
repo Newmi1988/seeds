@@ -9,10 +9,8 @@ ode_solv <- function(TIME,x_0,parameter,input,w_estimate){
   times = TIME
 
 
-  # if(!is.null(input)){
-  if(sum(colSums(input)) != 0){
+  if(!is.null(input)){
     inputApprox <- apply(X = input[,-1, drop=F], MARGIN = 2, FUN = function(x) stats::approx(x = input[,1], y = x, xout = times, rule = 2))
-    
     inputApprox = list(cbind(times,inputApprox$u$y))
   } else {
     inputApprox <- list(cbind(times,rep(0,length(times))))
