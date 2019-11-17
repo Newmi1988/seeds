@@ -40,4 +40,9 @@ Learning (from) the errors of a systems biology model, \emph{Nature Scientific R
 \author{
 \strong{Maintainer}: Tobias Newmiwaka \email{tobias.newmiwaka@gmail.com}
 
+Authors:
+\itemize{
+  \item Benjamin Engelhardt \email{engelhar@bit.uni-bonn.de}
+}
+
 }

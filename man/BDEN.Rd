@@ -13,7 +13,7 @@ BDEN(odeModel, settings, mcmc_component, loglikelihood_func, gibbs_update,
 \arguments{
 \item{odeModel}{a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis.}
 
-\item{settings}{initial model specific settings (autmaticly calculated based on the nominal model and data)}
+\item{settings}{initial model specific settings (automaticly calculated based on the nominal model and data)}
 
 \item{mcmc_component}{sampling algorithm}
 

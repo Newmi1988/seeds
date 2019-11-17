@@ -1,14 +1,17 @@
 Package: seeds
 Type: Package
 Title: Estimate hidden inputs using the method of the dynamic elastic net
-Version: 0.0.2
-Authors@R: person("Tobias", "Newmiwaka", email = "tobias.newmiwaka@gmail.com",
-                  role = c("aut", "cre"))
+Version: 1.0
+Authors@R: c(person("Tobias", "Newmiwaka", email = "tobias.newmiwaka@gmail.com",
+                  role = c("aut", "cre")),
+            person("Benjamin", "Engelhardt", email = "engelhar@bit.uni-bonn.de", 
+                    role = c("aut", "cbt")))
 Description: A package combining two different algorithms for calculating hidden
   inputs. These hidden inputs can be interpreted as a controll that tries to minimize the
   discrepancies between a given model and given measurements. The method is 
   also called the 'dynamic elastic net'.
 License: GPL (>=3)
+Maintainer: Tobias Newmiwaka <tobias.newmiwaka@gmail.com>
 Depends:
     R (>= 3.1.0)
 Encoding: UTF-8
