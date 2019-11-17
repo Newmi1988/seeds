@@ -3,7 +3,7 @@
 #' calculates controls based on a first optimisation with gradient descent; should result in a sparse vector
 #' of hidden inputs.
 #' 
-#' @param odeModel a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis. 
+#' @param odeModel a object of class \code{\link{odeModel}} from the package seeds. The class saves the details of an experiment for easier manipulation and analysis. 
 #'
 #' @param alphaStep      the starting stepsize for the gradient descent
 #'                a fitting stepsize will be calculated based on a backtracking line search
@@ -15,29 +15,29 @@
 #'                used for regulation purposes
 #'                set to NULL for a approximation of alpha2 - will results in a longer runtime
 #'
-#' @param x0             inital state of the ODE system
+#' @param x0             inital state of the ODE system. Can be supplied with  the odeModel class.
 #'
 #' @param optW           a vector that indicates for which knots of the network a input should be calculated
 #'
 #' @param measFunc       a R-Function that is used for measurement of the states if the system is not completly
-#'                measurable; an empty argument will result in the assumption that the complete system is
-#'                measurable
+#'                measurable; an empty argument will result in the assumption that all states of the system are
+#'                measurable. Can be supplied by the odeModel parameter.
 #'
-#' @param measData       a table that containts the measurements of the experiment; used to calculate the needed inputs
+#' @param measData       a table that containts the measurements of the experiment. Used to calculate the needed inputs. Can be supplied with  the odeModel class.
 #'
-#' @param parameters      vector or named vector that contains the parameters of the ODE equation
+#' @param parameters      vector or named vector that contains the parameters of the ODE equation. Can be supplied with  the odeModel class.
 #'
-#' @param modelFunc      a R-Function that states the ODE system for which the hidden inputs should be calculated
+#' @param modelFunc      a R-Function that states the ODE system for which the hidden inputs should be calculated. Can be supplied with  the odeModel class.
 #'
 #' @param greedyLogical         a boolean that states if the greedy approach should be used;if set to FALSE the algorithm
 #'                will only use perform a calculation of the inputs for all knots without a sparse solution
 #'
-#' @param plotEstimates  boolean that indicated if the current estimate should be shown
+#' @param plotEstimates  boolean that indicated if the current estimate should be plotted.
 #'
 #' @param Beta          skaling parameter for the backtracking to approximate the stepsize of the gradient descent. Is set to  0.8
 #'                 if no value is given to the function
 #'
-#' @param sd      Standard deviation of the measurement. Is used to weight the errors of the estimates in the cost function. Optional parameter. 
+#' @param sd      Standard deviation of the measurement. Is used to weight the errors of the estimates in the cost function. Optional parameter. Can be supplied with  the odeModel class.
 #' 
 #' @param conjGrad Boolean that indicates the usage of conjugate gradient method over the normal steepest descent. Defaults to true if not specified.
 #' 
@@ -47,7 +47,7 @@
 #' 
 #' @param epsilon parameter that defines the stopping criteria for the algorithm, in this case percent change in cost function J[w]
 #'
-#' @param nnStates A bit vector indicating the states that should be non negative. Default behaviour will calculete positive and negative states.
+#' @param nnStates A bit vector indicating the states that should be non negative. Default behaviour will calculete positive and negative states. Can be supplied with  the odeModel class.
 #'
 #' @return returns a list of results objects. The default plot function can be used to plot the results.
 #'

@@ -9,7 +9,7 @@ sgdn(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc,
   plotEstimates, conjGrad, cString, nnStates)
 }
 \arguments{
-\item{odeModel}{a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis.}
+\item{odeModel}{a object of class \code{\link{odeModel}} from the package seeds. The class saves the details of an experiment for easier manipulation and analysis.}
 
 \item{alphaStep}{the starting stepsize for the gradient descent
 a fitting stepsize will be calculated based on a backtracking line search
@@ -24,36 +24,36 @@ if no value is given to the function}
 used for regulation purposes
 set to NULL for a approximation of alpha2 - will results in a longer runtime}
 
-\item{x0}{inital state of the ODE system}
+\item{x0}{inital state of the ODE system. Can be supplied with  the odeModel class.}
 
 \item{optW}{a vector that indicates for which knots of the network a input should be calculated}
 
 \item{measFunc}{a R-Function that is used for measurement of the states if the system is not completly
-measurable; an empty argument will result in the assumption that the complete system is
-measurable}
+measurable; an empty argument will result in the assumption that all states of the system are
+measurable. Can be supplied by the odeModel parameter.}
 
-\item{measData}{a table that containts the measurements of the experiment; used to calculate the needed inputs}
+\item{measData}{a table that containts the measurements of the experiment. Used to calculate the needed inputs. Can be supplied with  the odeModel class.}
 
-\item{sd}{Standard deviation of the measurement. Is used to weight the errors of the estimates in the cost function. Optional parameter.}
+\item{sd}{Standard deviation of the measurement. Is used to weight the errors of the estimates in the cost function. Optional parameter. Can be supplied with  the odeModel class.}
 
 \item{epsilon}{parameter that defines the stopping criteria for the algorithm, in this case percent change in cost function J[w]}
 
-\item{parameters}{vector or named vector that contains the parameters of the ODE equation}
+\item{parameters}{vector or named vector that contains the parameters of the ODE equation. Can be supplied with  the odeModel class.}
 
 \item{systemInput}{A dataset that discribes the external input of the system. The time steps should be given in the first column for the interpolation.}
 
-\item{modelFunc}{a R-Function that states the ODE system for which the hidden inputs should be calculated}
+\item{modelFunc}{a R-Function that states the ODE system for which the hidden inputs should be calculated. Can be supplied with  the odeModel class.}
 
 \item{greedyLogical}{a boolean that states if the greedy approach should be used;if set to FALSE the algorithm
 will only use perform a calculation of the inputs for all knots without a sparse solution}
 
-\item{plotEstimates}{boolean that indicated if the current estimate should be shown}
+\item{plotEstimates}{boolean that indicated if the current estimate should be plotted.}
 
 \item{conjGrad}{Boolean that indicates the usage of conjugate gradient method over the normal steepest descent. Defaults to true if not specified.}
 
 \item{cString}{Optional parameter: A string that represents constants, can be used to calculate a hidden input for a component that gradient is zero.}
 
-\item{nnStates}{A bit vector indicating the states that should be non negative. Default behaviour will calculete positive and negative states.}
+\item{nnStates}{A bit vector indicating the states that should be non negative. Default behaviour will calculete positive and negative states. Can be supplied with  the odeModel class.}
 }
 \value{
 returns a list of results objects. The default plot function can be used to plot the results.

@@ -7,7 +7,7 @@
 \title{A class to store the important information of an experiment.}
 \description{
 The slots are used to store the important information of an experiment. The class is used to create object for the
-two algorithms implemented in seeds. Methods are implemented to easy calculate the nominal solution of the model and
+two algorithms implemented in seeds. Methods are implemented to easily calculate the nominal solution of the model and
 change the details of the saved model.
 }
 \details{

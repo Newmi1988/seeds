@@ -3,7 +3,7 @@
 #' A class to store the important information of an experiment. 
 #' 
 #' The slots are used to store the important information of an experiment. The class is used to create object for the
-#' two algorithms implemented in seeds. Methods are implemented to easy calculate the nominal solution of the model and
+#' two algorithms implemented in seeds. Methods are implemented to easily calculate the nominal solution of the model and
 #' change the details of the saved model.
 #' 
 #' The numerical solutions are calculated using the \pkg{deSolve} - package. 
@@ -396,7 +396,15 @@ setMethod(f = 'nominalSol',
 
               } else {
 
-                myEvent <- eval(parse(text = createEvent(rootStates = odeModel@nnStates, tollerance = 0., value = 0.0001)))
+                # myEvent <- eval(parse(text = createEvent(rootStates = odeModel@nnStates, tollerance = 0., value = 0.0001)))
+                # RootFunc <- eval(parse(text = createRoot(rootStates = nnStates)))
+                # EventFunc <- eval(parse(text = createEvent(tollerance = eventTol, value = resetValue)))
+                
+                eventTol <- 0.0
+                resetValue <- 0.0001
+
+                myRoot <- eval(parse(text = createRoot(rootStates = nnStates)))
+                myEvent <- eval(parse(text = createEvent(tollerance = eventTol, value = resetValue)))
 
                 resOde <- deSolve::lsoda(y = odeModel@y, times = times, func = "derivsc",
                                          parms = odeModel@parms, dllname = "model", initforc = "forcc",
@@ -440,9 +448,14 @@ setMethod(f = 'nominalSol',
 
 
               } else {
+                
+                eventTol <- 0.0
+                resetValue <- 0.0001
 
-                myRoot <- eval(parse(text = createRoot(rootStates = odeModel@nnStates)))
-                myEvent <- eval(parse(text = createEvent(rootStates = odeModel@nnStates, odeModel@nnTollerance)))
+                # myRoot <- eval(parse(text = createRoot(rootStates = odeModel@nnStates)))
+                # myEvent <- eval(parse(text = createEvent(rootStates = odeModel@nnStates, odeModel@nnTollerance)))
+                myRoot <- eval(parse(text = createRoot(rootStates = nnStates)))
+                myEvent <- eval(parse(text = createEvent(tollerance = eventTol, value = resetValue)))
 
                 resOde <- deSolve::ode(y = odeModel@y,
                                         times = time,
