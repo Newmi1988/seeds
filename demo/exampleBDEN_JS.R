@@ -1,9 +1,4 @@
 #### clear workspace, load package, remove graphics ####
-
-rm(list=ls())
-devtools::load_all()
-graphics.off()
-
 #### setze initialen zustand, parameter und Zeitpunkte der Auswertung durch deSolve ####
 # parameter des models
 N = 10^0.31

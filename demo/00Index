@@ -2,4 +2,4 @@ exampleBDEN_GP              R code demonstrating the baysian approach of estimat
 exampleBDEN_JS              R code demonstrating the baysian approach of estimating the hidden inputs with the JakStat Model
 JakStat                     R code demonstrating the analysis of the JakStat Network
 JakStat_odeModel_class      R code demonstrating the analysis of the JakStat Network with the use of the odeModel class
-uvb                         R code demonstrating the analysis of a uvb protein g network
+uvb                         R code demonstrating the analysis of a uvb protein g network 

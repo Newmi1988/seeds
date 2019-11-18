@@ -4,7 +4,7 @@
 \alias{GIBBS_update}
 \title{Gibbs Update}
 \usage{
-GIBBS_update(D, EPS_inner, R, ROH, SGIMA_0, n, SIGMA, LAMBDA2, LAMBDA1,
+GIBBS_update(D, EPS_inner, R, ROH, SIGMA_0, n, SIGMA, LAMBDA2, LAMBDA1,
   TAU)
 }
 \arguments{
@@ -16,6 +16,8 @@ GIBBS_update(D, EPS_inner, R, ROH, SGIMA_0, n, SIGMA, LAMBDA2, LAMBDA1,
 
 \item{ROH}{parameter for needed for the Gibbs update (for details see Engelhardt et al. 2017)}
 
+\item{SIGMA_0}{prior variance of the prior for the hidden influences}
+
 \item{SIGMA}{current variance of the prior for the hidden influences (calculated during the Gibbs update)}
 
 \item{LAMBDA2}{current parameter (smoothness) needed for the Gibbs update (for details see Engelhardt et al. 2017)}
@@ -23,8 +25,6 @@ GIBBS_update(D, EPS_inner, R, ROH, SGIMA_0, n, SIGMA, LAMBDA2, LAMBDA1,
 \item{LAMBDA1}{current parameter (sparsity)  needed for the Gibbs update (for details see Engelhardt et al. 2017)}
 
 \item{TAU}{current parameter (smoothness) needed for the Gibbs update (for details see Engelhardt et al. 2017)}
-
-\item{SIGMA_0}{prior variance of the prior for the hidden influences}
 
 \item{N}{number of system states}
 }

@@ -1,11 +1,8 @@
-### a S4 class to save the important information of a experiment
-
 #' A class to store the important information of an experiment. 
 #' 
 #' The slots are used to store the important information of an experiment. The class is used to create object for the
 #' two algorithms implemented in seeds. Methods are implemented to easily calculate the nominal solution of the model and
 #' change the details of the saved model.
-#' 
 #' The numerical solutions are calculated using the \pkg{deSolve} - package. 
 #' 
 #' @slot func A funtion containing the ode-equations of the model. For syntax look at the given examples of the \pkg{deSolve} package.
@@ -25,6 +22,7 @@
 #' @exportClass odeModel
 #'
 #' @import methods
+#' 
 odeModel <- setClass(
 #name of Class
   "odeModel",

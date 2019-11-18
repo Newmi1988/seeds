@@ -26,11 +26,11 @@
 #' @return                     A list of updated Gibbs parameters; i.e. Sigma, Lambda1, Lambda2, Tau
 
 #' 
-GIBBS_update  <- function(D,EPS_inner,R,ROH,SGIMA_0,n,SIGMA,LAMBDA2,LAMBDA1,TAU){
+GIBBS_update  <- function(D,EPS_inner,R,ROH,SIGMA_0,n,SIGMA,LAMBDA2,LAMBDA1,TAU){
 
   SIGMA_A       <- (n/2)
 
-  SIGMA_B       <-  sum(diag(1/((SGIMA_0*0.5)+0.5*((EPS_inner[2,]-EPS_inner[1,])*(D+diag(1,n))^-1*(EPS_inner[2,]-EPS_inner[1,])))))
+  SIGMA_B       <-  sum(diag(1/((SIGMA_0*0.5)+0.5*((EPS_inner[2,]-EPS_inner[1,])*(D+diag(1,n))^-1*(EPS_inner[2,]-EPS_inner[1,])))))
 
 
 
