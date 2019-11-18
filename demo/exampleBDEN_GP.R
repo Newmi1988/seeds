@@ -1,9 +1,3 @@
-#### clear workspace, load package, remove graphics ####
-
-rm(list=ls())
-devtools::load_all()
-graphics.off()
-
 uvbParameter = c(  ks1=0.23,
                    ks2=4.0526,
                    kdr1=0.1,
