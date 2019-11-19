@@ -70,10 +70,12 @@ uvbMeasure <- function(x) {
 y <- uvbData[,1:6]
 t <- uvbData$t
 sd <- uvbData[,7:11]
-system.time(
-res <- sgdn(alphaStep = 500, alpha2 = 0.0001, optW = rep(1,13), x0 = x0, sd = sd,
-               measFunc = uvbMeasure, measData = y, epsilon = 0.1, Beta = 0.8,
-               parameters = uvbParameter, modelFunc = uvbModel, plotEstimates = TRUE, conjGrad = TRUE)
-)
+  
+uvbModel <- odeModel(func = uvbModel, parms = uvbParameter, times = t,
+           measFunc = uvbMeasure, y = x0, meas = y, sd = sd)
+  
+plot(nominalSol(uvbModel))
+  
+res <- sgdn(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001, epsilon = 0.2, plotEstimates = TRUE)
 
 plot(res[[2]])
