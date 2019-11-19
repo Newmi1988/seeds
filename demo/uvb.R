@@ -74,7 +74,6 @@ sd <- uvbData[,7:11]
 uvbModel <- odeModel(func = uvbModel, parms = uvbParameter, times = t,
            measFunc = uvbMeasure, y = x0, meas = y, sd = sd)
   
-plot(nominalSol(uvbModel))
   
 res <- sgdn(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001, epsilon = 0.2, plotEstimates = TRUE)
 
