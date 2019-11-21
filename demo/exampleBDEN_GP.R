@@ -1,3 +1,4 @@
+
 uvbParameter = c(  ks1=0.23,
                    ks2=4.0526,
                    kdr1=0.1,
@@ -81,18 +82,11 @@ Model <- odeModel(func = uvbModel, parms = uvbParameter,times=c(0.025),
 
 
 
-A <- BDEN(odeModel               = Model,
-          settings               = SETTINGS,
-          mcmc_component         = MCMC_component,
-          loglikelihood_func     = LOGLIKELIHOOD_func,
-          gibbs_update           = GIBBS_update,
-          ode_sol                = ode_solv,
-          #lambda            = .0001,
+A <- BDEN(odeModel          = Model,
           lambda            = .001,
           beta_init         = c(1,1,1,1,1),
-          numbertrialsstep = 15,
-          numbertrialseps  = 2000,
-          #numbertrialinner  = 25,
+          numbertrialsstep  = 15,
+          numbertrialseps   = 2000,
           numbertrialinner  = 10)
 
 

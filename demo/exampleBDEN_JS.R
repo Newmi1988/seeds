@@ -92,11 +92,6 @@ JakStatModel <- odeModel(func = modelJakStat, parms = parameters, input = inputD
 
 
 A <- BDEN(odeModel               = JakStatModel,
-          settings               = SETTINGS,
-          mcmc_component         = MCMC_component,
-          loglikelihood_func     = LOGLIKELIHOOD_func,
-          gibbs_update           = GIBBS_update,
-          ode_sol                = ode_solv,
           lambda            = .0001,
           beta_init         = c(1,1,1,0.1),
           numbertrialsstep = 15,

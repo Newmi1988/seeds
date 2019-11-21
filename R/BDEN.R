@@ -59,6 +59,24 @@ BDEN <- function(odeModel,
                  beta_init         = c(1,1,1,1),
                  printstatesignore = FALSE){
   
+  if (missing(settings)) {
+    settings = SETTINGS
+  }
+  if (missing(mcmc_component)) {
+    mcmc_component = MCMC_component
+  }
+  if (missing(loglikelihood_func)) {
+    loglikelihood_func = LOGLIKELIHOOD_func
+  }
+  
+  if (missing(gibbs_update)) {
+    gibbs_update = GIBBS_update
+  }
+  
+  if (missing(ode_sol)) {
+    ode_sol = ode_solv
+  }
+  
   if(!missing(odeModel)){
     modelFunc <- odeModel@func
     parameters <- odeModel@parms
