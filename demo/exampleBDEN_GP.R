@@ -68,10 +68,6 @@ uvbMeasure <-   function(y,parameter){
 }
   
 
-testNN = rep(0,length(x0))
-testNN[1] = 1
-
-
 y <- uvbData[,1:6]
 t <- uvbData$t
 sd <- uvbData[,7:11]

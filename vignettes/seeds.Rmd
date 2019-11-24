@@ -11,17 +11,19 @@ vignette: >
 
 This package is an implementation of the dynamic elastic net approach. There are two algorithms implemented that aim to calculate missing interactions between states of an ode in order to explain and minimize a systematic error within the model-equation. The hidden inputs should be an hint as to which states are missing interactions.
 
-Both algorithm make heavy use of the deSolve package and Rtools to compile the given models.
+Both algorithm makes heavy use of the deSolve package. The use of Rtools is recommended to significantly shorten the computing time of the algorithm. It is not possible to use the BDEN algorithm without Rtools.
 
 ## The SGDN (sparse greedy dynamic net) Algorithm
 
-The first Algorithm is a greedy method for generating a sparse solution for the hidden inputs. Its an iterative gradient descent method based on the costate equations of the system. Rtools is suggested, because of the immense computational cost of the step size of the gradient step.
+The first Algorithm is a greedy method for generating a sparse solution for the hidden inputs. The algorithm is based on Pontryagin's Maximum Principle and implements an iterative gradient descent method which aims at minimizing the Hamilton function of the system. 
+
+Rtools is suggested, because of the immense computational cost of the step size estiamtion of the gradient step.
 
 ## The odeModel Class
 The class aims to be used to describe the experiment you want to analyse. It has the following slots:
 
 - **func**: A funtion containing the ode-equations of the model. For syntax look at the given examples of the deSolve package.
-- **times**: time steps on which the model should be evaluated
+- **times**: time steps at which the model should be evaluated
 - **parms**: the parameters of the model
 - **input**: matrix containing the inputs with the time points
 - **measFunc**: function that converts the output of the ode solution
@@ -30,15 +32,15 @@ The class aims to be used to describe the experiment you want to analyse. It has
 - **sd**: optional standard deviations of the measurements, is used by the algorithms as weights in the costfunction
 - **custom**: customized link function (is internally used)
 - **nnStates**: bit vector that indicates if states should be observed by the root function
-- **nnTollerance**: tolerance at which a function is seen as zero
-- **resetValue**: value a state should be set to by an event
+- **nnTollerance**: tolerance at which a function is seen as zero (optional)
+- **resetValue**: value a state should be set to by an event (optinal)
 
-The class also provides a simple way to calculate and display the nominal solution of an created odeModel object with the print function.
+The class also provides methods to simply evaluate and display the nominal solution of an created odeModel object with the _nominalSol_ and _plot()_ function.
 
 ## Example
 The following example uses the UVB protein g model and some simulated measurement data. An synthetic error has been added to the states $x_3$ and $x_{11}$. 
 
-The states of the model have to be written with the letter $x$ following by a number representing the state. If an input is needed for the model the input takes the letter u. This restrictions are made to ensure that the automatic differentiation will work.
+The states of the model have to be written with the letter $x$ following by a number representing the state. If an input is needed for the model the input takes the letter $u$. This restrictions are made to ensure that the automatic differentiation will work as intended.
 
 ```{R}
 library(seeds)
@@ -129,7 +131,8 @@ res <- sgdn(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001, epsilon = 0.2
 
 ```
 
-The results are returned as list of resultsSeeds objects, which store the calculated states and measurements and the hidden inputs. A standard plot function is given to display the results. Functions for annotating the plots are also included in the package.
+The results are returned as list of resultsSeeds objects, which store the estimated states, measurements and the hidden inputs of a model. A standard plot function is given to display the results. Functions for annotating the plots are also included in the package. The use of the BDEN algorithm displays not only the calculated states and inputs, but also confidence intervals for the corresponding states of the system.
+
 
 ### Plotting
 
@@ -139,7 +142,7 @@ The standard plot gives you three figure:
 2. The estimated hidden inputs
 3. The estimated measurements. (blue without hidden inputs, red with hidden inputs)
 
-All values can be retrieved from the slots of the resultsSeeds object. For further information look into the documentation of the functions.
+All calculated values can be output by methods of the class odeModel, or extracted directly by the corresponding slots. The structure and methods of the class can be found in the corresponding documentation.
 
 ```{R, fig.width = 7, fig.height = 5, message = FALSE}
 
@@ -169,6 +172,7 @@ The algorithm can be executed in a smiliar fashion as the sgdn algorithm. Howeve
 ```{R, eval = FALSE}
 
 library(seeds)
+
 
 uvbParameter = c(  ks1=0.23,
                    ks2=4.0526,
@@ -253,16 +257,11 @@ Model <- odeModel(func = uvbModel, parms = uvbParameter,times=c(0.025),
 
 
 
-A <- BDEN(odeModel               = Model,
-          settings               = SETTINGS,
-          mcmc_component         = MCMC_component,
-          loglikelihood_func     = LOGLIKELIHOOD_func,
-          gibbs_update           = GIBBS_update,
-          ode_sol                = ode_solv,
+A <- BDEN(odeModel          = Model,
           lambda            = .001,
           beta_init         = c(1,1,1,1,1),
-          numbertrialsstep = 15,
-          numbertrialseps  = 2000,
+          numbertrialsstep  = 15,
+          numbertrialseps   = 2000,
           numbertrialinner  = 10)
 
 ```
