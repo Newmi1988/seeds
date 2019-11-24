@@ -26,7 +26,7 @@ set to NULL for a approximation of alpha2 - will results in a longer runtime}
 
 \item{x0}{inital state of the ODE system. Can be supplied with  the odeModel class.}
 
-\item{optW}{a vector that indicates for which knots of the network a input should be calculated}
+\item{optW}{a vector that indicates for which knots of the network a input should be calculated. The default is all nodes.}
 
 \item{measFunc}{a R-Function that is used for measurement of the states if the system is not completly
 measurable; an empty argument will result in the assumption that all states of the system are

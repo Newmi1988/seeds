@@ -36,6 +36,14 @@ examples and documentation given for the functions
 Learning (from) the errors of a systems biology model, \emph{Nature Scientific Reports},
  6, 20772, 2016 \url{https://www.nature.com/articles/srep20772}
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/Newmi1988/seeds}
+  \item Report bugs at \url{https://github.com/Newmi1988/seeds/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Tobias Newmiwaka \email{tobias.newmiwaka@gmail.com}
 

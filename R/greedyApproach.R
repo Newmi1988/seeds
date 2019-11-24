@@ -17,7 +17,7 @@
 #'
 #' @param x0             inital state of the ODE system. Can be supplied with  the odeModel class.
 #'
-#' @param optW           a vector that indicates for which knots of the network a input should be calculated
+#' @param optW           a vector that indicates for which knots of the network a input should be calculated. The default is all nodes.
 #'
 #' @param measFunc       a R-Function that is used for measurement of the states if the system is not completly
 #'                measurable; an empty argument will result in the assumption that all states of the system are

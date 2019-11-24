@@ -6,7 +6,7 @@
 #' The numerical solutions are calculated using the \pkg{deSolve} - package. 
 #' 
 #' @slot func A funtion containing the ode-equations of the model. For syntax look at the given examples of the \pkg{deSolve} package.
-#' @slot times timesteps on which the model should be evaluated
+#' @slot times timesteps at which the model should be evaluated
 #' @slot parms the parameters of the model
 #' @slot input matrix containing the inputs with the time points
 #' @slot measFunc function that converts the output of the ode solution

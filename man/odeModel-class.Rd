@@ -16,7 +16,7 @@ The numerical solutions are calculated using the \pkg{deSolve} - package.
 \describe{
 \item{\code{func}}{A funtion containing the ode-equations of the model. For syntax look at the given examples of the \pkg{deSolve} package.}
 
-\item{\code{times}}{timesteps on which the model should be evaluated}
+\item{\code{times}}{timesteps at which the model should be evaluated}
 
 \item{\code{parms}}{the parameters of the model}
 
