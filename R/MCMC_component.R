@@ -4,8 +4,8 @@
 #' 
 #' The function can be replaced by an userdefined version if necessary
 #'  
-#' @param mcmc_component       used sampling algorithm
-#' @param LOGLIKELIHOOD_func   used likelihood function
+#' @param objective            objective funktion
+#' @param LOGLIKELIHOOD_func   likelihood function
 #' @param STEP_SIZE            number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influnce on the runtime.
 #' @param STEP_SIZE_INNER      number of inner samples. This should be greater 15 to guarantee a reasonable exploration of the sample space. Values have direct influnce on the runtime.
 #' @param EPSILON              vector of hidden influences (placeholder for customized version)

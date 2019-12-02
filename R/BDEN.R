@@ -32,7 +32,7 @@
 #' @param lambda               inital shrinkage parameter.
 #' @param Grad_correct         correction factor for initial sigma estimate
 #' @param alpha                mcmc tuning paramter (weigthing of observed states)
-#' @param beta                 mcmc tunig parameter (weigthing of observed states)
+#' @param beta_init                 mcmc tunig parameter (weigthing of observed states)
 #' @param printstatesignore    states ignored in final output (default = FALSE)
 
 #' @return                     returns a results-object with default plot function

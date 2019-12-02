@@ -16,7 +16,7 @@
 #' @param R                    parameter for needed for the Gibbs update (for details see Engelhardt et al. 2017)
 #' @param ROH                  parameter for needed for the Gibbs update (for details see Engelhardt et al. 2017)
 #' @param SIGMA_0              prior variance of the prior for the hidden influences
-#' @param N                    number of system states
+#' @param n                    number of system states
 #' @param SIGMA                current variance of the prior for the hidden influences (calculated during the Gibbs update)
 #' @param LAMBDA2              current parameter (smoothness) needed for the Gibbs update (for details see Engelhardt et al. 2017) 
 #' @param LAMBDA1              current parameter (sparsity)  needed for the Gibbs update (for details see Engelhardt et al. 2017)   

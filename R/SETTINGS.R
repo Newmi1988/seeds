@@ -9,6 +9,8 @@
 #' @param BETA_LAMDBA          mcmc tuning paramter (weigthing of observed states)
 #' @param alphainit            mcmc tuning paramter (weigthing of observed states)
 #' @param betainit             mcmc tuning paramter (weigthing of observed states)
+#' @param ROH                  mcmc tuning paramter
+#' @param R                    mcmc tuning paramter
 #' 
 #' @return                     A list of optimal initial parameters; i.e. R, Roh, Alpha, Beta, Tau, Lambda1, Lambda2
 #'
