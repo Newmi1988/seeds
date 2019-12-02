@@ -1,3 +1,5 @@
+library(deSolve)
+
 # parameter des models
 N = 10^0.31
 parameters = 10^c("k1"=0.31, "k2"=-1, "k3"=-0.49, "k4"= 0.42, "s1"=-0.21, "s2"=-0.34)

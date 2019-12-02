@@ -17,6 +17,10 @@ SETTINGS(VARIANCE, N, BETA_LAMDBA, alphainit, betainit, R = c(1000,
 \item{alphainit}{mcmc tuning paramter (weigthing of observed states)}
 
 \item{betainit}{mcmc tuning paramter (weigthing of observed states)}
+
+\item{R}{mcmc tuning paramter}
+
+\item{ROH}{mcmc tuning paramter}
 }
 \value{
 A list of optimal initial parameters; i.e. R, Roh, Alpha, Beta, Tau, Lambda1, Lambda2

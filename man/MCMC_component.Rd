@@ -9,7 +9,7 @@ MCMC_component(LOGLIKELIHOOD_func, STEP_SIZE, STEP_SIZE_INNER, EPSILON,
   SIGMA, DIAG, GIBBS_par, N, BURNIN, objective)
 }
 \arguments{
-\item{LOGLIKELIHOOD_func}{used likelihood function}
+\item{LOGLIKELIHOOD_func}{likelihood function}
 
 \item{STEP_SIZE}{number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influnce on the runtime.}
 
@@ -41,7 +41,7 @@ MCMC_component(LOGLIKELIHOOD_func, STEP_SIZE, STEP_SIZE_INNER, EPSILON,
 
 \item{BURNIN}{number of dismissed samples during burnin}
 
-\item{mcmc_component}{used sampling algorithm}
+\item{objective}{objective funktion}
 }
 \value{
 A matrix with the sampled hidden inputs (row-wise)

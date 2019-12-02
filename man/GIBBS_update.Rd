@@ -18,6 +18,8 @@ GIBBS_update(D, EPS_inner, R, ROH, SIGMA_0, n, SIGMA, LAMBDA2, LAMBDA1,
 
 \item{SIGMA_0}{prior variance of the prior for the hidden influences}
 
+\item{n}{number of system states}
+
 \item{SIGMA}{current variance of the prior for the hidden influences (calculated during the Gibbs update)}
 
 \item{LAMBDA2}{current parameter (smoothness) needed for the Gibbs update (for details see Engelhardt et al. 2017)}
@@ -25,8 +27,6 @@ GIBBS_update(D, EPS_inner, R, ROH, SIGMA_0, n, SIGMA, LAMBDA2, LAMBDA1,
 \item{LAMBDA1}{current parameter (sparsity)  needed for the Gibbs update (for details see Engelhardt et al. 2017)}
 
 \item{TAU}{current parameter (smoothness) needed for the Gibbs update (for details see Engelhardt et al. 2017)}
-
-\item{N}{number of system states}
 }
 \value{
 A list of updated Gibbs parameters; i.e. Sigma, Lambda1, Lambda2, Tau

@@ -37,9 +37,9 @@ BDEN(odeModel, settings, mcmc_component, loglikelihood_func, gibbs_update,
 
 \item{alpha}{mcmc tuning paramter (weigthing of observed states)}
 
-\item{printstatesignore}{states ignored in final output (default = FALSE)}
+\item{beta_init}{mcmc tunig parameter (weigthing of observed states)}
 
-\item{beta}{mcmc tunig parameter (weigthing of observed states)}
+\item{printstatesignore}{states ignored in final output (default = FALSE)}
 }
 \value{
 returns a results-object with default plot function
