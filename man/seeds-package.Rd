@@ -4,11 +4,11 @@
 \name{seeds-package}
 \alias{seeds}
 \alias{seeds-package}
-\title{seeds: Estimate hidden inputs using the method of the dynamic elastic net}
+\title{seeds: Estimate Hidden Inputs using the Method of the Dynamic Elastic Net}
 \description{
-A package combining two different algorithms for calculating hidden
-  inputs. These hidden inputs can be interpreted as a controll that tries to minimize the
-  discrepancies between a given model and given measurements. The method is 
+Algorithms to calculate the hidden inputs of systems of differential equations. 
+  These hidden inputs can be interpreted as a control that tries to minimize the
+  discrepancies between a given model and taken measurements. The method is 
   also called the 'dynamic elastic net'.
 }
 \details{
@@ -49,7 +49,7 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Benjamin Engelhardt \email{engelhar@bit.uni-bonn.de} [contributor]
+  \item Benjamin Engelhardt \email{engelhar@bit.uni-bonn.de}
 }
 
 }

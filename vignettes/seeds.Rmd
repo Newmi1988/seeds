@@ -9,7 +9,7 @@ vignette: >
 
 # Introduction
 
-This package is an implementation of the dynamic elastic net approach. There are two algorithms implemented that aim to calculate missing interactions between states of an ode in order to explain and minimize a systematic error within the model-equation. The hidden inputs should be an hint as to which states are missing interactions.
+The algorithms contained in the *seeds* package are implementation of the dynamic elastic net approach. There are two algorithms implemented that aim to calculate missing interactions between states of an ode in order to explain and minimize a systematic error within the model-equation. The hidden inputs should be an hint as to which states are missing interactions.
 
 Both algorithm makes heavy use of the deSolve package. The use of Rtools is recommended to significantly shorten the computing time of the algorithm. It is not possible to use the BDEN algorithm without Rtools.
 

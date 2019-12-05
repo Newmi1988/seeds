@@ -21,8 +21,7 @@ if no value is given to the function}
 \item{alpha1}{L1-norm parameter of the dynamic elastic net approach, is set to zero for this algorithm}
 
 \item{alpha2}{L2-norm parameter of the dynamic elastic net approach
-used for regulation purposes
-set to NULL for a approximation of alpha2 - will results in a longer runtime}
+used for regulation purposes}
 
 \item{x0}{inital state of the ODE system. Can be supplied with  the odeModel class.}
 

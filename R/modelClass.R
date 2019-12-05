@@ -401,7 +401,7 @@ setMethod(f = 'nominalSol',
                 eventTol <- 0.0
                 resetValue <- 0.0001
 
-                myRoot <- eval(parse(text = createRoot(rootStates = nnStates)))
+                myRoot <- eval(parse(text = createRoot(rootStates = odeModel@nnStates)))
                 myEvent <- eval(parse(text = createEvent(tollerance = eventTol, value = resetValue)))
 
                 resOde <- deSolve::lsoda(y = odeModel@y, times = times, func = "derivsc",
@@ -450,13 +450,11 @@ setMethod(f = 'nominalSol',
                 eventTol <- 0.0
                 resetValue <- 0.0001
 
-                # myRoot <- eval(parse(text = createRoot(rootStates = odeModel@nnStates)))
-                # myEvent <- eval(parse(text = createEvent(rootStates = odeModel@nnStates, odeModel@nnTollerance)))
-                myRoot <- eval(parse(text = createRoot(rootStates = nnStates)))
+                myRoot <- eval(parse(text = createRoot(rootStates = odeModel@nnStates)))
                 myEvent <- eval(parse(text = createEvent(tollerance = eventTol, value = resetValue)))
 
                 resOde <- deSolve::ode(y = odeModel@y,
-                                        times = time,
+                                        times = times,
                                         func = hiddenInputState,
                                         parms = odeModel@params,
                                         input = input,

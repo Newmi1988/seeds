@@ -13,7 +13,6 @@
 #'
 #' @param alpha2         L2-norm parameter of the dynamic elastic net approach
 #'                used for regulation purposes
-#'                set to NULL for a approximation of alpha2 - will results in a longer runtime
 #'
 #' @param x0             inital state of the ODE system. Can be supplied with  the odeModel class.
 #'
@@ -236,86 +235,12 @@ sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, 
   }
   iter <- (sum(optW))
 
-  #### initialize start of alpha2 estimation ####
-  estiAlpha2 <- list()
-  alpha2Start <- 1 # starting value for estimating alpha2
-  steps <- 6 # number of values that are valuated for best fit
-  numCores <- parallel::detectCores() - 1
-  error <- matrix(rep(0, 2), ncol = 2)
-  colnames(error) <- c('alpha', 'MSE')
-
-  #### parallel estimation of a fitting alpha2 value ####
-  if (is.null(alpha2) && requireNamespace('parallel', quietly = TRUE) && requireNamespace('doParallel', quietly = TRUE) && requireNamespace('foreach', quietly = TRUE) && numCores > 1) {
-
-
-    # load the dynamic linked shared object library
-    worker.init <- function() {
-      dyn.load(temp_compiled_model)
-    }
-
-    cat('More than 1 core detected, using parallel computing.\n')
-    exportVars <- c('dynElasticNet', 'y', 'costate')
-
-    cl <- parallel::makeCluster(numCores)
-    if (grepl("Rtools", Sys.getenv('PATH'))) {
-      parallel::clusterCall(cl, worker.init)
-    }
-    doParallel::registerDoParallel(cl)
-
-    estiAlpha2 <- foreach::foreach(i = 1:steps, .export = exportVars)
-    estiAlpha2 = foreach::'%dopar%'(estiAlpha2,
-        dynElasticNet(alphaStep = alphaStep, armijoBeta = Beta, x0 = x0, optW = optW, eps = epsilon,
-                      measFunc = measFunc, measData = measData, SD = sd, constStr = cString,
-                      alpha1 = 0, alpha2 = alpha2Start * 10 ^ (1 - i), modelInput = systemInput,
-                      parameters = parameters, modelFunc = modelFunc, maxIteration = 100, plotEsti = FALSE, conjGrad = conjGrad, nnStates = nnStates)
-      )
-    parallel::stopCluster(cl)
-    closeAllConnections()
-    error[1,] = c(10 ^ (1 - 1), mean(estiAlpha2[[1]]$rmse))
-    for (i in 2:steps) {
-      error = rbind(error, c(alpha2Start * 10 ^ (1 - i), mean(estiAlpha2[[i]]$rmse)))
-    }
-
-  } else if (is.null(alpha2)) {
-
-    cat('\nNo installation of package doParallel found:\n')
-    cat('Using sequencial optimisation to find a fitting value of alpha2.\n')
-
-    alpha1 = 0
-    for (i in 1:steps) {
-
-      alpha2 = alpha2Start * 10 ^ (1 - i)
-      cat('\nOptimization with alpha2=', alpha2, '\n')
-      estiAlpha2[[i]] <- dynElasticNet(alphaStep = alphaStep, armijoBeta = Beta, x0 = x0, optW = optW, eps = epsilon,
-                                         measFunc = measFunc, measData = measData, SD = sd,
-                                         alpha1 = alpha1, alpha2 = alpha2, constStr = cString,
-                                         parameters = parameters, modelFunc = modelFunc, modelInput = systemInput,
-                                         maxIteration = 100, plotEsti = plotEstimates, conjGrad = conjGrad, nnStates = nnStates)
-      if (i == 1) {
-        error[i,] = c(alpha2, mean(estiAlpha2[[i]]$rmse))
-      } else {
-        error = rbind(error, c(alpha2, mean(estiAlpha2[[i]]$rmse)))
-      }
-
-    }
-
-    slopeErr <- abs(diff(error[, 1]) / diff(error[, 2]))
-    #slopeErr = slopeErr[which(slopeErr >0 )]
-    changeTresh <- min(which(slopeErr < 0.5))
-
-    alpha2 = error[changeTresh + 1, 1] # alpha2 is selected based on the squared error at the given measurement times
-    results <- estiAlpha2[[changeTresh + 1]] # use the estimated results of the estimation for saving time
-
-    cat('Conservativ estimated alpha2=', alpha2)
-
-
-  } else {
-    results <- dynElasticNet(alphaStep = alphaStep, armijoBeta = Beta, x0 = x0, optW = optW, eps = epsilon,
+  
+  results <- dynElasticNet(alphaStep = alphaStep, armijoBeta = Beta, x0 = x0, optW = optW, eps = epsilon,
                              measFunc = measFunc, measData = measData, SD = sd,
                              alpha1 = alpha1, alpha2 = alpha2, constStr = cString,
                              parameters = parameters, modelFunc = modelFunc, plotEsti = plotEstimates,
                              modelInput = systemInput, conjGrad = conjGrad, nnStates = nnStates)
-  }
 
   resAlg <- list()
   if (!greedyLogical || (sum(optW) == 1)) {
