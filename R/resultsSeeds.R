@@ -100,6 +100,12 @@ plotResultsSeeds <- function(x, y) {
   }
 
   line_width <- 0.75
+  
+  state <- NULL
+  value <- NULL
+  value.y <- NULL
+  value.x <- NULL
+  
 
   plot1 <- ggplot2::ggplot(reformatOrder(tidyr::gather(smoothRes(seedsobj@stateEstimates), state, value, -1)), ggplot2::aes(x = t, y = value, colour = 'red')) +
     ggplot2::geom_line(size = 1) +

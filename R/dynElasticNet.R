@@ -246,18 +246,14 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
         tryCatch({
 
           if (sum(nnStates) == 0) {
-            R.utils::captureOutput(
               solX <- deSolve::ode(y = x0, times = time, func = "derivsc",
                                             parms = parameters, dllname = "model", initforc = "forcc",
                                             forcings = forcings, initfunc = "parmsc")
-            )
           } else {
-            R.utils::capture.output(
               solX <- deSolve::lsoda(y = x0, times = time, func = "derivsc",
                                      parms = parameters, dllname = "model", initforc = "forcc",
                                      forcings = forcings, initfunc = "parmsc", nroot = sum(nnStates),
                                      rootfunc = "myroot", events = list(func = eventFunc, root = TRUE))
-            )
           }
         },
           error = function(cond) {

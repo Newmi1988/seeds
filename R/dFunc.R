@@ -29,6 +29,9 @@ writeDummy <- function(eqList) {
     writeLines(str, tmp)
     close(tmp)
 
+    modelFunc <- NULL
+    measFunc <- NULL
+    
     source(temp_dummy_file)
     if (formatStr == 'x') {
       return(modelFunc)
