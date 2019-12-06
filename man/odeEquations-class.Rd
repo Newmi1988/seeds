@@ -4,9 +4,9 @@
 \name{odeEquations-class}
 \alias{odeEquations-class}
 \alias{odeEquations}
-\title{A S4 class used to handle formating ODE-Equation and calculate the needed functions for the seeds-algorithm}
+\title{A S4 class used to handle formatting ODE-Equation and calculate the needed functions for the seeds-algorithm}
 \description{
-A S4 class used to handle formating ODE-Equation and calculate the needed functions for the seeds-algorithm
+A S4 class used to handle formatting ODE-Equation and calculate the needed functions for the seeds-algorithm
 }
 \section{Slots}{
 
@@ -33,7 +33,7 @@ A S4 class used to handle formating ODE-Equation and calculate the needed functi
 
 \item{\code{parameters}}{parameters of the model}
 
-\item{\code{cond}}{a slot to save conditionals in equations, which are used for formating the c files}
+\item{\code{cond}}{a slot to save conditionals in equations, which are used for formatting the c files}
 
 \item{\code{nnStates}}{vector indicating which states should have a non negative solution}
 }}

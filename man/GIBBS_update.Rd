@@ -41,5 +41,5 @@ mainly controlled by Lambda2. These parameters are drawn from hyper-priors, whic
 manner or with respect to prior knowledge about the degree of shrinkage and smoothness of the hidden influences (Engelhardt et al. 2017).
 }
 \details{
-The function can be replaced by an userdefined version if necessary
+The function can be replaced by an user defined version if necessary
 }

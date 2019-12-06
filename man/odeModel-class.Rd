@@ -34,7 +34,7 @@ The numerical solutions are calculated using the \pkg{deSolve} - package.
 
 \item{\code{nnStates}}{bit vector that indicates if states should be observed by the root function}
 
-\item{\code{nnTollerance}}{tollerance at which a function is seen as zero}
+\item{\code{nnTollerance}}{tolerance at which a function is seen as zero}
 
 \item{\code{resetValue}}{value a state should be set to by an event}
 }}

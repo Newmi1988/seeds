@@ -23,7 +23,7 @@ None
 }
 \description{
 Writes a c file that can be compiled for faster solution with the \code{\link[deSolve]{ode}} solver.
-The file created is formated to be used with the dynamic elastic net. A hidden input is 
+The file created is formatted to be used with the dynamic elastic net. A hidden input is 
 added to every component of the state vector.
 }
 \note{

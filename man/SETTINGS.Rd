@@ -12,15 +12,15 @@ SETTINGS(VARIANCE, N, BETA_LAMDBA, alphainit, betainit, R = c(1000,
 
 \item{N}{number of system states}
 
-\item{BETA_LAMDBA}{mcmc tuning paramter (weigthing of observed states)}
+\item{BETA_LAMDBA}{mcmc tuning parameter (weighting of observed states)}
 
-\item{alphainit}{mcmc tuning paramter (weigthing of observed states)}
+\item{alphainit}{mcmc tuning parameter (weighting of observed states)}
 
-\item{betainit}{mcmc tuning paramter (weigthing of observed states)}
+\item{betainit}{mcmc tuning parameter (weighting of observed states)}
 
-\item{R}{mcmc tuning paramter}
+\item{R}{mcmc tuning parameter}
 
-\item{ROH}{mcmc tuning paramter}
+\item{ROH}{mcmc tuning parameter}
 }
 \value{
 A list of optimal initial parameters; i.e. R, Roh, Alpha, Beta, Tau, Lambda1, Lambda2
@@ -29,5 +29,5 @@ A list of optimal initial parameters; i.e. R, Roh, Alpha, Beta, Tau, Lambda1, La
 Implemented according to Engelhardt et al. 2017.
 }
 \details{
-The function can be replaced by an userdefined version if necessary.
+The function can be replaced by an user defined version if necessary.
 }

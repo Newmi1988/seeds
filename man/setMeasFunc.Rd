@@ -7,20 +7,20 @@
 \alias{setMeasFunc,odeModel,function,logical-method}
 \title{Set the measurement equation for the model}
 \usage{
-setMeasFunc(theObject, measFunc, costum)
+setMeasFunc(theObject, measFunc, custom)
 
 \S4method{setMeasFunc}{odeModel,`function`,missing}(theObject, measFunc,
-  costum)
+  custom)
 
 \S4method{setMeasFunc}{odeModel,`function`,logical}(theObject, measFunc,
-  costum)
+  custom)
 }
 \arguments{
 \item{theObject}{an object of the class odeModel}
 
 \item{measFunc}{measurement function of the model. Has to be a R functions.}
 
-\item{costum}{costum indexing for the measurement function}
+\item{custom}{custom indexing for the measurement function}
 }
 \description{
 Set the measurement equation for the model

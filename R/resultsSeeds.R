@@ -1,6 +1,6 @@
 #' Results Class for the Algorithms
 #' 
-#' A S4 class that collects the results of the two algorithms. The class also is equiped
+#' A S4 class that collects the results of the two algorithms. The class also is equipped
 #' with functions for easily plotting and extracting the different results.
 #' 
 #' @slot stateNominal data.frame containing the states of the nominal model
@@ -9,7 +9,7 @@
 #' @slot stateUnscertainUpper upper bound of the estimated states as calculated by the baysian method
 #' @slot hiddenInputEstimates estimated hidden input
 #' @slot hiddenInputUncertainLower lower bounds of the estimated hidden inputs
-#' @slot hiddenInputUncertainUpper uppper bounds of the estimated hidden inputs
+#' @slot hiddenInputUncertainUpper upper bounds of the estimated hidden inputs
 #' @slot outputEstimates estimated measurements resulting from the control of the hidden inputs
 #' @slot outputEstimatesUncLower lower bound of the confidence bands of the estimated output
 #' @slot outputEstimatesUncUpper upper bound of the confidence bands of the estimated output
@@ -388,7 +388,7 @@ setMethod(f = "outputEstimates",
 #' Get the estimated confidence bands for the bayesian method
 #' 
 #' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
-#' @param slot Arguement of type character. 
+#' @param slot argument of type character. 
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
 #' @export

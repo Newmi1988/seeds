@@ -13,7 +13,7 @@ setParms(theObject, parms)
 \arguments{
 \item{theObject}{an object of the class odeModel}
 
-\item{parms}{a vector containing the parmeters of the model}
+\item{parms}{a vector containing the parameters of the model}
 }
 \description{
 a method to set the model parameters of an odeModel object.

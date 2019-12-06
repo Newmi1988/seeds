@@ -2,15 +2,15 @@
 #' 
 #' Implemented according to Engelhardt et al. 2017.
 #' 
-#' The function can be replaced by an userdefined version if necessary.
+#' The function can be replaced by an user defined version if necessary.
 #'  
 #' @param VARIANCE             standard error of the observed stat dynamics (per time point)
 #' @param N                    number of system states
-#' @param BETA_LAMDBA          mcmc tuning paramter (weigthing of observed states)
-#' @param alphainit            mcmc tuning paramter (weigthing of observed states)
-#' @param betainit             mcmc tuning paramter (weigthing of observed states)
-#' @param ROH                  mcmc tuning paramter
-#' @param R                    mcmc tuning paramter
+#' @param BETA_LAMDBA          mcmc tuning parameter (weighting of observed states)
+#' @param alphainit            mcmc tuning parameter (weighting of observed states)
+#' @param betainit             mcmc tuning parameter (weighting of observed states)
+#' @param ROH                  mcmc tuning parameter 
+#' @param R                    mcmc tuning parameter 
 #' 
 #' @return                     A list of optimal initial parameters; i.e. R, Roh, Alpha, Beta, Tau, Lambda1, Lambda2
 #'

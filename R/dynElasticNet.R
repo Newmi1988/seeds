@@ -1,21 +1,21 @@
 #' estimating the optimal control using the dynamic elastic net
 #'
 #' @param alphaStep starting value of the stepsize for the gradient descent, will be calculate to minimize the costfunction by backtracking algorithm
-#' @param armijoBeta  scaling of the alphaStep to find a approximatly optimal value for the stepsize
+#' @param armijoBeta  scaling of the alphaStep to find a approximately optimal value for the stepsize
 #' @param x0 initial state of the ode system
 #' @param parameters parameters of the ODE-system
-#' @param alpha1 L1 cost term skalar
-#' @param alpha2 L2 cost term skalar
+#' @param alpha1 L1 cost term scalar
+#' @param alpha2 L2 cost term scalar
 #' @param measData measured values of the experiment
 #' @param SD standard deviation of the experiment; leave empty if unknown
 #' @param modelFunc function that describes the ODE-system of the model
 #' @param measFunc function that maps the states to the outputs
-#' @param optW vector that indicated at which knots of the network the alogrithm should estimate the hidden inputs
+#' @param optW vector that indicated at which knots of the network the algorithm should estimate the hidden inputs
 #' @param origAUC AUCs of the first optimisation; only used by the algorithm
-#' @param plotEsti boolean that controlls of the current estimates should be plotted
-#' @param modelInput an dataset that discribes the external input of the system
+#' @param plotEsti boolean that controls of the current estimates should be plotted
+#' @param modelInput an dataset that describes the external input of the system
 #' @param conjGrad boolean that indicates the usage of conjugate gradient method over the normal steepest descent
-#' @param constStr  a string that represents constrains, can be used to calculate a hidden input for a komponent that gradient is zero
+#' @param constStr  a string that represents constrains, can be used to calculate a hidden input for a component that gradient is zero
 #' @param maxIteration a upper bound for the maximal number of iterations
 #' @param eps citeria for stopping the algorithm
 #' @param nnStates a bit vector indicating the states that should be non negative
@@ -81,7 +81,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
 
 
   RootFunc <- eval(parse(text = createRoot(rootStates = nnStates)))
-  EventFunc <- eval(parse(text = createEvent(tollerance = eventTol, value = resetValue)))
+  EventFunc <- eval(parse(text = createEvent(tolerance = eventTol, value = resetValue)))
 
   #### interpolation of the data ####
   # Q   matrix of weights based on a given standard deviation

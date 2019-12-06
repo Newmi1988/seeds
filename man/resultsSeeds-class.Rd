@@ -6,7 +6,7 @@
 \alias{resultsSeeds}
 \title{Results Class for the Algorithms}
 \description{
-A S4 class that collects the results of the two algorithms. The class also is equiped
+A S4 class that collects the results of the two algorithms. The class also is equipped
 with functions for easily plotting and extracting the different results.
 }
 \section{Slots}{
@@ -24,7 +24,7 @@ with functions for easily plotting and extracting the different results.
 
 \item{\code{hiddenInputUncertainLower}}{lower bounds of the estimated hidden inputs}
 
-\item{\code{hiddenInputUncertainUpper}}{uppper bounds of the estimated hidden inputs}
+\item{\code{hiddenInputUncertainUpper}}{upper bounds of the estimated hidden inputs}
 
 \item{\code{outputEstimates}}{estimated measurements resulting from the control of the hidden inputs}
 

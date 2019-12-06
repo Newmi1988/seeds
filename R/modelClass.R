@@ -15,7 +15,7 @@
 #' @slot sd optional standard deviations of the measurements, is used by the algorithms as weights in the costfunction
 #' @slot custom customized link function
 #' @slot nnStates bit vector that indicates if states should be observed by the root function
-#' @slot nnTollerance tollerance at which a function is seen as zero
+#' @slot nnTollerance tolerance at which a function is seen as zero
 #' @slot resetValue value a state should be set to by an event
 #' 
 #' @export odeModel
@@ -123,7 +123,7 @@ setMethod(f = "setModelEquation",
 #'  a method to set the model parameters of an odeModel object. 
 #' 
 #' @param theObject an object of the class odeModel
-#' @param parms a vector containing the parmeters of the model 
+#' @param parms a vector containing the parameters of the model 
 #' 
 #' @export
 setGeneric(name = "setParms",
@@ -171,11 +171,11 @@ setMethod(f = "setInput",
 #' 
 #' @param theObject an object of the class odeModel
 #' @param measFunc measurement function of the model. Has to be a R functions.
-#' @param costum costum indexing for the measurement function
+#' @param custom custom indexing for the measurement function
 #' 
 #' @export
 setGeneric(name = "setMeasFunc",
-           def = function(theObject, measFunc, costum) {
+           def = function(theObject, measFunc, custom) {
             standardGeneric("setMeasFunc")
            }
 )
@@ -183,7 +183,7 @@ setGeneric(name = "setMeasFunc",
 #' @rdname setMeasFunc
 setMethod(f = "setMeasFunc",
           signature = c('odeModel', 'function', 'missing'),
-          definition = function(theObject, measFunc, costum) {
+          definition = function(theObject, measFunc, custom) {
             theObject@measFunc <- measFunc
             validObject(theObject)
             return(theObject)
@@ -194,9 +194,9 @@ setMethod(f = "setMeasFunc",
 #' @rdname setMeasFunc
 setMethod(f = "setMeasFunc",
           signature = c('odeModel', 'function', 'logical'),
-          definition = function(theObject, measFunc, costum) {
+          definition = function(theObject, measFunc, custom) {
             theObject@meas <- measFunc
-            theObject@custom <- costum
+            theObject@custom <- custom
             validObject(theObject)
             return(theObject)
           }
@@ -394,15 +394,15 @@ setMethod(f = 'nominalSol',
 
               } else {
 
-                # myEvent <- eval(parse(text = createEvent(rootStates = odeModel@nnStates, tollerance = 0., value = 0.0001)))
+                # myEvent <- eval(parse(text = createEvent(rootStates = odeModel@nnStates, tolerance = 0., value = 0.0001)))
                 # RootFunc <- eval(parse(text = createRoot(rootStates = nnStates)))
-                # EventFunc <- eval(parse(text = createEvent(tollerance = eventTol, value = resetValue)))
+                # EventFunc <- eval(parse(text = createEvent(tolerance = eventTol, value = resetValue)))
                 
                 eventTol <- 0.0
                 resetValue <- 0.0001
 
                 myRoot <- eval(parse(text = createRoot(rootStates = odeModel@nnStates)))
-                myEvent <- eval(parse(text = createEvent(tollerance = eventTol, value = resetValue)))
+                myEvent <- eval(parse(text = createEvent(tolerance = eventTol, value = resetValue)))
 
                 resOde <- deSolve::lsoda(y = odeModel@y, times = times, func = "derivsc",
                                          parms = odeModel@parms, dllname = "model", initforc = "forcc",
@@ -451,7 +451,7 @@ setMethod(f = 'nominalSol',
                 resetValue <- 0.0001
 
                 myRoot <- eval(parse(text = createRoot(rootStates = odeModel@nnStates)))
-                myEvent <- eval(parse(text = createEvent(tollerance = eventTol, value = resetValue)))
+                myEvent <- eval(parse(text = createEvent(tolerance = eventTol, value = resetValue)))
 
                 resOde <- deSolve::ode(y = odeModel@y,
                                         times = times,

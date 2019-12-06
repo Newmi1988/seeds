@@ -41,5 +41,5 @@ returns the log-likelihood for two given hidden inputs
 }
 \description{
 Algorithm implemented according to Engelhardt et al. 2017.
-The function can be replaced by an userdefined version if necessary.
+The function can be replaced by an user defined version if necessary.
 }

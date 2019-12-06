@@ -2,11 +2,11 @@
 #' 
 #' Algorithm implemented according to Engelhardt et al. 2017.
 #' 
-#' The function can be replaced by an userdefined version if necessary
+#' The function can be replaced by an user defined version if necessary
 #'  
-#' @param objective            objective funktion
+#' @param objective            objective function
 #' @param LOGLIKELIHOOD_func   likelihood function
-#' @param STEP_SIZE            number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influnce on the runtime.
+#' @param STEP_SIZE            number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influence on the runtime.
 #' @param STEP_SIZE_INNER      number of inner samples. This should be greater 15 to guarantee a reasonable exploration of the sample space. Values have direct influnce on the runtime.
 #' @param EPSILON              vector of hidden influences (placeholder for customized version)
 #' @param JUMP_SCALE           ODE system
@@ -20,7 +20,7 @@
 #' @param DIAG                 diagonal weight matrix of the current Gibbs step
 #' @param GIBBS_par            GIBBS_PAR[["BETA"]] and GIBBS_PAR[["ALPHA"]]; prespecified or calculated vector of state weights
 #' @param N                    number of system states
-#' @param BURNIN               number of dismissed samples during burnin
+#' @param BURNIN               number of dismissed samples during burn-in
 
 
 

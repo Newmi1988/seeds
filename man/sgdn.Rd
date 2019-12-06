@@ -15,7 +15,7 @@ sgdn(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc,
 a fitting stepsize will be calculated based on a backtracking line search
 if the algorithm converges to slow use a bigger stepsize}
 
-\item{Beta}{skaling parameter for the backtracking to approximate the stepsize of the gradient descent. Is set to  0.8
+\item{Beta}{scaling parameter for the backtracking to approximate the stepsize of the gradient descent. Is set to  0.8
 if no value is given to the function}
 
 \item{alpha1}{L1-norm parameter of the dynamic elastic net approach, is set to zero for this algorithm}
@@ -23,15 +23,15 @@ if no value is given to the function}
 \item{alpha2}{L2-norm parameter of the dynamic elastic net approach
 used for regulation purposes}
 
-\item{x0}{inital state of the ODE system. Can be supplied with  the odeModel class.}
+\item{x0}{initial state of the ODE system. Can be supplied with  the odeModel class.}
 
 \item{optW}{a vector that indicates for which knots of the network a input should be calculated. The default is all nodes.}
 
-\item{measFunc}{a R-Function that is used for measurement of the states if the system is not completly
+\item{measFunc}{a R-Function that is used for measurement of the states if the system is not completely
 measurable; an empty argument will result in the assumption that all states of the system are
 measurable. Can be supplied by the odeModel parameter.}
 
-\item{measData}{a table that containts the measurements of the experiment. Used to calculate the needed inputs. Can be supplied with  the odeModel class.}
+\item{measData}{a table that contains the measurements of the experiment. Used to calculate the needed inputs. Can be supplied with  the odeModel class.}
 
 \item{sd}{Standard deviation of the measurement. Is used to weight the errors of the estimates in the cost function. Optional parameter. Can be supplied with  the odeModel class.}
 
@@ -39,7 +39,7 @@ measurable. Can be supplied by the odeModel parameter.}
 
 \item{parameters}{vector or named vector that contains the parameters of the ODE equation. Can be supplied with  the odeModel class.}
 
-\item{systemInput}{A dataset that discribes the external input of the system. The time steps should be given in the first column for the interpolation.}
+\item{systemInput}{A dataset that describes the external input of the system. The time steps should be given in the first column for the interpolation.}
 
 \item{modelFunc}{a R-Function that states the ODE system for which the hidden inputs should be calculated. Can be supplied with  the odeModel class.}
 
@@ -52,7 +52,7 @@ will only use perform a calculation of the inputs for all knots without a sparse
 
 \item{cString}{Optional parameter: A string that represents constants, can be used to calculate a hidden input for a component that gradient is zero.}
 
-\item{nnStates}{A bit vector indicating the states that should be non negative. Default behaviour will calculete positive and negative states. Can be supplied with  the odeModel class.}
+\item{nnStates}{A bit vector indicating the states that should be non negative. Default behaviour will calculate positive and negative states. Can be supplied with  the odeModel class.}
 }
 \value{
 returns a list of results objects. The default plot function can be used to plot the results.

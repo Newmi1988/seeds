@@ -10,8 +10,8 @@ symbolicDiff(odeObj)
 \item{odeObj}{a object of the S4 class odeEquation}
 }
 \description{
-The function calculates the needed equations for the gradient descent alogrithm.
-The function needs a object of the S4 OdeEquation class. This class containts
+The function calculates the needed equations for the gradient descent algorithm.
+The function needs a object of the S4 OdeEquation class. This class contains
 all the needed equations.
 }
 \details{

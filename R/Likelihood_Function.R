@@ -1,7 +1,7 @@
 #' Calculates the Log Likelihood for a new sample given the current state (i.e. log[L(G|x)P(G)])
 #' 
 #' Algorithm implemented according to Engelhardt et al. 2017.
-#' The function can be replaced by an userdefined version if necessary.
+#' The function can be replaced by an user defined version if necessary.
 #'  
 #' @param pars                 sampled hidden influence for state k (w_new) at time tn+1
 #' @param Step                 time step of the sample algorithm corresponding to the given vector of time points 

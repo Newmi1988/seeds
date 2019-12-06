@@ -20,7 +20,7 @@ confidenceBands(resultsSeeds, slot, ind)
 \arguments{
 \item{resultsSeeds}{A object of the class 'resultsSeeds', which is returned from the algorithms.}
 
-\item{slot}{Arguement of type character.}
+\item{slot}{argument of type character.}
 
 \item{ind}{A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.}
 }
