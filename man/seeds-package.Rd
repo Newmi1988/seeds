@@ -8,8 +8,9 @@
 \description{
 Algorithms to calculate the hidden inputs of systems of differential equations. 
   These hidden inputs can be interpreted as a control that tries to minimize the
-  discrepancies between a given model and taken measurements. The method is 
-  also called the 'dynamic elastic net'.
+  discrepancies between a given model and taken measurements. The idea is 
+  also called the 'dynamic elastic net', as proposed in the paper "Learning (from) the errors of a systems biology model" 
+  (Engelhardt, Frölich, Kschischo 2016) <doi: 10.1038/srep20772>.
 }
 \details{
 Details

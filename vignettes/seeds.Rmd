@@ -42,7 +42,7 @@ The following example uses the UVB protein g model and some simulated measuremen
 
 The states of the model have to be written with the letter $x$ following by a number representing the state. If an input is needed for the model the input takes the letter $u$. This restrictions are made to ensure that the automatic differentiation will work as intended.
 
-```{R}
+```{R, eval = FALSE}
 library(seeds)
 
 # usb network example
@@ -144,12 +144,20 @@ The standard plot gives you three figure:
 
 All calculated values can be output by methods of the class odeModel, or extracted directly by the corresponding slots. The structure and methods of the class can be found in the corresponding documentation.
 
-```{R, fig.width = 7, fig.height = 5, message = FALSE}
+```{R, eval = FALSE}
 
 # plot the solution of the second iteration
 plot(res[[2]])
 
 ```
+
+The plotting function will give you three plots.
+
+![Estimated States for the model](estimated_states.png)
+
+![Estimated hidden inputs](estimated_hidden_inputs.png)
+
+![Measurements resulting from the estimated hidden inputs](estimated_measurements.png)
 
 ----
 
