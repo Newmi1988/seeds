@@ -1,6 +1,6 @@
-#' A class to store the important information of an experiment. 
+#' A class to store the important information of an model. 
 #' 
-#' The slots are used to store the important information of an experiment. The class is used to create object for the
+#' The slots are used to store the important information of an model. The class is used to create object for the
 #' two algorithms implemented in seeds. Methods are implemented to easily calculate the nominal solution of the model and
 #' change the details of the saved model.
 #' The numerical solutions are calculated using the \pkg{deSolve} - package. 
@@ -17,6 +17,8 @@
 #' @slot nnStates bit vector that indicates if states should be observed by the root function
 #' @slot nnTollerance tolerance at which a function is seen as zero
 #' @slot resetValue value a state should be set to by an event
+#' 
+#' @return an object of class odeModel which defines the model
 #' 
 #' @export odeModel
 #' @exportClass odeModel
@@ -97,12 +99,14 @@ checkMatrix <- function(argMatrix) {
 #' 
 #' Set the model equation of the system. Has to be a function that can be used with the deSolve package
 #' 
-#' @param theObject an object of the class odeModel
+#' @param odeModel an object of the class odeModel
 #' @param func function describing the ode equation of the model 
+#' 
+#' @return an object of odeModel
 #' 
 #' @export
 setGeneric(name = "setModelEquation",
-           def = function(theObject, func) {
+           def = function(odeModel, func) {
             standardGeneric("setModelEquation")
            }
 )
@@ -110,10 +114,10 @@ setGeneric(name = "setModelEquation",
 #' @rdname setModelEquation
 setMethod(f = "setModelEquation",
           signature = "odeModel",
-          definition = function(theObject, func) {
-            theObject@func <- func
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, func) {
+            odeModel@func <- func
+            validObject(odeModel)
+            return(odeModel)
           }
 )
 
@@ -122,12 +126,14 @@ setMethod(f = "setModelEquation",
 #' 
 #'  a method to set the model parameters of an odeModel object. 
 #' 
-#' @param theObject an object of the class odeModel
+#' @param odeModel an object of the class odeModel
 #' @param parms a vector containing the parameters of the model 
+#' 
+#' @return an object of odeModel
 #' 
 #' @export
 setGeneric(name = "setParms",
-           def = function(theObject, parms) {
+           def = function(odeModel, parms) {
             standardGeneric("setParms")
            }
 )
@@ -135,21 +141,23 @@ setGeneric(name = "setParms",
 #' @rdname setParms
 setMethod(f = "setParms",
           signature = c("odeModel", 'numeric'),
-          definition = function(theObject, parms) {
-            theObject@parms <- parms
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, parms) {
+            odeModel@parms <- parms
+            validObject(odeModel)
+            return(odeModel)
           }
 )
 
 #' Set the inputs of the model. 
 #' 
-#' @param theObject an object of the class modelClass
+#' @param odeModel an object of the class modelClass
 #' @param input function describing the ode equation of the model 
+#' 
+#' @return an object of odeModel
 #' 
 #' @export
 setGeneric(name = "setInput",
-           def = function(theObject, input) {
+           def = function(odeModel, input) {
             standardGeneric("setInput")
            }
 )
@@ -157,10 +165,10 @@ setGeneric(name = "setInput",
 #' @rdname setInput 
 setMethod(f = "setInput",
           signature = "odeModel",
-          definition = function(theObject, input) {
-            theObject@input <- input
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, input) {
+            odeModel@input <- input
+            validObject(odeModel)
+            return(odeModel)
           }
 )
 
@@ -169,13 +177,15 @@ setMethod(f = "setInput",
 
 #' Set the measurement equation for the model
 #' 
-#' @param theObject an object of the class odeModel
+#' @param odeModel an object of the class odeModel
 #' @param measFunc measurement function of the model. Has to be a R functions.
 #' @param custom custom indexing for the measurement function
 #' 
+#' @return an object of odeModel
+#' 
 #' @export
 setGeneric(name = "setMeasFunc",
-           def = function(theObject, measFunc, custom) {
+           def = function(odeModel, measFunc, custom) {
             standardGeneric("setMeasFunc")
            }
 )
@@ -183,10 +193,10 @@ setGeneric(name = "setMeasFunc",
 #' @rdname setMeasFunc
 setMethod(f = "setMeasFunc",
           signature = c('odeModel', 'function', 'missing'),
-          definition = function(theObject, measFunc, custom) {
-            theObject@measFunc <- measFunc
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, measFunc, custom) {
+            odeModel@measFunc <- measFunc
+            validObject(odeModel)
+            return(odeModel)
           }
 )
 
@@ -194,23 +204,25 @@ setMethod(f = "setMeasFunc",
 #' @rdname setMeasFunc
 setMethod(f = "setMeasFunc",
           signature = c('odeModel', 'function', 'logical'),
-          definition = function(theObject, measFunc, custom) {
-            theObject@meas <- measFunc
-            theObject@custom <- custom
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, measFunc, custom) {
+            odeModel@meas <- measFunc
+            odeModel@custom <- custom
+            validObject(odeModel)
+            return(odeModel)
           }
 
 )
 
 #' Set the vector with the initial (state) values
 #' 
-#' @param theObject an object of the class odeModel
+#' @param odeModel an object of the class odeModel
 #' @param y vector with the initial values
+#' 
+#' @return an object of odeModel
 #' 
 #' @export
 setGeneric(name = "setY",
-           def = function(theObject, y) {
+           def = function(odeModel, y) {
             standardGeneric("setY")
            }
 )
@@ -218,23 +230,25 @@ setGeneric(name = "setY",
 #' @rdname setY
 setMethod(f = "setY",
           signature = "odeModel",
-          definition = function(theObject, y) {
-            theObject@y <- y
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, y) {
+            odeModel@y <- y
+            validObject(odeModel)
+            return(odeModel)
           }
 )
 
 
 #' set measurements of the model
 #' 
-#' @param theObject an object of the class odeModel
+#' @param odeModel an object of the class odeModel
 #' @param meas measurements of the model, a matrix with measurements of the model
 #' and the corresponding time values
 #' 
+#' @return an object of odeModel
+#' 
 #' @export
 setGeneric(name = "setMeas",
-           def = function(theObject, meas) {
+           def = function(odeModel, meas) {
             standardGeneric("setMeas")
            }
 )
@@ -242,21 +256,23 @@ setGeneric(name = "setMeas",
 #' @rdname setMeas
 setMethod(f = "setMeas",
           signature = 'odeModel',
-          definition = function(theObject, meas) {
-            theObject@meas <- meas
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, meas) {
+            odeModel@meas <- meas
+            validObject(odeModel)
+            return(odeModel)
           }
 )
 
 #' Set the standard deviation of the measurements
 #' 
-#' @param theObject an object of the class odeModel
+#' @param odeModel an object of the class odeModel
 #' @param sd a matrix with the standard deviations of the measurements
+#' 
+#' @return an object of odeModel
 #' 
 #' @export
 setGeneric(name = "setSd",
-           def = function(theObject, sd) {
+           def = function(odeModel, sd) {
             standardGeneric("setSd")
            }
 )
@@ -264,21 +280,14 @@ setGeneric(name = "setSd",
 #' @rdname setSd
 setMethod(f = "setSd",
           signature = "odeModel",
-          definition = function(theObject, sd) {
-            theObject@sd <- sd
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, sd) {
+            odeModel@sd <- sd
+            validObject(odeModel)
+            return(odeModel)
           }
 )
 
-
-#' 
-#'
-#'
-#'
-#'
-
-
+#### generate c code (interal function)
 setGeneric(name = 'genCCode',
            def = function(odeModel, bden, nnStates) {
             standardGeneric('genCCode')
@@ -317,6 +326,8 @@ setMethod(f = 'genCCode',
 #' Calculate the nominal solution of the model
 #' 
 #' @param odeModel a object of the class ode model describing the experiment
+#' 
+#' @return a matrix with the numeric solution to the nominal ode equation
 #' 
 #' @export
 setGeneric(name = 'nominalSol',

@@ -9,8 +9,9 @@
 #' 
 #' @param odeObj a object of the S4 class odeEquation
 #' 
+#' @return a list of the costate equation and a jacobian matrix
+#' 
 #' @export
-
 symbolicDiff <- function(odeObj) {
 
   results <- list(costate = character(0), jacobian = matrix())

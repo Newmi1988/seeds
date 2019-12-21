@@ -16,6 +16,8 @@
 #' @slot Data the given measurements
 #' @slot DataError standard deviation of the given measurements
 #' 
+#' @return A object of class resultsSeeds collecting all the results of the algorithm
+#' 
 #' @export resultsSeeds
 #' @exportClass resultsSeeds
 #' 
@@ -176,6 +178,8 @@ printSeedsResults <- function(x) {
 #' the calculated hidden inputs
 #' 
 #' @param x an object of the class resultsSeeds
+#' 
+#' @return Returns a short summary of the important results
 #'
 #' @aliases print,resultsSeeds
 #'
@@ -183,17 +187,6 @@ printSeedsResults <- function(x) {
 #' 
 #' @rdname print-seeds
 #' 
-
-# setMethod(f = 'print',
-#           signature = 'list',
-#           definition = function(x) 
-#           {
-#             results <- x[[length(x)]]
-#             printSeedsResults(results)
-#           }
-
-
-# )
 
 setMethod(f = 'print',
           signature = 'resultsSeeds',
@@ -215,6 +208,8 @@ setMethod(f = 'print',
 #' @param x an object of type resultsSeeds or a list of these objects. If a list
 #' is given the last entry will be plotted.
 #' @param y ...
+#' 
+#' @return A list of plots showing the results of the algorithm
 #' 
 #' @aliases plot,resultsSeeds,missing-method
 #' 
@@ -241,6 +236,8 @@ setMethod(f = "plot",
 #' @param x an object of type resultsSeeds which contains the results of the algorithms
 #' @param stateAnno a character vector describing the names of the states
 #' @param measAnno a character vector describing the names of the measurements
+#' 
+#' @return Plots of the results with the provided annotation
 #' 
 #' @export
 setGeneric(name = "plotAnno", function(x, stateAnno, measAnno) standardGeneric("plotAnno"))
@@ -275,6 +272,8 @@ setMethod(f = "plotAnno",
 #' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
+#' @return Dataframe containing the estimated hidden inputs
+#' 
 #' @export
 
 setGeneric(name = "hiddenInputs",
@@ -314,6 +313,8 @@ setMethod(f = "hiddenInputs",
 #' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
+#' @return Dataframe containing the estimated states
+#' 
 #' @export
 setGeneric(name = "estiStates",
            def = function(resultsSeeds, ind) {
@@ -352,6 +353,8 @@ setMethod(f = "estiStates",
 #' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
+#' @return Dafaframe with estimated measurements.
+#' 
 #' @export
 setGeneric(name = "outputEstimates",
            def = function(resultsSeeds, ind) {
@@ -391,6 +394,9 @@ setMethod(f = "outputEstimates",
 #' @param slot argument of type character. 
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
+#' @return The confidence bands of the estiamted states, hidden inputs and outputs
+#' 
+#' 
 #' @export
 setGeneric(name = "confidenceBands",
            def = function(resultsSeeds, slot, ind) {

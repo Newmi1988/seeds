@@ -14,8 +14,8 @@
 #' @slot cond a slot to save conditionals in equations, which are used for formatting the c files
 #' @slot nnStates vector indicating which states should have a non negative solution
 #' 
-#' @export odeEquations
-#' @exportClass odeEquations
+#' @return Returns a s4 class object containing the needed equations for the costate equation
+#' 
 odeEquations <- setClass(
 #name of Class
   "odeEquations",

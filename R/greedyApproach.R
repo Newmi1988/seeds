@@ -51,7 +51,6 @@
 #' @return returns a list of results objects. The default plot function can be used to plot the results.
 #'
 #' @export
-
 sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, measData, sd, epsilon,
                            parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString, nnStates) {
 
