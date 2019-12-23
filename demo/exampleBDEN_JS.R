@@ -65,9 +65,6 @@ objectiveJakStat<- function(x,parameter=c(0,0)) {
 
 
 
-
-
-
 JakStatModel <- odeModel(func = modelJakStat, parms = parameters, input = inputData, times=c(0,60),
                          measFunc = objectiveJakStat, y = x0, meas = y, sd = sd,custom=TRUE)
 

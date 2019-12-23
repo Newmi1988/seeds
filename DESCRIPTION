@@ -14,7 +14,7 @@ Description: Algorithms to calculate the hidden inputs of systems of differentia
 License: GPL (>=3)
 Maintainer: Tobias Newmiwaka <tobias.newmiwaka@gmail.com>
 Depends:
-    R (>= 3.1.0)
+    R (>= 3.5.0)
 Encoding: UTF-8
 URL: https://github.com/Newmi1988/seeds
 BugReports: https://github.com/Newmi1988/seeds/issues

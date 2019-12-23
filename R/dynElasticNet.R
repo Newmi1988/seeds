@@ -7,7 +7,7 @@
 #' @param alpha1 L1 cost term scalar
 #' @param alpha2 L2 cost term scalar
 #' @param measData measured values of the experiment
-#' @param SD standard deviation of the experiment; leave empty if unknown
+#' @param SD standard deviation of the experiment; leave empty if unknown; matrix should contain the timesteps in the first column
 #' @param modelFunc function that describes the ODE-system of the model
 #' @param measFunc function that maps the states to the outputs
 #' @param optW vector that indicated at which knots of the network the algorithm should estimate the hidden inputs
@@ -109,7 +109,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
   }
   else {
     # Case 2
-    interpSD <- apply(X = SD, MARGIN = 2, FUN = function(t) stats::approx(x = measData[, 1], y = t, xout = times))
+    interpSD <- apply(X = SD[,-1], MARGIN = 2, FUN = function(t) stats::approx(x = SD[, 1], y = t, xout = times))
     interpSD = do.call(cbind, lapply(interpSD, FUN = function(t) cbind(t$y)))
     Q <- apply(X = interpSD, MARGIN = 2, FUN = function(t)(1 / t ^ 2) / length(t))
   }
@@ -429,6 +429,8 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
   # function that plots the current estimates for each iteration
   showEstimates <- function(measureTimes, AUCs, input, alpha2, J, nomSol, SD) {
     tPlot <- seq(from = measureTimes[1], to = measureTimes[length(measureTimes)], length.out = 50)
+    
+    SD = SD[,-1]
 
     y <- sapply(input$interpY, mapply, measureTimes)
     yhat <- sapply(input$interpyHat, mapply, tPlot)

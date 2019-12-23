@@ -18,6 +18,7 @@
 #' 
 #' @return A object of class resultsSeeds collecting all the results of the algorithm
 #' 
+#' @export resultsSeeds
 #' @exportClass resultsSeeds
 #' 
 #' @import methods

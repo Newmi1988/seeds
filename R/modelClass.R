@@ -20,6 +20,7 @@
 #' 
 #' @return an object of class odeModel which defines the model
 #' 
+#' @export odeModel
 #' @exportClass odeModel
 #'
 #' @import methods

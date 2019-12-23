@@ -42,7 +42,7 @@
 #' @param Beta          scaling parameter for the backtracking to approximate the stepsize of the gradient descent. Is set to  0.8
 #'                 if no value is given to the function
 #'
-#' @param sd      Standard deviation of the measurement. Is used to weight the errors of the estimates in the cost function. Optional parameter. Can be supplied with  the odeModel class.
+#' @param sd      Standard deviation of the measurement. Is used to weight the errors of the estimates in the cost function. Optional parameter. Can be supplied with  the odeModel class. Should contain the time in the first column
 #' 
 #' @param conjGrad Boolean that indicates the usage of conjugate gradient method over the normal steepest descent. Defaults to true if not specified.
 #' 

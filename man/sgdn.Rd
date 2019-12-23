@@ -51,7 +51,7 @@ measurable. Can be supplied by the odeModel parameter.}
 
 \item{measData}{a table that contains the measurements of the experiment. Used to calculate the needed inputs. Can be supplied with  the odeModel class.}
 
-\item{sd}{Standard deviation of the measurement. Is used to weight the errors of the estimates in the cost function. Optional parameter. Can be supplied with  the odeModel class.}
+\item{sd}{Standard deviation of the measurement. Is used to weight the errors of the estimates in the cost function. Optional parameter. Can be supplied with  the odeModel class. Should contain the time in the first column}
 
 \item{epsilon}{parameter that defines the stopping criteria for the algorithm, in this case percent change in cost function J[w]}
 

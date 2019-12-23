@@ -43,7 +43,7 @@ dynElasticNet(
 
 \item{constStr}{a string that represents constrains, can be used to calculate a hidden input for a component that gradient is zero}
 
-\item{SD}{standard deviation of the experiment; leave empty if unknown}
+\item{SD}{standard deviation of the experiment; leave empty if unknown; matrix should contain the timesteps in the first column}
 
 \item{modelFunc}{function that describes the ODE-system of the model}
 
