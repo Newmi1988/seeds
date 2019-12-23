@@ -5,6 +5,9 @@
 \alias{resultsSeeds-class}
 \alias{resultsSeeds}
 \title{Results Class for the Algorithms}
+\value{
+A object of class resultsSeeds collecting all the results of the algorithm
+}
 \description{
 A S4 class that collects the results of the two algorithms. The class also is equipped
 with functions for easily plotting and extracting the different results.

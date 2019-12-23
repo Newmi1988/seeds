@@ -4,9 +4,27 @@
 \alias{sgdn}
 \title{Greedy method for estimating a sparse solution}
 \usage{
-sgdn(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc,
-  measData, sd, epsilon, parameters, systemInput, modelFunc, greedyLogical,
-  plotEstimates, conjGrad, cString, nnStates)
+sgdn(
+  odeModel,
+  alphaStep,
+  Beta,
+  alpha1,
+  alpha2,
+  x0,
+  optW,
+  measFunc,
+  measData,
+  sd,
+  epsilon,
+  parameters,
+  systemInput,
+  modelFunc,
+  greedyLogical,
+  plotEstimates,
+  conjGrad,
+  cString,
+  nnStates
+)
 }
 \arguments{
 \item{odeModel}{a object of class \code{\link{odeModel}} from the package seeds. The class saves the details of an experiment for easier manipulation and analysis.}
@@ -58,6 +76,23 @@ will only use perform a calculation of the inputs for all knots without a sparse
 returns a list of results objects. The default plot function can be used to plot the results.
 }
 \description{
-calculates controls based on a first optimisation with gradient descent; should result in a sparse vector
-of hidden inputs.
+The sparse gradient dynamic elastic net calculates controls based on a first optimisation with gradient descent. IT should 
+result in a sparse vector of hidden inputs. These hidden inputs try to minimize the discrepancy between a given model and the taken measurements.
+}
+\details{
+This algorithm usses a greedy approach to calculate the hidden inputs. Starting with a first estimation of the hidden inputs
+the algorithm tries to optimize set of hidden inputs based on the area under the curve from the first run. The algorithm stops 
+if a set of hidden gives a lower cost than a set with additional hidden inputs. 
+
+For a complete example of the usage take a look into the vignette of the package.
+}
+\examples{
+\dontrun{
+data(uvbModel)
+
+results <- sgdn(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001,
+                epsilon = 0.2, plotEstimates = TRUE)
+
+}
+
 }

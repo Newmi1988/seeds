@@ -179,8 +179,6 @@ createCFile <- function(parameters, inputs, Eq, bden, nnStates) {
 #' @param nnStates a bit vector indicating the states that should be non negative
 #'
 #' @return None
-#'                   
-#' @export
 createCompModel <- function(modelFunc, parameters, bden, nnStates) {
 
 

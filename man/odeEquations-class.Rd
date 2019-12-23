@@ -5,6 +5,9 @@
 \alias{odeEquations-class}
 \alias{odeEquations}
 \title{A S4 class used to handle formatting ODE-Equation and calculate the needed functions for the seeds-algorithm}
+\value{
+Returns a s4 class object containing the needed equations for the costate equation
+}
 \description{
 A S4 class used to handle formatting ODE-Equation and calculate the needed functions for the seeds-algorithm
 }

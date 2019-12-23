@@ -19,7 +19,7 @@ Encoding: UTF-8
 URL: https://github.com/Newmi1988/seeds
 BugReports: https://github.com/Newmi1988/seeds/issues
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Imports: deSolve (>= 1.20),
     pracma (>= 2.1.4),
     Deriv (>= 3.8.4),

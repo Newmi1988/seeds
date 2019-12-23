@@ -18,6 +18,8 @@
 #' In contrast to approaches based on point estimates the Bayesian framework incorporates the given uncertainty and circumvents 
 #' numerical pitfalls which frequently arise from optimization methods (Engelhardt et al. 2017).
 #' 
+#' For a complete example of the usage take a look into the vignette of the package.
+#' 
 #' 
 #' @param odeModel             a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis. 
 #' @param settings             initial model specific settings (automatically calculated based on the nominal model and data)
@@ -36,7 +38,19 @@
 #' @param printstatesignore    states ignored in final output (default = FALSE)
 
 #' @return                     returns a results-object with default plot function
-
+#' 
+#' @examples 
+#' \dontrun{
+#' data(uvbModel)
+#' 
+#' results <- BDEN(odeModel          = Model,
+#'                 lambda            = .001,
+#'                 beta_init         = c(1,1,1,1,1),
+#'                 numbertrialsstep  = 15,
+#'                 numbertrialseps   = 2000,
+#'                 numbertrialinner  = 10)
+#' }
+#' 
 #' @export
 #' 
 #' 

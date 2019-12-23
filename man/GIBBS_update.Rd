@@ -4,8 +4,7 @@
 \alias{GIBBS_update}
 \title{Gibbs Update}
 \usage{
-GIBBS_update(D, EPS_inner, R, ROH, SIGMA_0, n, SIGMA, LAMBDA2, LAMBDA1,
-  TAU)
+GIBBS_update(D, EPS_inner, R, ROH, SIGMA_0, n, SIGMA, LAMBDA2, LAMBDA1, TAU)
 }
 \arguments{
 \item{D}{diagonal weight matrix of the current Gibbs step}

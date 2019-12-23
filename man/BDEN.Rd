@@ -4,11 +4,23 @@
 \alias{BDEN}
 \title{Bayesian Dynamic Elastic Net}
 \usage{
-BDEN(odeModel, settings, mcmc_component, loglikelihood_func, gibbs_update,
-  ode_sol, NegativeStates = FALSE, numbertrialsstep = 15,
-  numbertrialseps = NA, numbertrialinner = 25, lambda = 0.001,
-  Grad_correct = 0, alpha = c(1, 1, 1, 1), beta_init = c(1, 1, 1, 1),
-  printstatesignore = FALSE)
+BDEN(
+  odeModel,
+  settings,
+  mcmc_component,
+  loglikelihood_func,
+  gibbs_update,
+  ode_sol,
+  NegativeStates = FALSE,
+  numbertrialsstep = 15,
+  numbertrialseps = NA,
+  numbertrialinner = 25,
+  lambda = 0.001,
+  Grad_correct = 0,
+  alpha = c(1, 1, 1, 1),
+  beta_init = c(1, 1, 1, 1),
+  printstatesignore = FALSE
+)
 }
 \arguments{
 \item{odeModel}{a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis.}
@@ -63,4 +75,19 @@ error signal including detection of missing and wrong molecular interactions wit
 The method works for ODE based systems even with uncertain knowledge and noisy data. 
 In contrast to approaches based on point estimates the Bayesian framework incorporates the given uncertainty and circumvents 
 numerical pitfalls which frequently arise from optimization methods (Engelhardt et al. 2017).
+
+For a complete example of the usage take a look into the vignette of the package.
+}
+\examples{
+\dontrun{
+data(uvbModel)
+
+results <- BDEN(odeModel          = Model,
+                lambda            = .001,
+                beta_init         = c(1,1,1,1,1),
+                numbertrialsstep  = 15,
+                numbertrialseps   = 2000,
+                numbertrialinner  = 10)
+}
+
 }

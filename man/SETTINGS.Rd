@@ -4,8 +4,15 @@
 \alias{SETTINGS}
 \title{Automatic Calculation of optimal Initial Parameters}
 \usage{
-SETTINGS(VARIANCE, N, BETA_LAMDBA, alphainit, betainit, R = c(1000,
-  1000), ROH = c(10, 10))
+SETTINGS(
+  VARIANCE,
+  N,
+  BETA_LAMDBA,
+  alphainit,
+  betainit,
+  R = c(1000, 1000),
+  ROH = c(10, 10)
+)
 }
 \arguments{
 \item{VARIANCE}{standard error of the observed stat dynamics (per time point)}

@@ -4,9 +4,25 @@
 \alias{MCMC_component}
 \title{Componentwise Adapted Metropolis Hastings Sampler}
 \usage{
-MCMC_component(LOGLIKELIHOOD_func, STEP_SIZE, STEP_SIZE_INNER, EPSILON,
-  JUMP_SCALE, STEP, OBSERVATIONS, Y0, INPUTDATA, PARAMETER, EPSILON_ACT,
-  SIGMA, DIAG, GIBBS_par, N, BURNIN, objective)
+MCMC_component(
+  LOGLIKELIHOOD_func,
+  STEP_SIZE,
+  STEP_SIZE_INNER,
+  EPSILON,
+  JUMP_SCALE,
+  STEP,
+  OBSERVATIONS,
+  Y0,
+  INPUTDATA,
+  PARAMETER,
+  EPSILON_ACT,
+  SIGMA,
+  DIAG,
+  GIBBS_par,
+  N,
+  BURNIN,
+  objective
+)
 }
 \arguments{
 \item{LOGLIKELIHOOD_func}{likelihood function}
