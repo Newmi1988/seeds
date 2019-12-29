@@ -80,7 +80,7 @@ For a complete example of the usage take a look into the vignette of the package
 }
 \examples{
 \dontrun{
-data(uvbModel)
+data(bden_uvb)
 
 results <- BDEN(odeModel          = Model,
                 lambda            = .001,

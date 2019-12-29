@@ -41,7 +41,7 @@
 #' 
 #' @examples 
 #' \dontrun{
-#' data(uvbModel)
+#' data(bden_uvb)
 #' 
 #' results <- BDEN(odeModel          = Model,
 #'                 lambda            = .001,
