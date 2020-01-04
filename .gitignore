@@ -5,7 +5,6 @@ model.o
 model.so
 stateHiddenInput.R
 .RData
-.Rbuildignore
 .Rproj.user/
 model.dll
 BIOMD0000000545_url.xml
