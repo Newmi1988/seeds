@@ -1,7 +1,7 @@
 Package: seeds
 Type: Package
 Title: Estimate Hidden Inputs using the Dynamic Elastic Net
-Version: 1.0.0
+Version: 0.9.0.9000
 Authors@R: c(person("Tobias", "Newmiwaka", email = "tobias.newmiwaka@gmail.com",
                   role = c("aut", "cre")),
             person("Benjamin", "Engelhardt", email = "engelhar@bit.uni-bonn.de", 
