@@ -37,7 +37,8 @@ Imports: deSolve (>= 1.20),
     dplyr,
     Hmisc,
     R.utils
-Suggests: rsbml,
-    knitr, 
-    rmarkdown
+Suggests: 
+    rsbml,
+    knitr,
+    rmarkdown,
 VignetteBuilder: knitr
