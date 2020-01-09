@@ -531,7 +531,7 @@ setMethod(f = 'nominalSol',
               
               if (.Platform$OS.type != "windows"){
                 temp_file_path <- paste0(tempdir(),'/','model.c')
-                system(paste0("$(R_HOME)/bin/R CMD SHLIB",temp_file_path))
+                system(paste0("$(R_HOME)/bin/R CMD SHLIB ",temp_file_path))
               } else {
                 temp_file_path <- paste0(tempdir(),'\\','model.c')
                 temp_file_path = gsub('\\\\', '/', temp_file_path)
