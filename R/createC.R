@@ -161,7 +161,7 @@ createCFile <- function(parameters, inputs, Eq, bden, nnStates) {
 #' Create compilable c-code of a model
 #' 
 #' Writes a c file that can be compiled for faster solution with the \code{\link[deSolve]{ode}} solver.
-#' The file created is formated to be used with the dynamic elastic net. A hidden input is 
+#' The file created is formatted to be used with the dynamic elastic net. A hidden input is 
 #' added to every component of the state vector.
 #' 
 #' @note On the usage of compiled code in conjunction with \pkg{deSolve} take a look into the vignette 'R
@@ -179,8 +179,6 @@ createCFile <- function(parameters, inputs, Eq, bden, nnStates) {
 #' @param nnStates a bit vector indicating the states that should be non negative
 #'
 #' @return None
-#'                   
-#' @export
 createCompModel <- function(modelFunc, parameters, bden, nnStates) {
 
 

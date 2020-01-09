@@ -1,6 +1,6 @@
 #' Results Class for the Algorithms
 #' 
-#' A S4 class that collects the results of the two algorithms. The class also is equiped
+#' A S4 class that collects the results of the two algorithms. The class also is equipped
 #' with functions for easily plotting and extracting the different results.
 #' 
 #' @slot stateNominal data.frame containing the states of the nominal model
@@ -9,12 +9,14 @@
 #' @slot stateUnscertainUpper upper bound of the estimated states as calculated by the baysian method
 #' @slot hiddenInputEstimates estimated hidden input
 #' @slot hiddenInputUncertainLower lower bounds of the estimated hidden inputs
-#' @slot hiddenInputUncertainUpper uppper bounds of the estimated hidden inputs
+#' @slot hiddenInputUncertainUpper upper bounds of the estimated hidden inputs
 #' @slot outputEstimates estimated measurements resulting from the control of the hidden inputs
 #' @slot outputEstimatesUncLower lower bound of the confidence bands of the estimated output
 #' @slot outputEstimatesUncUpper upper bound of the confidence bands of the estimated output
 #' @slot Data the given measurements
 #' @slot DataError standard deviation of the given measurements
+#' 
+#' @return A object of class resultsSeeds collecting all the results of the algorithm
 #' 
 #' @export resultsSeeds
 #' @exportClass resultsSeeds
@@ -176,24 +178,21 @@ printSeedsResults <- function(x) {
 #' the calculated hidden inputs
 #' 
 #' @param x an object of the class resultsSeeds
+#' 
+#' @return Returns a short summary of the important results
 #'
 #' @aliases print,resultsSeeds
+#' 
+#' @examples
+#' data(ubv_res)
+#' 
+#' plot(res[[2]])
+#' 
 #'
 #' @export
 #' 
 #' @rdname print-seeds
 #' 
-
-# setMethod(f = 'print',
-#           signature = 'list',
-#           definition = function(x) 
-#           {
-#             results <- x[[length(x)]]
-#             printSeedsResults(results)
-#           }
-
-
-# )
 
 setMethod(f = 'print',
           signature = 'resultsSeeds',
@@ -216,11 +215,19 @@ setMethod(f = 'print',
 #' is given the last entry will be plotted.
 #' @param y ...
 #' 
+#' @return A list of plots showing the results of the algorithm
+#' 
 #' @aliases plot,resultsSeeds,missing-method
+#' 
+#' @examples 
+#' 
+#' data(uvb_res)
+#' 
+#' plot(res[[2]])
 #' 
 #' @export
 
-#' @rdname plot-seeds
+#' @rdname plotseeds
 setMethod(f = "plot",
           signature = c(x = "resultsSeeds", y = "missing"),
           definition = function(x, y) {
@@ -241,6 +248,17 @@ setMethod(f = "plot",
 #' @param x an object of type resultsSeeds which contains the results of the algorithms
 #' @param stateAnno a character vector describing the names of the states
 #' @param measAnno a character vector describing the names of the measurements
+#' 
+#' @return Plots of the results with the provided annotation
+#' 
+#' @examples 
+#' 
+#' data(uvb_res)
+#' 
+#' statesAnno <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9", "x10", "x11", "x12", "x13")
+#' measurAnno <- c("y1", "y2", "y3", "y4", "y5")
+#' 
+#' plotAnno(res[[2]], stateAnno = statesAnno, measAnno =  measurAnno)
 #' 
 #' @export
 setGeneric(name = "plotAnno", function(x, stateAnno, measAnno) standardGeneric("plotAnno"))
@@ -275,6 +293,14 @@ setMethod(f = "plotAnno",
 #' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
+#' @return Dataframe containing the estimated hidden inputs
+#' 
+#' @examples 
+#' 
+#' data(uvb_res)
+#' 
+#' hiddenInputs(res[[2]])
+#' 
 #' @export
 
 setGeneric(name = "hiddenInputs",
@@ -311,9 +337,17 @@ setMethod(f = "hiddenInputs",
 #### return estimated states ####
 #' Get the estimated states
 #' 
-#' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
-#' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
+#' @param resultsSeeds A object of the class resultsSeeds, which is returned from the algorithms.
+#' @param ind A numeric indicating the index of a resultsSeeds-Object in a list. If not set the last listed object will be used.
 #'
+#' @return Dataframe containing the estimated states
+#' 
+#' @examples 
+#' 
+#' data(uvb_res)
+#' 
+#' estiStates(res)
+#' 
 #' @export
 setGeneric(name = "estiStates",
            def = function(resultsSeeds, ind) {
@@ -352,6 +386,14 @@ setMethod(f = "estiStates",
 #' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
 #' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
 #'
+#' @return Dafaframe with estimated measurements.
+#' 
+#' @examples 
+#' 
+#' data(uvb_res)
+#' 
+#' outputEstimates(res[[2]])
+#' 
 #' @export
 setGeneric(name = "outputEstimates",
            def = function(resultsSeeds, ind) {
@@ -387,10 +429,18 @@ setMethod(f = "outputEstimates",
 #### return confidence bands ####
 #' Get the estimated confidence bands for the bayesian method
 #' 
-#' @param resultsSeeds A object of the class 'resultsSeeds', which is returned from the algorithms.
-#' @param slot Arguement of type character. 
-#' @param ind A numeric indicating the index of a 'resultsSeeds'-Object in a list. If not set the last listed object will be used.
+#' @param resultsSeeds A object of the class resultsSeeds, which is returned from the algorithms.
+#' @param slot Specifies the slot. Options are "states", "hiddenInputs", "outputs"
+#' @param ind A numeric indicating the index of a resultsSeeds-Object in a list. If not set the last listed object will be used.
 #'
+#' @return A dataframe containing the confidence bands of the estiamted states, hidden inputs and outputs
+#' 
+#' @examples 
+#' 
+#' data(uvb_res)
+#' 
+#' confidenceBands(res, slot = "states", ind = 2) 
+#' 
 #' @export
 setGeneric(name = "confidenceBands",
            def = function(resultsSeeds, slot, ind) {

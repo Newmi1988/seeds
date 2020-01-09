@@ -4,22 +4,23 @@
 \name{seeds-package}
 \alias{seeds}
 \alias{seeds-package}
-\title{seeds: Estimate Hidden Inputs using the Method of the Dynamic Elastic Net}
+\title{seeds: Estimate Hidden Inputs using the Dynamic Elastic Net}
 \description{
 Algorithms to calculate the hidden inputs of systems of differential equations. 
   These hidden inputs can be interpreted as a control that tries to minimize the
-  discrepancies between a given model and taken measurements. The method is 
-  also called the 'dynamic elastic net'.
+  discrepancies between a given model and taken measurements. The idea is 
+  also called the Dynamic Elastic Net, as proposed in the paper "Learning (from) the errors of a systems biology model" 
+  (Engelhardt, Frölich, Kschischo 2016) <doi:10.1038/srep20772>.
 }
 \details{
 Details
 
-The algorithm calcultes the needed equations using the \code{\link{Deriv}}
+The algorithm calculates the needed equations using the \code{\link{Deriv}}
 function of the \pkg{Deriv} package. The process is implemented through the use
 of the S4 class \code{\link{odeEquations-class}}. 
 
 The conjugate gradient based algorithm uses a greedy algorithm to estimate a 
-sparse controll that tries to minimize the discrepancies between a given 
+sparse control that tries to minimize the discrepancies between a given 
 'nominal model given the measurements (e.g from an experiment). The algorithm
 the \code{\link{ode}} uses \pkg{deSolve} to calculate the hidden inputs w 
 based on the adjoint equations of the ODE-System. 

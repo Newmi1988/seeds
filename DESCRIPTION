@@ -1,24 +1,25 @@
 Package: seeds
 Type: Package
-Title: Estimate Hidden Inputs using the Method of the Dynamic Elastic Net
-Version: 1.0.0
+Title: Estimate Hidden Inputs using the Dynamic Elastic Net
+Version: 0.9.0.9000
 Authors@R: c(person("Tobias", "Newmiwaka", email = "tobias.newmiwaka@gmail.com",
                   role = c("aut", "cre")),
             person("Benjamin", "Engelhardt", email = "engelhar@bit.uni-bonn.de", 
                     role = c("aut")))
 Description: Algorithms to calculate the hidden inputs of systems of differential equations. 
   These hidden inputs can be interpreted as a control that tries to minimize the
-  discrepancies between a given model and taken measurements. The method is 
-  also called the 'dynamic elastic net'. 
+  discrepancies between a given model and taken measurements. The idea is 
+  also called the Dynamic Elastic Net, as proposed in the paper "Learning (from) the errors of a systems biology model" 
+  (Engelhardt, Frölich, Kschischo 2016) <doi:10.1038/srep20772>. 
 License: GPL (>=3)
 Maintainer: Tobias Newmiwaka <tobias.newmiwaka@gmail.com>
 Depends:
-    R (>= 3.1.0)
+    R (>= 3.5.0)
 Encoding: UTF-8
 URL: https://github.com/Newmi1988/seeds
 BugReports: https://github.com/Newmi1988/seeds/issues
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Imports: deSolve (>= 1.20),
     pracma (>= 2.1.4),
     Deriv (>= 3.8.4),

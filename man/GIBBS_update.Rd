@@ -4,8 +4,7 @@
 \alias{GIBBS_update}
 \title{Gibbs Update}
 \usage{
-GIBBS_update(D, EPS_inner, R, ROH, SIGMA_0, n, SIGMA, LAMBDA2, LAMBDA1,
-  TAU)
+GIBBS_update(D, EPS_inner, R, ROH, SIGMA_0, n, SIGMA, LAMBDA2, LAMBDA1, TAU)
 }
 \arguments{
 \item{D}{diagonal weight matrix of the current Gibbs step}
@@ -41,5 +40,5 @@ mainly controlled by Lambda2. These parameters are drawn from hyper-priors, whic
 manner or with respect to prior knowledge about the degree of shrinkage and smoothness of the hidden influences (Engelhardt et al. 2017).
 }
 \details{
-The function can be replaced by an userdefined version if necessary
+The function can be replaced by an user defined version if necessary
 }

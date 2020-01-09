@@ -17,7 +17,7 @@ Both algorithm makes heavy use of the deSolve package. The use of Rtools is reco
 
 The first Algorithm is a greedy method for generating a sparse solution for the hidden inputs. The algorithm is based on Pontryagin's Maximum Principle and implements an iterative gradient descent method which aims at minimizing the Hamilton function of the system. 
 
-Rtools is suggested, because of the immense computational cost of the step size estiamtion of the gradient step.
+Rtools is suggested, because of the immense computational cost of the step size estimation of the gradient step.
 
 ## The odeModel Class
 The class aims to be used to describe the experiment you want to analyse. It has the following slots:
@@ -33,7 +33,7 @@ The class aims to be used to describe the experiment you want to analyse. It has
 - **custom**: customized link function (is internally used)
 - **nnStates**: bit vector that indicates if states should be observed by the root function
 - **nnTollerance**: tolerance at which a function is seen as zero (optional)
-- **resetValue**: value a state should be set to by an event (optinal)
+- **resetValue**: value a state should be set to by an event (optional)
 
 The class also provides methods to simply evaluate and display the nominal solution of an created odeModel object with the _nominalSol_ and _plot()_ function.
 
@@ -42,7 +42,7 @@ The following example uses the UVB protein g model and some simulated measuremen
 
 The states of the model have to be written with the letter $x$ following by a number representing the state. If an input is needed for the model the input takes the letter $u$. This restrictions are made to ensure that the automatic differentiation will work as intended.
 
-```{R}
+```{R, eval = FALSE}
 library(seeds)
 
 # usb network example
@@ -144,18 +144,26 @@ The standard plot gives you three figure:
 
 All calculated values can be output by methods of the class odeModel, or extracted directly by the corresponding slots. The structure and methods of the class can be found in the corresponding documentation.
 
-```{R, fig.width = 7, fig.height = 5, message = FALSE}
+```{R, eval = FALSE}
 
 # plot the solution of the second iteration
 plot(res[[2]])
 
 ```
 
+The plotting function will give you three plots.
+
+![Estimated States for the model](estimated_states.png)
+
+![Estimated hidden inputs](estimated_hidden_inputs.png)
+
+![Measurements resulting from the estimated hidden inputs](estimated_measurements.png)
+
 ----
 
 # Bayesian Dynamic Elastic Net
  
- Full Bayesian algortihm to detect hidden inputs in ODE based models.The algortihm is an extension of the Dynamic Elastic Net algorithm (Engelhardt et al. 2016) inspired by the Elastic-Net Regression.
+ Full Bayesian algorithm to detect hidden inputs in ODE based models.The algorithm is an extension of the Dynamic Elastic Net algorithm (Engelhardt et al. 2016) inspired by the Elastic-Net Regression.
   
   Ordinary differential equations (ODEs) are a popular approach to quantitatively model molecular networks based on biological knowledge. However, such knowledge is typically restricted. Wrongly modelled biological mechanisms as well as relevant external influence factors that are not included into the model likely manifest in major discrepancies between model predictions and experimental data. 
   Finding the exact reasons for such observed discrepancies can be quite challenging in practice. In order to address this issue we suggest a Bayesian approach to estimate hidden influences in ODE based models. The method can distinguish between exogenous and endogenous hidden influences. Thus, we can detect wrongly specified as well as missed 
@@ -167,7 +175,7 @@ plot(res[[2]])
   
 ## BDEN
 
-The algorithm can be executed in a smiliar fashion as the sgdn algorithm. However computational time is much higher. See demostrations on how to use the algorithm. For further information look into the documentation of the functions.
+The algorithm can be executed in a smiliar fashion as the sgdn algorithm. However computational time is much higher. See demonstration on how to use the algorithm. For further information look into the documentation of the functions.
 
 ```{R, eval = FALSE}
 

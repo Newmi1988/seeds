@@ -25,22 +25,6 @@ y                            <- cbind(measure['time'],
                                       (x0[1]-(measure['STAT5ptot_cyt']/parameters['s2']))/2/(1400/450)
 )
 
-# ---
-# Manipulate support points 
-#inputApprox   <- apply(X = inputData[,-1,drop=FALSE], MARGIN = 2, FUN = function(x) stats::approx(x = inputData[,1], y = x, xout = seq(0,60,5), rule = 2))
-#inputData     <- (cbind(inputApprox$u$x,inputApprox$u$y))
-#inputData     <- as.data.frame(inputData)
-#colnames(inputData)          <- c('t','u')
-
-#inputApprox <- apply(X = measure[,c(2,4)], MARGIN = 2, FUN = function(x) stats::approx(x = measure[,1], y = x, xout = seq(0,60,5), rule = 2))
-#measur     <- (cbind(inputApprox$STAT5p_cyt$x,inputApprox$STAT5p_cyt$y,inputApprox$STAT5ptot_cyt$y))
-#colnames(measur)            <-  c("time","STAT5p_cyt" ,"STAT5ptot_cyt")
-#y                            <- cbind(measur[,'time'],((measur[,'STAT5ptot_cyt']/parameters['s2'])-(measur[,'STAT5p_cyt']/parameters['s1'])),measur[,'STAT5p_cyt'],measur[,'STAT5ptot_cyt'],(x0[1]-(measur[,'STAT5ptot_cyt']/parameters['s2']))/2/(1400/450))
-                                                                                                                                                                       
-
-#y<- as.data.frame(y)
-# ---
-
 
 y[y<0]                       <- 0
 colnames(y)                  <- c("time", "STAT5" ,"STAT5p_cyt","STAT5ptot_cyt","STAT5_n")
@@ -78,9 +62,6 @@ objectiveJakStat<- function(x,parameter=c(0,0)) {
   
   return(cbind(y1,y2,y3,y4))
 }
-
-
-
 
 
 

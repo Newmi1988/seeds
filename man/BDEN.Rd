@@ -4,16 +4,28 @@
 \alias{BDEN}
 \title{Bayesian Dynamic Elastic Net}
 \usage{
-BDEN(odeModel, settings, mcmc_component, loglikelihood_func, gibbs_update,
-  ode_sol, NegativeStates = FALSE, numbertrialsstep = 15,
-  numbertrialseps = NA, numbertrialinner = 25, lambda = 0.001,
-  Grad_correct = 0, alpha = c(1, 1, 1, 1), beta_init = c(1, 1, 1, 1),
-  printstatesignore = FALSE)
+BDEN(
+  odeModel,
+  settings,
+  mcmc_component,
+  loglikelihood_func,
+  gibbs_update,
+  ode_sol,
+  NegativeStates = FALSE,
+  numbertrialsstep = 15,
+  numbertrialseps = NA,
+  numbertrialinner = 25,
+  lambda = 0.001,
+  Grad_correct = 0,
+  alpha = c(1, 1, 1, 1),
+  beta_init = c(1, 1, 1, 1),
+  printstatesignore = FALSE
+)
 }
 \arguments{
 \item{odeModel}{a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis.}
 
-\item{settings}{initial model specific settings (automaticly calculated based on the nominal model and data)}
+\item{settings}{initial model specific settings (automatically calculated based on the nominal model and data)}
 
 \item{mcmc_component}{sampling algorithm}
 
@@ -31,13 +43,13 @@ BDEN(odeModel, settings, mcmc_component, loglikelihood_func, gibbs_update,
 
 \item{numbertrialinner}{number of inner samples. This should be greater 15 to guarantee a reasonable exploration of the sample space. Values have direct influnce on the runtime.}
 
-\item{lambda}{inital shrinkage parameter.}
+\item{lambda}{initial shrinkage parameter.}
 
 \item{Grad_correct}{correction factor for initial sigma estimate}
 
-\item{alpha}{mcmc tuning paramter (weigthing of observed states)}
+\item{alpha}{mcmc tuning parameter (weighting of observed states)}
 
-\item{beta_init}{mcmc tunig parameter (weigthing of observed states)}
+\item{beta_init}{mcmc tuning parameter (weigthing of observed states)}
 
 \item{printstatesignore}{states ignored in final output (default = FALSE)}
 }
@@ -45,7 +57,7 @@ BDEN(odeModel, settings, mcmc_component, loglikelihood_func, gibbs_update,
 returns a results-object with default plot function
 }
 \description{
-Full Bayesian algortihm to detect hidden inputs in ODE based models.The algortihm 
+Full Bayesian algorithm to detect hidden inputs in ODE based models.The algorithm 
 is an extension of the Dynamic Elastic Net algorithm (Engelhardt et al. 2016) inspired by the Elastic-Net Regression.
 }
 \details{
@@ -63,4 +75,19 @@ error signal including detection of missing and wrong molecular interactions wit
 The method works for ODE based systems even with uncertain knowledge and noisy data. 
 In contrast to approaches based on point estimates the Bayesian framework incorporates the given uncertainty and circumvents 
 numerical pitfalls which frequently arise from optimization methods (Engelhardt et al. 2017).
+
+For a complete example of the usage take a look into the vignette of the package.
+}
+\examples{
+\dontrun{
+data(bden_uvb)
+
+results <- BDEN(odeModel          = Model,
+                lambda            = .001,
+                beta_init         = c(1,1,1,1,1),
+                numbertrialsstep  = 15,
+                numbertrialseps   = 2000,
+                numbertrialinner  = 10)
+}
+
 }

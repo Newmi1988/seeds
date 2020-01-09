@@ -4,8 +4,22 @@
 \alias{LOGLIKELIHOOD_func}
 \title{Calculates the Log Likelihood for a new sample given the current state (i.e. log[L(G|x)P(G)])}
 \usage{
-LOGLIKELIHOOD_func(pars, Step, OBSERVATIONS, x_0, parameters, EPS_inner,
-  INPUT, D, GIBBS_PAR, k, MU_JUMP, SIGMA_JUMP, eps_new, objectivfunc)
+LOGLIKELIHOOD_func(
+  pars,
+  Step,
+  OBSERVATIONS,
+  x_0,
+  parameters,
+  EPS_inner,
+  INPUT,
+  D,
+  GIBBS_PAR,
+  k,
+  MU_JUMP,
+  SIGMA_JUMP,
+  eps_new,
+  objectivfunc
+)
 }
 \arguments{
 \item{pars}{sampled hidden influence for state k (w_new) at time tn+1}
@@ -41,5 +55,5 @@ returns the log-likelihood for two given hidden inputs
 }
 \description{
 Algorithm implemented according to Engelhardt et al. 2017.
-The function can be replaced by an userdefined version if necessary.
+The function can be replaced by an user defined version if necessary.
 }

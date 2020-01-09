@@ -4,42 +4,60 @@
 \alias{dynElasticNet}
 \title{estimating the optimal control using the dynamic elastic net}
 \usage{
-dynElasticNet(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
-  measData, constStr, SD, modelFunc, measFunc, modelInput, optW, origAUC,
-  maxIteration, plotEsti, conjGrad, eps, nnStates)
+dynElasticNet(
+  alphaStep,
+  armijoBeta,
+  x0,
+  parameters,
+  alpha1,
+  alpha2,
+  measData,
+  constStr,
+  SD,
+  modelFunc,
+  measFunc,
+  modelInput,
+  optW,
+  origAUC,
+  maxIteration,
+  plotEsti,
+  conjGrad,
+  eps,
+  nnStates
+)
 }
 \arguments{
 \item{alphaStep}{starting value of the stepsize for the gradient descent, will be calculate to minimize the costfunction by backtracking algorithm}
 
-\item{armijoBeta}{scaling of the alphaStep to find a approximatly optimal value for the stepsize}
+\item{armijoBeta}{scaling of the alphaStep to find a approximately optimal value for the stepsize}
 
 \item{x0}{initial state of the ode system}
 
 \item{parameters}{parameters of the ODE-system}
 
-\item{alpha1}{L1 cost term skalar}
+\item{alpha1}{L1 cost term scalar}
 
-\item{alpha2}{L2 cost term skalar}
+\item{alpha2}{L2 cost term scalar}
 
 \item{measData}{measured values of the experiment}
 
-\item{constStr}{a string that represents constrains, can be used to calculate a hidden input for a komponent that gradient is zero}
+\item{constStr}{a string that represents constrains, can be used to calculate a hidden input for a component that gradient is zero}
 
-\item{SD}{standard deviation of the experiment; leave empty if unknown}
+\item{SD}{standard deviation of the experiment; leave empty if unknown; matrix should contain the timesteps in the first column}
 
 \item{modelFunc}{function that describes the ODE-system of the model}
 
 \item{measFunc}{function that maps the states to the outputs}
 
-\item{modelInput}{an dataset that discribes the external input of the system}
+\item{modelInput}{an dataset that describes the external input of the system}
 
-\item{optW}{vector that indicated at which knots of the network the alogrithm should estimate the hidden inputs}
+\item{optW}{vector that indicated at which knots of the network the algorithm should estimate the hidden inputs}
 
 \item{origAUC}{AUCs of the first optimisation; only used by the algorithm}
 
 \item{maxIteration}{a upper bound for the maximal number of iterations}
 
-\item{plotEsti}{boolean that controlls of the current estimates should be plotted}
+\item{plotEsti}{boolean that controls of the current estimates should be plotted}
 
 \item{conjGrad}{boolean that indicates the usage of conjugate gradient method over the normal steepest descent}
 

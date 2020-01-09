@@ -71,6 +71,7 @@ uvbMeasure <- function(x) {
 y <- uvbData[,1:6]
 t <- uvbData$t
 sd <- uvbData[,7:11]
+sd <- cbind(t,sd)
   
 uvbModel <- odeModel(func = uvbModel, parms = uvbParameter, times = t,
            measFunc = uvbMeasure, y = x0, meas = y, sd = sd)

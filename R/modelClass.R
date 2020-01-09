@@ -1,6 +1,6 @@
-#' A class to store the important information of an experiment. 
+#' A class to store the important information of an model. 
 #' 
-#' The slots are used to store the important information of an experiment. The class is used to create object for the
+#' The slots are used to store the important information of an model. The class is used to create object for the
 #' two algorithms implemented in seeds. Methods are implemented to easily calculate the nominal solution of the model and
 #' change the details of the saved model.
 #' The numerical solutions are calculated using the \pkg{deSolve} - package. 
@@ -15,8 +15,10 @@
 #' @slot sd optional standard deviations of the measurements, is used by the algorithms as weights in the costfunction
 #' @slot custom customized link function
 #' @slot nnStates bit vector that indicates if states should be observed by the root function
-#' @slot nnTollerance tollerance at which a function is seen as zero
+#' @slot nnTollerance tolerance at which a function is seen as zero
 #' @slot resetValue value a state should be set to by an event
+#' 
+#' @return an object of class odeModel which defines the model
 #' 
 #' @export odeModel
 #' @exportClass odeModel
@@ -95,14 +97,50 @@ checkMatrix <- function(argMatrix) {
 
 #' Set the model equation
 #' 
-#' Set the model equation of the system. Has to be a function that can be used with the deSolve package
+#' Set the model equation of the system in an odeModel object. Has to be a function that can be used with the deSolve package.
 #' 
-#' @param theObject an object of the class odeModel
+#' @param odeModel an object of the class odeModel
 #' @param func function describing the ode equation of the model 
+#' 
+#' @return an object of odeModel
+#' 
+#' @examples 
+#' data("uvbModel")
+#' 
+#' uvbModelEq <- function(t,x,parameters) {
+#'   with (as.list(parameters),{
+#'     
+#'     dx1 = ((-2) * ((ka1 * (x[1]^2) * (x[4]^2)) - (kd1 * x[5])) + 
+#'              (-2) * ((ka2 * (x[1]^2) * x[2]) - (kd2 * x[3])) + 
+#'              ((ks1 *((1) + (uv * n3 * (x[11] + fhy3_s))))  - 
+#'                 (kdr1 * ((1) + (n1 * uv)) * x[1])))
+#'     dx2 = ((-1) * ((ka2*(x[1]^2) * x[2]) - (kd2 * x[3])) +
+#'              (-1) * ((ka4 * x[2] * x[12]) - (kd4 * x[13])))
+#'     dx3 = (((ka2 * (x[1]^2) * x[2]) - (kd2*  x[3]))) 
+#'     dx4 = ((-2) * (k1*(x[4]^2)) + (2) * (k2 * x[6]) + 
+#'              (-2) * ((ka1 * (x[1]^2)* (x[4]^2)) - (kd1 * x[5])) +
+#'              (-1)* (ka3 * x[4] *x[7]))
+#'     dx5 =  (((ka1 * (x[1]^2) * (x[4]^2)) -(kd1 * x[5])))
+#'     dx6 = ((-1) * (k2 * x[6]) +  (k1 * (x[4]^2)) +(kd3 * (x[8]^2)))
+#'     dx7 = ((-1) * (ka3 * x[4] * x[7]) + ((ks2 * ((1) + (uv * x[5]))) - 
+#'                                            (kdr2 * x[7])) + (2) * (kd3 * (x[8]^2)))
+#'     dx8 = ((-2) * (kd3 * x[8]^2) + (ka3 * x[4] * x[7])) 
+#'     dx9  = 0 
+#'     dx10 = 0
+#'     dx11 =  (((ks3 * ((1) + (n2 * uv))) -(kdr3 * (((x[3] / (kdr3a + x[3])) + 
+#'             (x[13] / (kdr3b + x[13]))) -(x[5] / (ksr + x[5]))) *  x[11])))
+#'     dx12 = ((-1) * (ka4 * x[2] * x[12]) + (kd4 * x[13]))
+#'     dx13 =((ka4 * x[2] * x[12]) - (kd4 * x[13]))
+#'     
+#'     list(c(dx1,dx2,dx3,dx4,dx5,dx6,dx7,dx8,dx9,dx10,dx11,dx12,dx13))
+#'   })
+#' }
+#' 
+#' setModelEquation(uvbModel,uvbModelEq)
 #' 
 #' @export
 setGeneric(name = "setModelEquation",
-           def = function(theObject, func) {
+           def = function(odeModel, func) {
             standardGeneric("setModelEquation")
            }
 )
@@ -110,24 +148,56 @@ setGeneric(name = "setModelEquation",
 #' @rdname setModelEquation
 setMethod(f = "setModelEquation",
           signature = "odeModel",
-          definition = function(theObject, func) {
-            theObject@func <- func
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, func) {
+            odeModel@func <- func
+            validObject(odeModel)
+            return(odeModel)
           }
 )
 
 
 #' Set the model parameters
 #' 
-#'  a method to set the model parameters of an odeModel object. 
+#'  A method to set the model parameters of an odeModel object.
 #' 
-#' @param theObject an object of the class odeModel
-#' @param parms a vector containing the parmeters of the model 
+#' @param odeModel an object of the class odeModel
+#' @param parms a vector containing the parameters of the model 
+#' 
+#' @examples 
+#' data("uvbModel")
+#' 
+#' newParas <- c(  ks1=0.23,
+#' ks2=4.0526,
+#' kdr1=0.1,
+#' kdr2=0.2118,
+#' k1=0.0043,
+#' k2=161.62,
+#' ka1=0.0372,
+#' ka2=0.0611,
+#' ka3=4.7207,
+#' kd1=94.3524,
+#' kd2=50.6973,
+#' kd3=0.5508,
+#' ks3=0.4397,
+#' kdr3=1.246,
+#' uv=1,
+#' ka4=10.1285,
+#' kd4=1.1999,
+#' n1=3,
+#' n2=2,
+#' n3=3.5,
+#' kdr3a=0.9735,
+#' kdr3b=0.406,
+#' ksr=0.7537,
+#' fhy3_s=5)
+#' 
+#' newModel <- setParms(odeModel = uvbModel, parms = newParas)
+#' 
+#' @return an object of odeModel
 #' 
 #' @export
 setGeneric(name = "setParms",
-           def = function(theObject, parms) {
+           def = function(odeModel, parms) {
             standardGeneric("setParms")
            }
 )
@@ -135,21 +205,38 @@ setGeneric(name = "setParms",
 #' @rdname setParms
 setMethod(f = "setParms",
           signature = c("odeModel", 'numeric'),
-          definition = function(theObject, parms) {
-            theObject@parms <- parms
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, parms) {
+            odeModel@parms <- parms
+            validObject(odeModel)
+            return(odeModel)
           }
 )
 
 #' Set the inputs of the model. 
 #' 
-#' @param theObject an object of the class modelClass
+#' It the model has an input it can be set with this function. The inputs
+#' should be a dataframe, where the first column is the timesteps of the
+#' inputs in the second column.
+#' 
+#' @param odeModel an object of the class modelClass
 #' @param input function describing the ode equation of the model 
+#' 
+#' @return an object of odeModel
+#' 
+#' @examples 
+#' 
+#' data("uvbModel")
+#' 
+#' model_times <- uvbModel@times
+#' input <- rep(0,length(model_times))
+#'
+#' input_Dataframe <- data.frame(t = model_times, u = input)
+#'
+#' newModel <- setInput(odeModel = uvbModel,input = input_Dataframe)
 #' 
 #' @export
 setGeneric(name = "setInput",
-           def = function(theObject, input) {
+           def = function(odeModel, input) {
             standardGeneric("setInput")
            }
 )
@@ -157,10 +244,10 @@ setGeneric(name = "setInput",
 #' @rdname setInput 
 setMethod(f = "setInput",
           signature = "odeModel",
-          definition = function(theObject, input) {
-            theObject@input <- input
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, input) {
+            odeModel@input <- input
+            validObject(odeModel)
+            return(odeModel)
           }
 )
 
@@ -169,13 +256,35 @@ setMethod(f = "setInput",
 
 #' Set the measurement equation for the model
 #' 
-#' @param theObject an object of the class odeModel
+#' For a given model a measurement equation can be set. If no measurement function is set the
+#' states become the output of the system. The function should be defined as in the example below.
+#' 
+#' @param odeModel an object of the class odeModel
 #' @param measFunc measurement function of the model. Has to be a R functions.
-#' @param costum costum indexing for the measurement function
+#' @param custom custom indexing for the measurement function (used by the baysian method)
+#' 
+#' @return an object of odeModel
+#' 
+#' @examples 
+#' 
+#' data("uvbModel")
+#' 
+#' uvbMeasure <- function(x) {
+#' 
+#'   y1 = 2*x[,5] + x[,4] + x[,8]
+#'   y2 = 2*x[,5] + 2* x[,3] + x[,1]
+#'   y3 = x[,6]
+#'   y4 = x[,11]
+#'   y5 = x[,4]
+#' 
+#'   return(cbind(y1,y2,y3,y4,y5))
+#'   }
+#' 
+#' newModel <- setMeasFunc(odeModel = uvbModel, measFunc = uvbMeasure)
 #' 
 #' @export
 setGeneric(name = "setMeasFunc",
-           def = function(theObject, measFunc, costum) {
+           def = function(odeModel, measFunc, custom) {
             standardGeneric("setMeasFunc")
            }
 )
@@ -183,10 +292,10 @@ setGeneric(name = "setMeasFunc",
 #' @rdname setMeasFunc
 setMethod(f = "setMeasFunc",
           signature = c('odeModel', 'function', 'missing'),
-          definition = function(theObject, measFunc, costum) {
-            theObject@measFunc <- measFunc
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, measFunc, custom) {
+            odeModel@measFunc <- measFunc
+            validObject(odeModel)
+            return(odeModel)
           }
 )
 
@@ -194,47 +303,71 @@ setMethod(f = "setMeasFunc",
 #' @rdname setMeasFunc
 setMethod(f = "setMeasFunc",
           signature = c('odeModel', 'function', 'logical'),
-          definition = function(theObject, measFunc, costum) {
-            theObject@meas <- measFunc
-            theObject@custom <- costum
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, measFunc, custom) {
+            odeModel@meas <- measFunc
+            odeModel@custom <- custom
+            validObject(odeModel)
+            return(odeModel)
           }
 
 )
 
 #' Set the vector with the initial (state) values
 #' 
-#' @param theObject an object of the class odeModel
+#' @param odeModel an object of the class odeModel
 #' @param y vector with the initial values
 #' 
+#' @return an object of odeModel
+#' 
+#' @examples 
+#' 
+#' data("uvbModel")
+#' 
+#' x0 = c(0.2,10,2,0,0,20,0,0,0,4.2,0.25,20,0)
+#' 
+#' newModel <- setInitState(uvbModel, y = x0)
+#' 
 #' @export
-setGeneric(name = "setY",
-           def = function(theObject, y) {
-            standardGeneric("setY")
+setGeneric(name = "setInitState",
+           def = function(odeModel, y) {
+            standardGeneric("setInitState")
            }
 )
 
-#' @rdname setY
-setMethod(f = "setY",
+#' @rdname setInitState
+setMethod(f = "setInitState",
           signature = "odeModel",
-          definition = function(theObject, y) {
-            theObject@y <- y
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, y) {
+            odeModel@y <- y
+            validObject(odeModel)
+            return(odeModel)
           }
 )
 
 
 #' set measurements of the model
 #' 
-#' @param theObject an object of the class odeModel
+#' The odeModel object stores all important information. Measurements of the objects can be set
+#' directly by adressing the slot, or with this function.
+#' 
+#' @param odeModel an object of the class odeModel
 #' @param meas measurements of the model, a matrix with measurements of the model
 #' and the corresponding time values
 #' 
+#' @return an object of odeModel
+#' 
+#' @examples 
+#' 
+#' data(uvbData)
+#' data(uvbModel)
+#' 
+#' measurements <- uvbData[,1:6]
+#' 
+#' newModel <- setMeas(odeModel = uvbModel, meas = measurements)
+#' 
 #' @export
 setGeneric(name = "setMeas",
-           def = function(theObject, meas) {
+           def = function(odeModel, meas) {
             standardGeneric("setMeas")
            }
 )
@@ -242,21 +375,36 @@ setGeneric(name = "setMeas",
 #' @rdname setMeas
 setMethod(f = "setMeas",
           signature = 'odeModel',
-          definition = function(theObject, meas) {
-            theObject@meas <- meas
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, meas) {
+            odeModel@meas <- meas
+            validObject(odeModel)
+            return(odeModel)
           }
 )
 
 #' Set the standard deviation of the measurements
 #' 
-#' @param theObject an object of the class odeModel
+#' With multiple measurements a standard deviation can be calculated for every point of
+#' measurement. The standard deviation is used to weigh the estimated data points in the 
+#' cost function.
+#' 
+#' @param odeModel an object of the class odeModel
 #' @param sd a matrix with the standard deviations of the measurements
+#' 
+#' @return an object of odeModel
+#' 
+#' @examples 
+#' 
+#' data(uvbData)
+#' data(uvbModel)
+#' 
+#' sd_uvb <- uvbData[,7:11]
+#'
+#' newModel <- setSd(odeModel = uvbModel, sd = sd_uvb)
 #' 
 #' @export
 setGeneric(name = "setSd",
-           def = function(theObject, sd) {
+           def = function(odeModel, sd) {
             standardGeneric("setSd")
            }
 )
@@ -264,21 +412,14 @@ setGeneric(name = "setSd",
 #' @rdname setSd
 setMethod(f = "setSd",
           signature = "odeModel",
-          definition = function(theObject, sd) {
-            theObject@sd <- sd
-            validObject(theObject)
-            return(theObject)
+          definition = function(odeModel, sd) {
+            odeModel@sd <- sd
+            validObject(odeModel)
+            return(odeModel)
           }
 )
 
-
-#' 
-#'
-#'
-#'
-#'
-
-
+#### generate c code (interal function)
 setGeneric(name = 'genCCode',
            def = function(odeModel, bden, nnStates) {
             standardGeneric('genCCode')
@@ -316,7 +457,28 @@ setMethod(f = 'genCCode',
 
 #' Calculate the nominal solution of the model
 #' 
+#' After an model is defined it can be evaluated. This returns the numerical solution
+#' for the state equation before hidden inputs are calculated.
+#' 
 #' @param odeModel a object of the class ode model describing the experiment
+#' 
+#' @return a matrix with the numeric solution to the nominal ode equation
+#' 
+#' @examples 
+#' 
+#' lotka_voltera <- function (Time, State, Pars) {
+#' with(as.list(c(State, Pars)), {
+#'  dx1 = x1*(alpha - beta*x2)
+#'   dx2 = -x2*(gamma - delta*x1)
+#'  return(list(c(dx, dy)))
+#' })
+#' }
+#' 
+#' pars <- c(alpha = 2, beta = .5, gamma = .2, delta = .6)
+#' init_state <- c(x = 10, y = 10)
+#' time <- seq(0, 100, by = 1)
+#' lotVolModel = odeModel(func = lotka_voltera, parms = pars, times = time, y = init_state)
+#' nominalSol(lotVolModel) 
 #' 
 #' @export
 setGeneric(name = 'nominalSol',
@@ -394,15 +556,11 @@ setMethod(f = 'nominalSol',
 
               } else {
 
-                # myEvent <- eval(parse(text = createEvent(rootStates = odeModel@nnStates, tollerance = 0., value = 0.0001)))
-                # RootFunc <- eval(parse(text = createRoot(rootStates = nnStates)))
-                # EventFunc <- eval(parse(text = createEvent(tollerance = eventTol, value = resetValue)))
-                
                 eventTol <- 0.0
                 resetValue <- 0.0001
 
                 myRoot <- eval(parse(text = createRoot(rootStates = odeModel@nnStates)))
-                myEvent <- eval(parse(text = createEvent(tollerance = eventTol, value = resetValue)))
+                myEvent <- eval(parse(text = createEvent(tolerance = eventTol, value = resetValue)))
 
                 resOde <- deSolve::lsoda(y = odeModel@y, times = times, func = "derivsc",
                                          parms = odeModel@parms, dllname = "model", initforc = "forcc",
@@ -451,7 +609,7 @@ setMethod(f = 'nominalSol',
                 resetValue <- 0.0001
 
                 myRoot <- eval(parse(text = createRoot(rootStates = odeModel@nnStates)))
-                myEvent <- eval(parse(text = createEvent(tollerance = eventTol, value = resetValue)))
+                myEvent <- eval(parse(text = createEvent(tolerance = eventTol, value = resetValue)))
 
                 resOde <- deSolve::ode(y = odeModel@y,
                                         times = times,

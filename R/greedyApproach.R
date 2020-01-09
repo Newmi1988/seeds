@@ -1,7 +1,13 @@
 #' Greedy method for estimating a sparse solution
 #'
-#' calculates controls based on a first optimisation with gradient descent; should result in a sparse vector
-#' of hidden inputs.
+#' The sparse gradient dynamic elastic net calculates controls based on a first optimisation with gradient descent. IT should 
+#' result in a sparse vector of hidden inputs. These hidden inputs try to minimize the discrepancy between a given model and the taken measurements.
+#' 
+#' This algorithm usses a greedy approach to calculate the hidden inputs. Starting with a first estimation of the hidden inputs
+#' the algorithm tries to optimize set of hidden inputs based on the area under the curve from the first run. The algorithm stops 
+#' if a set of hidden gives a lower cost than a set with additional hidden inputs. 
+#' 
+#' For a complete example of the usage take a look into the vignette of the package.
 #' 
 #' @param odeModel a object of class \code{\link{odeModel}} from the package seeds. The class saves the details of an experiment for easier manipulation and analysis. 
 #'
@@ -14,15 +20,15 @@
 #' @param alpha2         L2-norm parameter of the dynamic elastic net approach
 #'                used for regulation purposes
 #'
-#' @param x0             inital state of the ODE system. Can be supplied with  the odeModel class.
+#' @param x0             initial state of the ODE system. Can be supplied with  the odeModel class.
 #'
 #' @param optW           a vector that indicates for which knots of the network a input should be calculated. The default is all nodes.
 #'
-#' @param measFunc       a R-Function that is used for measurement of the states if the system is not completly
+#' @param measFunc       a R-Function that is used for measurement of the states if the system is not completely
 #'                measurable; an empty argument will result in the assumption that all states of the system are
 #'                measurable. Can be supplied by the odeModel parameter.
 #'
-#' @param measData       a table that containts the measurements of the experiment. Used to calculate the needed inputs. Can be supplied with  the odeModel class.
+#' @param measData       a table that contains the measurements of the experiment. Used to calculate the needed inputs. Can be supplied with  the odeModel class.
 #'
 #' @param parameters      vector or named vector that contains the parameters of the ODE equation. Can be supplied with  the odeModel class.
 #'
@@ -33,25 +39,33 @@
 #'
 #' @param plotEstimates  boolean that indicated if the current estimate should be plotted.
 #'
-#' @param Beta          skaling parameter for the backtracking to approximate the stepsize of the gradient descent. Is set to  0.8
+#' @param Beta          scaling parameter for the backtracking to approximate the stepsize of the gradient descent. Is set to  0.8
 #'                 if no value is given to the function
 #'
-#' @param sd      Standard deviation of the measurement. Is used to weight the errors of the estimates in the cost function. Optional parameter. Can be supplied with  the odeModel class.
+#' @param sd      Standard deviation of the measurement. Is used to weight the errors of the estimates in the cost function. Optional parameter. Can be supplied with  the odeModel class. Should contain the time in the first column
 #' 
 #' @param conjGrad Boolean that indicates the usage of conjugate gradient method over the normal steepest descent. Defaults to true if not specified.
 #' 
 #' @param cString Optional parameter: A string that represents constants, can be used to calculate a hidden input for a component that gradient is zero.
 #'
-#' @param systemInput A dataset that discribes the external input of the system. The time steps should be given in the first column for the interpolation.
+#' @param systemInput A dataset that describes the external input of the system. The time steps should be given in the first column for the interpolation.
 #' 
 #' @param epsilon parameter that defines the stopping criteria for the algorithm, in this case percent change in cost function J[w]
 #'
-#' @param nnStates A bit vector indicating the states that should be non negative. Default behaviour will calculete positive and negative states. Can be supplied with  the odeModel class.
+#' @param nnStates A bit vector indicating the states that should be non negative. Default behaviour will calculate positive and negative states. Can be supplied with  the odeModel class.
 #'
 #' @return returns a list of results objects. The default plot function can be used to plot the results.
+#' 
+#' @examples 
+#' \dontrun{
+#' data(uvbModel)
+#' 
+#' results <- sgdn(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001,
+#'                 epsilon = 0.2, plotEstimates = TRUE)
+#' 
+#' }
 #'
 #' @export
-
 sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, measData, sd, epsilon,
                            parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString, nnStates) {
 

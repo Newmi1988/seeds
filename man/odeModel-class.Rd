@@ -4,9 +4,12 @@
 \name{odeModel-class}
 \alias{odeModel-class}
 \alias{odeModel}
-\title{A class to store the important information of an experiment.}
+\title{A class to store the important information of an model.}
+\value{
+an object of class odeModel which defines the model
+}
 \description{
-The slots are used to store the important information of an experiment. The class is used to create object for the
+The slots are used to store the important information of an model. The class is used to create object for the
 two algorithms implemented in seeds. Methods are implemented to easily calculate the nominal solution of the model and
 change the details of the saved model.
 The numerical solutions are calculated using the \pkg{deSolve} - package.
@@ -34,7 +37,7 @@ The numerical solutions are calculated using the \pkg{deSolve} - package.
 
 \item{\code{nnStates}}{bit vector that indicates if states should be observed by the root function}
 
-\item{\code{nnTollerance}}{tollerance at which a function is seen as zero}
+\item{\code{nnTollerance}}{tolerance at which a function is seen as zero}
 
 \item{\code{resetValue}}{value a state should be set to by an event}
 }}

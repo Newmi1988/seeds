@@ -41,7 +41,7 @@ measJakStat <- function(x) {
 }
 
 y <- data.frame(measure[,1], measure[,2], measure[,4])
-sd <- data.frame(measure[,3], measure[,5])
+sd <- data.frame(measure[,1], measure[,3], measure[,5])
 
 JakStatConst <- '2*x4+ 2*x3 + x1 + x2 == N'
 

@@ -4,14 +4,30 @@
 \alias{MCMC_component}
 \title{Componentwise Adapted Metropolis Hastings Sampler}
 \usage{
-MCMC_component(LOGLIKELIHOOD_func, STEP_SIZE, STEP_SIZE_INNER, EPSILON,
-  JUMP_SCALE, STEP, OBSERVATIONS, Y0, INPUTDATA, PARAMETER, EPSILON_ACT,
-  SIGMA, DIAG, GIBBS_par, N, BURNIN, objective)
+MCMC_component(
+  LOGLIKELIHOOD_func,
+  STEP_SIZE,
+  STEP_SIZE_INNER,
+  EPSILON,
+  JUMP_SCALE,
+  STEP,
+  OBSERVATIONS,
+  Y0,
+  INPUTDATA,
+  PARAMETER,
+  EPSILON_ACT,
+  SIGMA,
+  DIAG,
+  GIBBS_par,
+  N,
+  BURNIN,
+  objective
+)
 }
 \arguments{
 \item{LOGLIKELIHOOD_func}{likelihood function}
 
-\item{STEP_SIZE}{number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influnce on the runtime.}
+\item{STEP_SIZE}{number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influence on the runtime.}
 
 \item{STEP_SIZE_INNER}{number of inner samples. This should be greater 15 to guarantee a reasonable exploration of the sample space. Values have direct influnce on the runtime.}
 
@@ -39,9 +55,9 @@ MCMC_component(LOGLIKELIHOOD_func, STEP_SIZE, STEP_SIZE_INNER, EPSILON,
 
 \item{N}{number of system states}
 
-\item{BURNIN}{number of dismissed samples during burnin}
+\item{BURNIN}{number of dismissed samples during burn-in}
 
-\item{objective}{objective funktion}
+\item{objective}{objective function}
 }
 \value{
 A matrix with the sampled hidden inputs (row-wise)
@@ -50,5 +66,5 @@ A matrix with the sampled hidden inputs (row-wise)
 Algorithm implemented according to Engelhardt et al. 2017.
 }
 \details{
-The function can be replaced by an userdefined version if necessary
+The function can be replaced by an user defined version if necessary
 }

@@ -1,6 +1,6 @@
 #' Bayesian Dynamic Elastic Net
 #'
-#' Full Bayesian algortihm to detect hidden inputs in ODE based models.The algortihm 
+#' Full Bayesian algorithm to detect hidden inputs in ODE based models.The algorithm 
 #' is an extension of the Dynamic Elastic Net algorithm (Engelhardt et al. 2016) inspired by the Elastic-Net Regression.
 #' 
 #' Ordinary differential equations (ODEs) are a popular approach to quantitatively model molecular networks based on biological knowledge. 
@@ -18,9 +18,11 @@
 #' In contrast to approaches based on point estimates the Bayesian framework incorporates the given uncertainty and circumvents 
 #' numerical pitfalls which frequently arise from optimization methods (Engelhardt et al. 2017).
 #' 
+#' For a complete example of the usage take a look into the vignette of the package.
+#' 
 #' 
 #' @param odeModel             a object of class odeModel from the package seeds. The class saves the details of an experiment for easier manipulation and analysis. 
-#' @param settings             initial model specific settings (automaticly calculated based on the nominal model and data)
+#' @param settings             initial model specific settings (automatically calculated based on the nominal model and data)
 #' @param mcmc_component       sampling algorithm
 #' @param loglikelihood_func   likelihood function
 #' @param gibbs_update         gibbs algorithm
@@ -29,14 +31,26 @@
 #' @param numbertrialsstep     number of gibbs updates per timepoint. This should be at least 10. Values have direct influnce on the runtime. 
 #' @param numbertrialseps      number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influnce on the runtime.
 #' @param numbertrialinner     number of inner samples. This should be greater 15 to guarantee a reasonable exploration of the sample space. Values have direct influnce on the runtime.
-#' @param lambda               inital shrinkage parameter.
+#' @param lambda               initial shrinkage parameter.
 #' @param Grad_correct         correction factor for initial sigma estimate
-#' @param alpha                mcmc tuning paramter (weigthing of observed states)
-#' @param beta_init                 mcmc tunig parameter (weigthing of observed states)
+#' @param alpha                mcmc tuning parameter (weighting of observed states)
+#' @param beta_init                 mcmc tuning parameter (weigthing of observed states)
 #' @param printstatesignore    states ignored in final output (default = FALSE)
 
 #' @return                     returns a results-object with default plot function
-
+#' 
+#' @examples 
+#' \dontrun{
+#' data(bden_uvb)
+#' 
+#' results <- BDEN(odeModel          = Model,
+#'                 lambda            = .001,
+#'                 beta_init         = c(1,1,1,1,1),
+#'                 numbertrialsstep  = 15,
+#'                 numbertrialseps   = 2000,
+#'                 numbertrialinner  = 10)
+#' }
+#' 
 #' @export
 #' 
 #' 

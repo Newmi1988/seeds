@@ -8,7 +8,7 @@
 #' mainly controlled by Lambda2. These parameters are drawn from hyper-priors, which can be set in a non-informative 
 #' manner or with respect to prior knowledge about the degree of shrinkage and smoothness of the hidden influences (Engelhardt et al. 2017). 
 #' 
-#' The function can be replaced by an userdefined version if necessary
+#' The function can be replaced by an user defined version if necessary
 #' 
 #' 
 #' @param D                    diagonal weight matrix of the current Gibbs step

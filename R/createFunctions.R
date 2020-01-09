@@ -1,6 +1,6 @@
-#' creates files for costate and argumented state
+#' creates files for costate and augmented state
 #' 
-#' The function handles the formating of the ODE
+#' The function handles the formatting of the ODE
 #' 
 #' @param odeEq a object of the odeEquation class
 

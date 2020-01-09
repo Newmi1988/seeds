@@ -24,14 +24,14 @@ createRoot <- function(rootStates) {
   return(rootFunction)
 }
 
-createEvent <- function(tollerance, value) {
-  #' Create an event function that sets states that are zero to a smalll value
-  #' @param tollerance tollerance under which a state is set to a given value 'value'
+createEvent <- function(tolerance, value) {
+  #' Create an event function that sets states that are zero to a small value
+  #' @param tolerance tolerance under which a state is set to a given value 'value'
   #' @param value value the states should be set to, very small values result in a much longer computation time
 
   head <- 'function(t,x,param) {\n\n'
 
-  body <- paste0('\t x[which(x <= ', tollerance, ')] = ', value)
+  body <- paste0('\t x[which(x <= ', tolerance, ')] = ', value)
 
   eventFunction <- paste0(head, body, '\n\n\treturn(x)\n}')
 

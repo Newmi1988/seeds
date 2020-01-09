@@ -1,4 +1,4 @@
-#' A S4 class used to handle formating ODE-Equation and calculate the needed functions for the seeds-algorithm
+#' A S4 class used to handle formatting ODE-Equation and calculate the needed functions for the seeds-algorithm
 #'
 #' @slot modelStr a vector of strings describing the ODE
 #' @slot measureStr a vector of strings representing the equation of the measurement function
@@ -11,11 +11,11 @@
 #' @slot hamiltonian a string representing the Hamilton function of the model
 #' @slot dynamicElasticNet boolean that indicates if the system equation should be calculated for the dynamic elastic net
 #' @slot parameters parameters of the model
-#' @slot cond a slot to save conditionals in equations, which are used for formating the c files
+#' @slot cond a slot to save conditionals in equations, which are used for formatting the c files
 #' @slot nnStates vector indicating which states should have a non negative solution
 #' 
-#' @export odeEquations
-#' @exportClass odeEquations
+#' @return Returns a s4 class object containing the needed equations for the costate equation
+#' 
 odeEquations <- setClass(
 #name of Class
   "odeEquations",

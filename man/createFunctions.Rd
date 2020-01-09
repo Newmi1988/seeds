@@ -2,7 +2,7 @@
 % Please edit documentation in R/createFunctions.R
 \name{createFunctions}
 \alias{createFunctions}
-\title{creates files for costate and argumented state}
+\title{creates files for costate and augmented state}
 \usage{
 createFunctions(odeEq)
 }
@@ -10,5 +10,5 @@ createFunctions(odeEq)
 \item{odeEq}{a object of the odeEquation class}
 }
 \description{
-The function handles the formating of the ODE
+The function handles the formatting of the ODE
 }

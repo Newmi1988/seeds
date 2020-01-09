@@ -2,15 +2,15 @@
 % Please edit documentation in R/rootEvents.R
 \name{createEvent}
 \alias{createEvent}
-\title{Create an event function that sets states that are zero to a smalll value}
+\title{Create an event function that sets states that are zero to a small value}
 \usage{
-createEvent(tollerance, value)
+createEvent(tolerance, value)
 }
 \arguments{
-\item{tollerance}{tollerance under which a state is set to a given value 'value'}
+\item{tolerance}{tolerance under which a state is set to a given value 'value'}
 
 \item{value}{value the states should be set to, very small values result in a much longer computation time}
 }
 \description{
-Create an event function that sets states that are zero to a smalll value
+Create an event function that sets states that are zero to a small value
 }

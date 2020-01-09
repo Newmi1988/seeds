@@ -1,7 +1,7 @@
 #' Symbolic differentiation to create the adjoint equations
 #' 
-#' The function calculates the needed equations for the gradient descent alogrithm.
-#' The function needs a object of the S4 OdeEquation class. This class containts
+#' The function calculates the needed equations for the gradient descent algorithm.
+#' The function needs a object of the S4 OdeEquation class. This class contains
 #' all the needed equations.
 #' 
 #' The calculation is based on the Derive function of the package Deriv. The needed
@@ -9,8 +9,7 @@
 #' 
 #' @param odeObj a object of the S4 class odeEquation
 #' 
-#' @export
-
+#' @return a list of the costate equation and a jacobian matrix
 symbolicDiff <- function(odeObj) {
 
   results <- list(costate = character(0), jacobian = matrix())
