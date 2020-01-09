@@ -148,13 +148,14 @@ BDEN <- function(odeModel,
   
   if (.Platform$OS.type != "windows"){
     temp_file_path <- paste0(tempdir(),'/','model.c')
+    system(paste0("$(R_HOME)/bin/R CMD SHLIB",temp_file_path))
   } else {
     temp_file_path <- paste0(tempdir(),'\\','model.c')
     temp_file_path = gsub('\\\\', '/', temp_file_path)
+    system(paste0("R CMD SHLIB ",temp_file_path))
   }
   
   # compile the C function of the system
-  system(paste0("R CMD SHLIB ",temp_file_path))
   # load the dynamic link library
   dyn.load(temp_compiled_model)
   
