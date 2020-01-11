@@ -574,11 +574,14 @@ setMethod(f = 'nominalSol',
               dyn.unload(temp_compiled_model)
 
             } else {
+              
+              odeEq <- new("odeEquations")
+              odeEq <- createModelEqClass(odeEq, odeModel@func)
 
-
-              # odeEq <- isDynElaNet(odeModel)
-              # odeEq <- calculateCostate(odeModel)
-              createFunctions(odeModel)
+              # !!!!!! check if the non rtools variant runs
+              odeEq <- isDynElaNet(odeModel)
+              odeEq <- calculateCostate(odeModel)
+              createFunctions(odeEq)
               
               
               if (.Platform$OS.type != "windows"){
