@@ -512,39 +512,10 @@ setMethod(f = 'nominalSol',
             if (grepl("Rtools", Sys.getenv('PATH')) || (.Platform$OS.type != "windows")) {
 
 
-              # ext <- .Platform$dynlib.ext
-              # compiledModel <- paste0('model', ext)
-              # 
-              # if (.Platform$OS.type != "windows"){
-              #   temp_compiled_model <- paste0(tempdir(),'/',compiledModel)
-              # } else { 
-              #   temp_compiled_model <- paste0(tempdir(),'\\',compiledModel)
-              #   temp_compiled_model = gsub('\\\\','/', temp_compiled_model)
-              # }
-              # if (is.loaded('derivsc')) {
-              #   dyn.unload(temp_compiled_model)
-              # }
-
               createCompModel(modelFunc = odeModel@func, parameters = odeModel@parms, nnStates = odeModel@nnStates)
               temp_compiled_model <- compileModel()
               
               
-              # if (.Platform$OS.type != "windows"){
-              #   temp_file_path <- paste0(tempdir(),'/','model.c')
-              #   system(paste0("$(R_HOME)/bin/R CMD SHLIB ",temp_file_path))
-              # } else {
-              #   temp_file_path <- paste0(tempdir(),'\\','model.c')
-              #   temp_file_path = gsub('\\\\', '/', temp_file_path)
-              #   system(paste0("R CMD SHLIB ",temp_file_path))
-              # }
-              
-              # compile the C function of the system
-              
-              
-              # system("R CMD SHLIB model.c")
-              # dyn.load(temp_compiled_model)
-
-
               wSplit <- split(w, rep(1:ncol(w), each = nrow(w)))
               wList <- lapply(wSplit, FUN = function(x) cbind(times, x))
               forcings <- c(uList, wList)
