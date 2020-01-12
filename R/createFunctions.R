@@ -185,7 +185,9 @@ createFunctions <- function(odeEq) {
 
 
   wrapperCreateFunc <- function(odeEq) {
-    createCostate(formatFuncString(odeEq, "costate"))
+    if (identical(odeEq@costateEq, character(0)) == FALSE) {
+      createCostate(formatFuncString(odeEq, "costate"))
+    }
     if (odeEq@dynamicElasticNet) {
       createStateHiddenInput(formatFuncString(odeEq, "hiddenInputState"))
     }
