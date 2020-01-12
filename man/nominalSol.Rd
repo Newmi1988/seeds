@@ -21,16 +21,16 @@ for the state equation before hidden inputs are calculated.
 }
 \examples{
 
-lotka_voltera <- function (Time, State, Pars) {
-with(as.list(c(State, Pars)), {
- dx1 = x1*(alpha - beta*x2)
-  dx2 = -x2*(gamma - delta*x1)
- return(list(c(dx, dy)))
+lotka_voltera <- function (t, x, parameters) {
+with(as.list(c(x,parameters)), {
+ dx1 = x[1]*(alpha - beta*x[2])
+  dx2 = -x[2]*(gamma - delta*x[1])
+ return(list(c(dx1, dx2)))
 })
 }
 
 pars <- c(alpha = 2, beta = .5, gamma = .2, delta = .6)
-init_state <- c(x = 10, y = 10)
+init_state <- c(x1 = 10, x2 = 10)
 time <- seq(0, 100, by = 1)
 lotVolModel = odeModel(func = lotka_voltera, parms = pars, times = time, y = init_state)
 nominalSol(lotVolModel) 

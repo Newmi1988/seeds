@@ -171,13 +171,20 @@ symbolicDiff <- function(odeObj) {
     return(ret)
   }
 
-
-  temp <- costate(odeObj)
-  results$costate <- temp[[1]]
-  results$jacobian <- temp[[2]]
-  results$JhT <- temp[[4]]
-  results$origEq <- vectorFormat(odeObj@origEq)
-  results$Hamilton <- createHamilton(odeObj)
+  if (identical(odeObj@measureFunction, character(0)) == FALSE) {
+    temp <- costate(odeObj)
+    results$costate <- temp[[1]]
+    results$jacobian <- temp[[2]]
+    results$JhT <- temp[[4]]
+    results$origEq <- vectorFormat(odeObj@origEq)
+    results$Hamilton <- createHamilton(odeObj)
+  } else {
+    results$costate <- odeObj@costateEq
+    results$jacobian <- odeObj@jacobian
+    results$JhT <- odeObj@JhT
+    results$origEq <- vectorFormat(odeObj@origEq)
+    results$Hamilton <- odeObj@hamiltonian
+  }
 
 
   return(results)

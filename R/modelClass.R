@@ -466,16 +466,16 @@ setMethod(f = 'genCCode',
 #' 
 #' @examples 
 #' 
-#' lotka_voltera <- function (Time, State, Pars) {
-#' with(as.list(c(State, Pars)), {
-#'  dx1 = x1*(alpha - beta*x2)
-#'   dx2 = -x2*(gamma - delta*x1)
-#'  return(list(c(dx, dy)))
+#' lotka_voltera <- function (t, x, parameters) {
+#' with(as.list(c(x,parameters)), {
+#'  dx1 = x[1]*(alpha - beta*x[2])
+#'   dx2 = -x[2]*(gamma - delta*x[1])
+#'  return(list(c(dx1, dx2)))
 #' })
 #' }
 #' 
 #' pars <- c(alpha = 2, beta = .5, gamma = .2, delta = .6)
-#' init_state <- c(x = 10, y = 10)
+#' init_state <- c(x1 = 10, x2 = 10)
 #' time <- seq(0, 100, by = 1)
 #' lotVolModel = odeModel(func = lotka_voltera, parms = pars, times = time, y = init_state)
 #' nominalSol(lotVolModel) 
@@ -550,8 +550,8 @@ setMethod(f = 'nominalSol',
               odeEq <- createModelEqClass(odeEq, odeModel@func)
 
               # !!!!!! check if the non rtools variant runs
-              odeEq <- isDynElaNet(odeModel)
-              odeEq <- calculateCostate(odeModel)
+              odeEq <- isDynElaNet(odeEq)
+              odeEq <- calculateCostate(odeEq)
               createFunctions(odeEq)
               
               
@@ -565,13 +565,16 @@ setMethod(f = 'nominalSol',
 
               hiddenInputState <- get('hiddenInputState', envir = environment())
 
-              input$w = apply(X = w, MARGIN = 2, FUN = function(x) stats::approxfun(x = times, y = x, method = 'linear', rule = 2))
-              input$u = apply(X = input, MARGIN = 2, FUN = function(x) stats::approxfun(x = times, y = x, method = 'linear', rule = 2))
+             
+              zeros_input = list(cbind(times, rep(0, length(times)))) 
+              input$w <- apply(X = w, MARGIN = 2, FUN = function(x) stats::approxfun(x = times, y = x, method = 'linear', rule = 2))
+              input$u <- apply(X = w[,1:2], MARGIN = 2, FUN = function(x) stats::approxfun(x = times, y = x, method = 'linear', rule = 2))
+              input$optW = rep(1,length(odeModel@y))
 
               if (sum(odeModel@nnStates) == 0) {
 
                 resOde <- deSolve::ode(y = odeModel@y,
-                                       func = hiddenInputs,
+                                       func = hiddenInputState,
                                        times = times,
                                        parms = odeModel@parms,
                                        input = input)

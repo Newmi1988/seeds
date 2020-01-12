@@ -102,6 +102,7 @@ createFunctions <- function(odeEq) {
     }
     else {
       stringOde <- odeEq@origEq
+      
       funcStartStr <- paste(funcType, " <- function(t, x, parameters, input) { \n with (as.list(parameters),{ \n")
       funcStartStr = append(funcStartStr, "\t\toptW <- input$optW", after = length(funcStartStr) + 1)
 
@@ -166,7 +167,7 @@ createFunctions <- function(odeEq) {
       funcEndStr <- paste0("\n\t \tlist(c(", gsub("\t", "", toList), "))", "\n  })\n}")
       res <- append(funcMiddleStr, funcEndStr, after = length(funcMiddleStr) + 1)
     }
-
+    
     return(res)
   }
 
