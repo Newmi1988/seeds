@@ -208,41 +208,15 @@ sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, 
   #   Windows uses Rtools for compilation
   #   Unix systems should be distributed with a C compiler
   if (grepl("Rtools", Sys.getenv('PATH')) || (.Platform$OS.type != "windows")) {
+
+    
     if (.Platform$OS.type != "windows") {
       cat('Using compiled code for more speed.')
     } else {
       cat('Rtools found. Using compiled code for more performance.\n')
     }
-    # check the compiled file extensions
-    #   Platform    filename extension
-    #   Windoes     .dll
-    #   Unix        .so 
-    ext <- .Platform$dynlib.ext
-    compiledModel <- paste0('model', ext)
 
-    if (.Platform$OS.type != "windows"){
-      temp_compiled_model <- paste0(tempdir(),'/',compiledModel)
-    } else {
-      temp_compiled_model <- paste0(tempdir(),'\\',compiledModel)
-      temp_compiled_model = gsub('\\\\','/', temp_compiled_model)
-    }
-    # check if the library is loaded, so changes can be applied
-    if (is.loaded('derivsc')) {
-      dyn.unload(temp_compiled_model)
-    }
-    
-    if (.Platform$OS.type != "windows"){
-      temp_file_path <- paste0(tempdir(),'/','model.c')
-      system(paste0("$(R_HOME)/bin/R CMD SHLIB ",temp_file_path))
-    } else {
-      temp_file_path <- paste0(tempdir(),'\\','model.c')
-      temp_file_path = gsub('\\\\', '/', temp_file_path)
-      system(paste0("R CMD SHLIB ",temp_file_path))
-    }
-
-    # compile the C function of the system
-    # load the dynamic link library
-    
+    temp_compiled_model <- compileModel()
     
     dyn.load(temp_compiled_model)
   } else {

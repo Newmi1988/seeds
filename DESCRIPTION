@@ -36,7 +36,8 @@ Imports: deSolve (>= 1.20),
     tidyr,
     dplyr,
     Hmisc,
-    R.utils
+    R.utils,
+    callr
 Suggests: 
     rsbml,
     knitr,
