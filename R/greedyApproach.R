@@ -326,8 +326,8 @@ sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, 
       dataError <- data.frame(t = measData[, 1], emptyStd)
       colnames(dataError) <- c("t", paste0('y', 1:(ncol(emptyStd))))
     } else {
-      dataError <- cbind(t = measData[, 1], sd)
-      colnames(dataError) <- c("t", paste0('y', 1:(ncol(sd))))
+      dataError <- cbind(t = measData[, 1], sd[,-1])
+      colnames(dataError) <- c("t", paste0('y', 1:(ncol(sd)-1)))
     }
 
     colnames(measData) <- c("t", paste0('y', 1:(ncol(measData[, -1, drop = FALSE]))))
@@ -346,7 +346,7 @@ sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, 
                       outputEstimatesUncLower = outPutUnsc,
                       outputEstimatesUncUpper = outPutUnsc,
                       Data = measData,
-                      DataError = dataError
+                      DataError = as.data.frame(dataError)
   )
 
   }
