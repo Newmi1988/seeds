@@ -6,27 +6,23 @@
 #' @param  times    timestep at which the function should be evaluated
 #' @param  meas_input  measurements have to be given in order to analyse the data
 #'  
-#' @return returns a odeModel-Object
+#' @return returns a odeModel object
 #' 
 #' @examples 
-#' \dontrun{
 #' 
-#' # For testing use http://biomodels.caltech.edu/BIOMD0000000545#Files
 #' t <- uvbData[,1]
 #' y <- uvbData[,1:3]
-#' uvb <- importSBML("BIOMD0000000545_url.xml", times = t, meas = y)
+#' modelFile <- system.file("extdata","BIOMD0000000545_url.xml", package = "seeds")
 #' 
-#' # Plot the nominal solution
-#' nominalSol(odeModel = uvb)
+#' # generate an odeModel object
+#' uvb <- importSBML(modelFile, times = t, meas = y)
 #' 
-#' }
-#'
 #' @export importSBML
 #'
 importSBML <- function(filename, times, meas_input) {
 
   if (!base::require('rsbml', character.only = TRUE)) {
-    cat('Please install rsbml from the Bioconducture reposotory')
+    message('Please install rsbml from the Bioconducture reposotory')
   } else {
     requireNamespace("rsbml")
     model <- rsbml::rsbml_read(filename = filename, dom = TRUE)
@@ -173,6 +169,8 @@ importSBML <- function(filename, times, meas_input) {
       initState = initState[rowSums(abs(stoichM)) != 0]
     }
     
+    
+    # print(eqFuncList)
     
     if (missing(meas_input)) {
       model <- odeModel(func = eqFuncList$reac, parms = namedParaVec, measFunc = eqFuncList$meas, y = initState, times = times)

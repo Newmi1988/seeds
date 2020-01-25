@@ -20,9 +20,6 @@
 
 
 #' @return                     returns the log-likelihood for two given hidden inputs 
-#' 
-#' 
-#' 
 LOGLIKELIHOOD_func  <- function(pars,Step,OBSERVATIONS,x_0,parameters,EPS_inner,INPUT,D,GIBBS_PAR,k,MU_JUMP,SIGMA_JUMP,eps_new,objectivfunc){
   
 

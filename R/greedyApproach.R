@@ -54,10 +54,12 @@
 #'
 #' @param nnStates A bit vector indicating the states that should be non negative. Default behaviour will calculate positive and negative states. Can be supplied with  the odeModel class.
 #'
+#' @param verbose Boolean indicating if an output in the console should be created to display the gradient descent steps
+#'
 #' @return returns a list of results objects. The default plot function can be used to plot the results.
 #' 
 #' @examples 
-#' \dontrun{
+#' \donttest{
 #' data(uvbModel)
 #' 
 #' results <- sgdn(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001,
@@ -67,7 +69,11 @@
 #'
 #' @export
 sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, measData, sd, epsilon,
-                           parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString, nnStates) {
+                           parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString, nnStates, verbose) {
+  
+  if (missing(verbose)) {
+    verbose <- FALSE
+  }
 
   #### new object implementation ####
   if (!missing(odeModel)) {
@@ -211,16 +217,16 @@ sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, 
 
     
     if (.Platform$OS.type != "windows") {
-      cat('Using compiled code for more speed.')
+      message('Using compiled code for more speed.')
     } else {
-      cat('Rtools found. Using compiled code for more performance.\n')
+      message('Rtools found. Using compiled code for more performance.\n')
     }
 
     temp_compiled_model <- compileModel()
     
     dyn.load(temp_compiled_model)
   } else {
-    cat('No installation of Rtools detected using the normal solver.\n')
+    message('No installation of Rtools detected using the normal solver.\n')
   }
   iter <- (sum(optW))
 
@@ -229,7 +235,7 @@ sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, 
                              measFunc = measFunc, measData = measData, SD = sd,
                              alpha1 = alpha1, alpha2 = alpha2, constStr = cString,
                              parameters = parameters, modelFunc = modelFunc, plotEsti = plotEstimates,
-                             modelInput = systemInput, conjGrad = conjGrad, nnStates = nnStates)
+                             modelInput = systemInput, conjGrad = conjGrad, nnStates = nnStates, verbose = verbose)
 
   resAlg <- list()
   if (!greedyLogical || (sum(optW) == 1)) {
@@ -245,14 +251,16 @@ sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, 
 
 
     for (i in 1:(iter - 1)) {
-      cat('_________________________________________\n')
-      cat('selection done: starting new optimization\n')
-      cat('optimizing states:\n')
-      cat(which(optW > 0))
+      if (verbose) {
+        cat('_________________________________________\n')
+        cat('selection done: starting new optimization\n')
+        cat('optimizing states:\n')
+        cat(which(optW > 0))
+      }
       optWs[[i]] <- optW
       resAlg[[i]] <- dynElasticNet(alphaStep = alphaStep, armijoBeta = Beta, alpha1 = alpha1, alpha2 = alpha2, x0 = x0, optW = optW, eps = epsilon,
                                    measFunc = measFunc, measData = measData, SD = sd, modelInput = systemInput, constStr = cString,
-                                   parameters = parameters, modelFunc = modelFunc, origAUC = orgAUC, plotEsti = plotEstimates, conjGrad = conjGrad, nnStates = nnStates)
+                                   parameters = parameters, modelFunc = modelFunc, origAUC = orgAUC, plotEsti = plotEstimates, conjGrad = conjGrad, nnStates = nnStates, verbose = verbose)
 
 
 
@@ -261,9 +269,8 @@ sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, 
 
       # use best fit inteads last iteration
       if (i > 1 && (costError[i, 1] > costError[i - 1, 1])) {
-        cat('hidden inputs on knots:\n')
-        cat(which(optWs[[i - 1]] %in% 1))
-        cat('\n')
+        message('hidden inputs on knots:')
+        message(paste(which(optWs[[i - 1]] %in% 1), collapse = " "))
         break
       }
 
@@ -284,11 +291,15 @@ sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, 
 
 
     if ((length(resAlg) == (iter - 1))) {
-      cat('Best solution for the given Problem.\n Returning solution with best fit\n')
       costError <- costError[, 2]
       costError <- costError[costError > 0]
       i <- which(costError == min(costError))
-      cat('Best solution in interation: ', i)
+      
+      if (verbose) {
+        cat('Best solution for the given Problem.\n Returning solution with best fit\n')
+      }
+      message('Best solution in interation: ', i)
+      
       resAlg$optimalSol <- i
       resAlg$measurements <- measData
       i = i + 1

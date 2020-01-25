@@ -23,7 +23,8 @@ sgdn(
   plotEstimates,
   conjGrad,
   cString,
-  nnStates
+  nnStates,
+  verbose
 )
 }
 \arguments{
@@ -71,6 +72,8 @@ will only use perform a calculation of the inputs for all knots without a sparse
 \item{cString}{Optional parameter: A string that represents constants, can be used to calculate a hidden input for a component that gradient is zero.}
 
 \item{nnStates}{A bit vector indicating the states that should be non negative. Default behaviour will calculate positive and negative states. Can be supplied with  the odeModel class.}
+
+\item{verbose}{Boolean indicating if an output in the console should be created to display the gradient descent steps}
 }
 \value{
 returns a list of results objects. The default plot function can be used to plot the results.
@@ -87,7 +90,7 @@ if a set of hidden gives a lower cost than a set with additional hidden inputs.
 For a complete example of the usage take a look into the vignette of the package.
 }
 \examples{
-\dontrun{
+\donttest{
 data(uvbModel)
 
 results <- sgdn(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001,

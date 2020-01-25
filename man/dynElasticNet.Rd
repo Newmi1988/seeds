@@ -23,7 +23,8 @@ dynElasticNet(
   plotEsti,
   conjGrad,
   eps,
-  nnStates
+  nnStates,
+  verbose
 )
 }
 \arguments{
@@ -64,6 +65,8 @@ dynElasticNet(
 \item{eps}{citeria for stopping the algorithm}
 
 \item{nnStates}{a bit vector indicating the states that should be non negative}
+
+\item{verbose}{Boolean indicating if an output in the console should be created to display the gradient descent steps}
 }
 \value{
 A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the costfunction

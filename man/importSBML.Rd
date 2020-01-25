@@ -14,22 +14,18 @@ importSBML(filename, times, meas_input)
 \item{meas_input}{measurements have to be given in order to analyse the data}
 }
 \value{
-returns a odeModel-Object
+returns a odeModel object
 }
 \description{
 A simple function for importing sbml models from a extensive markup language file.
 }
 \examples{
-\dontrun{
 
-# For testing use http://biomodels.caltech.edu/BIOMD0000000545#Files
 t <- uvbData[,1]
 y <- uvbData[,1:3]
-uvb <- importSBML("BIOMD0000000545_url.xml", times = t, meas = y)
+modelFile <- system.file("extdata","BIOMD0000000545_url.xml", package = "seeds")
 
-# Plot the nominal solution
-nominalSol(odeModel = uvb)
-
-}
+# generate an odeModel object
+uvb <- importSBML(modelFile, times = t, meas = y)
 
 }

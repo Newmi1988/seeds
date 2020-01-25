@@ -1,9 +1,3 @@
-#' creates files for costate and augmented state
-#' 
-#' The function handles the formatting of the ODE
-#' 
-#' @param odeEq a object of the odeEquation class
-
 createFunctions <- function(odeEq) {
 
   trim <- function(x) sub("^\\s+", "", x)

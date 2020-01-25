@@ -561,9 +561,9 @@ setMethod(f = 'nominalSol',
                 temp_hidden_input_path <- paste0(tempdir(),'\\','stateHiddenInput.R')
               }
 
-              source(temp_hidden_input_path)
-
-              hiddenInputState <- get('hiddenInputState', envir = environment())
+              e <- new.env()
+              source(temp_hidden_input_path, local = e)
+              hiddenInputState <- get('hiddenInputState', envir = e)
 
              
               zeros_input = list(cbind(times, rep(0, length(times)))) 

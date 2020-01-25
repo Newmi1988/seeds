@@ -19,10 +19,11 @@
 #' @param maxIteration a upper bound for the maximal number of iterations
 #' @param eps citeria for stopping the algorithm
 #' @param nnStates a bit vector indicating the states that should be non negative
+#' @param verbose Boolean indicating if an output in the console should be created to display the gradient descent steps
 #'
 #' @return A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the costfunction
 dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2, measData, constStr,
-                          SD, modelFunc, measFunc, modelInput, optW, origAUC, maxIteration, plotEsti, conjGrad, eps, nnStates) {
+                          SD, modelFunc, measFunc, modelInput, optW, origAUC, maxIteration, plotEsti, conjGrad, eps, nnStates, verbose) {
   
   if (.Platform$OS.type != "windows"){
     temp_costate_path <- paste0(tempdir(),'/','costate.R')
@@ -31,11 +32,14 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
     temp_costate_path <- paste0(tempdir(),'\\','costate.R')
     temp_hidden_input_path <- paste0(tempdir(),'\\','stateHiddenInput.R')
   }
-  source(temp_hidden_input_path)
-  source(temp_costate_path)
+  
+  e <- new.env()
+  
+  source(temp_hidden_input_path, local = e)
+  source(temp_costate_path, local = e)
 
-  costate <- get('costate', envir = environment())
-  hiddenInputState <- get('hiddenInputState', envir = environment())
+  costate <- get('costate', envir = e)
+  hiddenInputState <- get('hiddenInputState', envir = e)
 
   #### initialization ####
   # optW 
@@ -203,7 +207,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
   #             2     if no function is given all states are considered observable
   getMeassures <- function(x, measFunc) {
     if (missing(measFunc)) {
-      cat('No meassurement function defined. Assuming all states are observable.\n')
+      message('No meassurement function defined. Assuming all states are observable.')
       y <- x[, -1, drop = FALSE]
     } else {
       y = measFunc(x[, -1, drop = FALSE])
@@ -391,7 +395,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
       yHat <- getMeassures(solX, measFunc)
 
       if (sum(is.nan(colSums(x))) > 0) {
-        cat('Numeric Integration failed. Returning last working step.\n')
+        warning('Numeric Integration failed. Returning last working step.')
         return(alphaA)
       }
 
@@ -572,8 +576,10 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
   # cost of the nominal model is stores in vector J as starting value 
   # of the gradient descent
   J[1] = costFunction(measureTimes, input, alphaDynNet)
-  cat('\n')
-  cat(paste0('Cost nominal model J[w]= ', J[1], '\n'))
+  if (verbose) {
+    cat('\n')
+    cat(paste0('Cost nominal model J[w]= ', J[1], '\n'))
+  }
 
 
   lT <- rep(0., ncol(x))
@@ -772,9 +778,11 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
     interpAbsW <- apply(X = absW, MARGIN = 2, FUN = function(x) stats::approxfun(x = tAUC, y = x, rule = 2, method = 'linear'))
 
     AUCs <- sapply(X = interpAbsW, FUN = function(x) pracma::trapzfun(f = x, a = t0, b = tf))
-
-    cat(sprintf("Iteration %3d: \t J(w)= %006.4f   change J(w): %6.2f%%  \t alpha = %10.5f \n", i, J[i + 1], (1 - abs(J[i + 1] / J[i])) * 100, alpha))
-
+    
+    if (verbose) {
+      cat(sprintf("Iteration %3d: \t J(w)= %006.4f   change J(w): %6.2f%%  \t alpha = %10.5f \n", i, J[i + 1], (1 - abs(J[i + 1] / J[i])) * 100, alpha))
+    }
+      
     if (plotEsti == TRUE) {
       showEstimates(measureTimes, AUCs, input, alpha2, J, yNominal, SD)
     }

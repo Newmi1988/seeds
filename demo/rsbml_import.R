@@ -1,7 +1,6 @@
-# For testing use http://biomodels.caltech.edu/BIOMD0000000545#Files
 t <- uvbData[,1]
 y <- uvbData[,1:3]
-uvb <- importSBML("BIOMD0000000545_url.xml", times = t, meas = y)
+modelFile <- system.file("extdata","BIOMD0000000545_url.xml", package = "seeds")
 
-# Plot the nominal solution
-nominalSol(odeModel = uvb)
+# generate an odeModel object
+uvb <- importSBML(modelFile, times = t, meas = y)
