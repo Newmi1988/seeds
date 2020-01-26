@@ -26,7 +26,8 @@
 importSBML <- function(filename, times, meas_input) {
 
   if (!base::require('rsbml', character.only = TRUE)) {
-    message('Please install rsbml from the Bioconducture reposotory')
+    message('Please install rsbml from the Bioconducture repository')
+    stop('Bioconductor package rsbml not found.')
   } else {
     requireNamespace("rsbml")
     model <- rsbml::rsbml_read(filename = filename, dom = TRUE)

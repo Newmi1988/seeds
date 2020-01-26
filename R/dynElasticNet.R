@@ -64,6 +64,7 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
   }
 
   times <- measData[, 1]
+  # set the number of additional timesteps the function should be evaluated at
   N <- 10 * length(times)
   t0 <- times[1]
   tf <- utils::tail(times, n = 1)
