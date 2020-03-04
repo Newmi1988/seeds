@@ -435,6 +435,10 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
   showEstimates <- function(measureTimes, AUCs, input, alpha2, J, nomSol, SD) {
     tPlot <- seq(from = measureTimes[1], to = measureTimes[length(measureTimes)], length.out = 50)
     
+    oldpar <- par(no.readonly = TRUE)
+    on.exit(par(oldpar))
+    
+    
     SD = SD[,-1]
 
     y <- sapply(input$interpY, mapply, measureTimes)
