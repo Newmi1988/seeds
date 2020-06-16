@@ -5,3 +5,6 @@ sudo: false
 r:
   - release
   - devel
+
+bioc_packages:
+  - rsbml
