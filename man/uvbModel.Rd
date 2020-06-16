@@ -4,7 +4,9 @@
 \name{uvbModel}
 \alias{uvbModel}
 \title{An object of the odeModel Class}
-\format{An object of class \code{odeModel} of length 1.}
+\format{
+An object of class \code{odeModel} of length 1.
+}
 \usage{
 data(uvbModel)
 }

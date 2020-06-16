@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 ^.*\.md
 ^.Rhistory
+.travis.yml 

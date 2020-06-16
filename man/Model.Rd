@@ -4,7 +4,9 @@
 \name{Model}
 \alias{Model}
 \title{Test dataset  for demonstrating the bden algorithm.}
-\format{An object of class \code{odeModel} of length 1.}
+\format{
+An object of class \code{odeModel} of length 1.
+}
 \usage{
 data(bden_uvb)
 }

@@ -59,7 +59,7 @@
 #' @return returns a list of results objects. The default plot function can be used to plot the results.
 #' 
 #' @examples 
-#' \donttest{
+#' \dontrun{
 #' data(uvbModel)
 #' 
 #' results <- sgdn(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001,

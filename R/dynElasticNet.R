@@ -499,9 +499,9 @@ dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2,
       wCost$L1 = wCost$L1 + sum(abs(w[, i]))
       wCost$L2 = wCost$L2 + sum(abs(w[, i] ^ 2))
     }
-
+    
     #combining the costs
-    cost = sum(yCost$Start) + sum(yCost$Middle) + sum(yCost$End) + alphaDynNet$a1 * wCost$L1 + alphaDynNet$a2 * wCost$L2
+    cost = sum(unlist(yCost$Start)) + sum(unlist(yCost$Middle)) + sum(unlist(yCost$End)) + alphaDynNet$a1 * wCost$L1 + alphaDynNet$a2 * wCost$L2
     return(cost)
   }
 

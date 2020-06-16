@@ -1,7 +1,7 @@
 Package: seeds
 Type: Package
 Title: Estimate Hidden Inputs using the Dynamic Elastic Net
-Version: 0.9.0
+Version: 0.9.1
 Authors@R: c(person("Tobias", "Newmiwaka", email = "tobias.newmiwaka@gmail.com",
                   role = c("aut", "cre")),
             person("Benjamin", "Engelhardt", email = "engelhar@bit.uni-bonn.de", 
@@ -20,7 +20,7 @@ Encoding: UTF-8
 URL: https://github.com/Newmi1988/seeds
 BugReports: https://github.com/Newmi1988/seeds/issues
 LazyData: true
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Imports: deSolve (>= 1.20),
     pracma (>= 2.1.4),
     Deriv (>= 3.8.4),

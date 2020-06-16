@@ -4,7 +4,9 @@
 \name{uvbData}
 \alias{uvbData}
 \title{UVB signal pathway}
-\format{An object of class \code{data.frame} with 8 rows and 11 columns.}
+\format{
+An object of class \code{data.frame} with 8 rows and 11 columns.
+}
 \source{
 \url{https://doi.org/10.1073/pnas.1412050111}
 }

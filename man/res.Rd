@@ -4,7 +4,9 @@
 \name{res}
 \alias{res}
 \title{Results from the uvb dataset for examples}
-\format{An object of class \code{list} of length 2.}
+\format{
+An object of class \code{list} of length 2.
+}
 \usage{
 data(uvb_res)
 }
