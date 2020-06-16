@@ -40,7 +40,6 @@ Imports: deSolve (>= 1.20),
     R.utils,
     callr
 Suggests: 
-    rsbml,
     knitr,
     rmarkdown,
 VignetteBuilder: knitr
