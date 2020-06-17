@@ -1,0 +1,1 @@
+[![Build Status](https://travis-ci.org/Newmi1988/seeds.svg?branch=master)](https://travis-ci.org/Newmi1988/seeds)

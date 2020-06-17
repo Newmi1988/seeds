@@ -1,6 +1,12 @@
 language: r
 cache: packages
-sudo: false
+
+branches:
+  only:
+  - master
+
+before_install:
+  - sudo apt-get -y install libxml2-dev
 
 r:
   - release

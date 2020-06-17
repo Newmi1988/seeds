@@ -3,3 +3,4 @@
 ^.*\.md
 ^.Rhistory
 .travis.yml 
+ReadMe.md 
