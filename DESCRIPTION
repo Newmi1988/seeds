@@ -41,5 +41,6 @@ Imports: deSolve (>= 1.20),
     callr
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    rsbml
 VignetteBuilder: knitr
