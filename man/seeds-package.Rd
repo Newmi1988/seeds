@@ -16,7 +16,7 @@ Algorithms to calculate the hidden inputs of systems of differential equations.
 \details{
 Details
 
-The first algorithm (SGDN) calculates the needed equations using the \code{\link{Deriv}}
+The first algorithm (DEN) calculates the needed equations using the \code{\link{Deriv}}
 function of the \pkg{Deriv} package. The process is implemented through the use
 of the S4 class \code{\link{odeEquations-class}}. 
 
