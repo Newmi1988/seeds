@@ -231,7 +231,7 @@ DEN <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, m
   iter <- (sum(optW))
 
   
-  results <- dynElasticNet(alphaStep = alphaStep, armijoBeta = Beta, x0 = x0, optW = optW, eps = epsilon,
+  results <- optimal_control_gradient_descent(alphaStep = alphaStep, armijoBeta = Beta, x0 = x0, optW = optW, eps = epsilon,
                              measFunc = measFunc, measData = measData, SD = sd,
                              alpha1 = alpha1, alpha2 = alpha2, constStr = cString,
                              parameters = parameters, modelFunc = modelFunc, plotEsti = plotEstimates,
@@ -258,7 +258,7 @@ DEN <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, m
         cat(which(optW > 0))
       }
       optWs[[i]] <- optW
-      resAlg[[i]] <- dynElasticNet(alphaStep = alphaStep, armijoBeta = Beta, alpha1 = alpha1, alpha2 = alpha2, x0 = x0, optW = optW, eps = epsilon,
+      resAlg[[i]] <- optimal_control_gradient_descent(alphaStep = alphaStep, armijoBeta = Beta, alpha1 = alpha1, alpha2 = alpha2, x0 = x0, optW = optW, eps = epsilon,
                                    measFunc = measFunc, measData = measData, SD = sd, modelInput = systemInput, constStr = cString,
                                    parameters = parameters, modelFunc = modelFunc, origAUC = orgAUC, plotEsti = plotEstimates, conjGrad = conjGrad, nnStates = nnStates, verbose = verbose)
 

@@ -22,7 +22,7 @@
 #' @param verbose Boolean indicating if an output in the console should be created to display the gradient descent steps
 #'
 #' @return A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the costfunction
-dynElasticNet <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2, measData, constStr,
+optimal_control_gradient_descent <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2, measData, constStr,
                           SD, modelFunc, measFunc, modelInput, optW, origAUC, maxIteration, plotEsti, conjGrad, eps, nnStates, verbose) {
   
   if (.Platform$OS.type != "windows"){
