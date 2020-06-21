@@ -5,3 +5,5 @@
 ^.*\.yml 
 ReadMe.md
 .travis.yml
+^doc$
+^Meta$

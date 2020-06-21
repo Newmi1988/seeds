@@ -40,7 +40,7 @@ wrong molecular interactions within the assumed model. The method works for ODE
 based systems even with uncertain knowledge and noisy data. 
 
 \describe{
-   \item{\code{\link[seeds]{sgdn}}}{a greedy algorithm to calculate a sparse control}
+   \item{\code{\link[seeds]{DEN}}}{a greedy algorithm to calculate a sparse control}
    \item{\code{\link[seeds]{BDEN}}}{a basian mcmc approach}
 }
 }

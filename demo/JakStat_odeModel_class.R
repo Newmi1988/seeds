@@ -55,7 +55,7 @@ plot(nominalSol(JakStatModel))
 # new call of the greedy method with the new object
 # neccessary options:
 # alphaStep 
-results <- sgdn(odeModel = JakStatModel, alphaStep = 0.01, alpha2 = 0.4, epsilon = 0.2,cString = JakStatConst, plotEstimates = TRUE, conjGrad = FALSE)
+results <- DEN(odeModel = JakStatModel, alphaStep = 0.01, alpha2 = 0.4, epsilon = 0.2,cString = JakStatConst, plotEstimates = TRUE, conjGrad = FALSE)
 
 statesAnno <- c("STAT5 cyt.", "STAT5p cyt.", "STAT5p-d cyt.", "stat5-d nucl")
 measurAnno <- c("total STAT5p", "total STAT5")

@@ -77,6 +77,6 @@ uvbModel <- odeModel(func = uvbModel, parms = uvbParameter, times = t,
            measFunc = uvbMeasure, y = x0, meas = y, sd = sd)
   
   
-res <- sgdn(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001, epsilon = 0.2, plotEstimates = TRUE)
+res <- DEN(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001, epsilon = 0.2, plotEstimates = TRUE)
 
 plot(res[[2]])

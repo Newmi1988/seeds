@@ -62,13 +62,13 @@
 #' \dontrun{
 #' data(uvbModel)
 #' 
-#' results <- sgdn(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001,
+#' results <- DEN(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001,
 #'                 epsilon = 0.2, plotEstimates = TRUE)
 #' 
 #' }
 #'
 #' @export
-sgdn <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, measData, sd, epsilon,
+DEN <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, measData, sd, epsilon,
                            parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString, nnStates, verbose) {
   
   if (missing(verbose)) {

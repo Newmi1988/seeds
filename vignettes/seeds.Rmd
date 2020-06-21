@@ -13,7 +13,7 @@ The algorithms contained in the *seeds* package are implementation of the dynami
 
 Both algorithm makes heavy use of the deSolve package. The use of Rtools is recommended to significantly shorten the computing time of the algorithm. It is not possible to use the BDEN algorithm without Rtools.
 
-## The SGDN (sparse greedy dynamic net) Algorithm
+## The DEN (dynamic elstic net) Algorithm
 
 The first Algorithm is a greedy method for generating a sparse solution for the hidden inputs. The algorithm is based on Pontryagin's Maximum Principle and implements an iterative gradient descent method which aims at minimizing the Hamilton function of the system. 
 
@@ -126,7 +126,7 @@ uvbModel <- odeModel(func = uvbModel, parms = uvbParameter, times = t,
            measFunc = uvbMeasure, y = x0, meas = y, sd = sd)
 
   
-res <- sgdn(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001, epsilon = 0.2, plotEstimates = FALSE)
+res <- DEN(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001, epsilon = 0.2, plotEstimates = FALSE)
 
 
 ```
@@ -175,7 +175,7 @@ The plotting function will give you three plots.
   
 ## BDEN
 
-The algorithm can be executed in a smiliar fashion as the sgdn algorithm. However computational time is much higher. See demonstration on how to use the algorithm. For further information look into the documentation of the functions.
+The algorithm can be executed in a smiliar fashion as the DEN algorithm. However computational time is much higher. See demonstration on how to use the algorithm. For further information look into the documentation of the functions.
 
 ```{R, eval = FALSE}
 
