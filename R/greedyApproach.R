@@ -1,9 +1,9 @@
 #' Greedy method for estimating a sparse solution
 #'
-#' The sparse gradient dynamic elastic net calculates controls based on a first optimisation with gradient descent. IT should 
+#' The sparse gradient dynamic elastic net calculates controls based on a first optimization with gradient descent. IT should 
 #' result in a sparse vector of hidden inputs. These hidden inputs try to minimize the discrepancy between a given model and the taken measurements.
 #' 
-#' This algorithm usses a greedy approach to calculate the hidden inputs. Starting with a first estimation of the hidden inputs
+#' This algorithm uses a greedy approach to calculate the hidden inputs. Starting with a first estimation of the hidden inputs
 #' the algorithm tries to optimize set of hidden inputs based on the area under the curve from the first run. The algorithm stops 
 #' if a set of hidden gives a lower cost than a set with additional hidden inputs. 
 #' 

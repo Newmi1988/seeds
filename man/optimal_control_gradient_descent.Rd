@@ -28,7 +28,7 @@ optimal_control_gradient_descent(
 )
 }
 \arguments{
-\item{alphaStep}{starting value of the stepsize for the gradient descent, will be calculate to minimize the costfunction by backtracking algorithm}
+\item{alphaStep}{starting value of the stepsize for the gradient descent, will be calculate to minimize the cost function by backtracking algorithm}
 
 \item{armijoBeta}{scaling of the alphaStep to find a approximately optimal value for the stepsize}
 
@@ -54,7 +54,7 @@ optimal_control_gradient_descent(
 
 \item{optW}{vector that indicated at which knots of the network the algorithm should estimate the hidden inputs}
 
-\item{origAUC}{AUCs of the first optimisation; only used by the algorithm}
+\item{origAUC}{AUCs of the first optimization; only used by the algorithm}
 
 \item{maxIteration}{a upper bound for the maximal number of iterations}
 
@@ -69,7 +69,7 @@ optimal_control_gradient_descent(
 \item{verbose}{Boolean indicating if an output in the console should be created to display the gradient descent steps}
 }
 \value{
-A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the costfunction
+A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the cost function
 }
 \description{
 estimating the optimal control using the dynamic elastic net

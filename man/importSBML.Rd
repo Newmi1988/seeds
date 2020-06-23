@@ -11,7 +11,7 @@ importSBML(filename, times, meas_input)
 
 \item{times}{timestep at which the function should be evaluated}
 
-\item{meas_input}{measurements have to be given in order to analyse the data}
+\item{meas_input}{measurements have to be given in order to analyze the data}
 }
 \value{
 returns a odeModel object

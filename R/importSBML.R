@@ -4,7 +4,7 @@
 #'  
 #' @param  filename name of the import file. Should be located in the working directory.
 #' @param  times    timestep at which the function should be evaluated
-#' @param  meas_input  measurements have to be given in order to analyse the data
+#' @param  meas_input  measurements have to be given in order to analyze the data
 #'  
 #' @return returns a odeModel object
 #' 

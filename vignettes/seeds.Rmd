@@ -20,7 +20,7 @@ The first Algorithm is a greedy method for generating a sparse solution for the 
 Rtools is suggested, because of the immense computational cost of the step size estimation of the gradient step.
 
 ## The odeModel Class
-The class aims to be used to describe the experiment you want to analyse. It has the following slots:
+The class aims to be used to describe the experiment you want to analyze. It has the following slots:
 
 - **func**: A funtion containing the ode-equations of the model. For syntax look at the given examples of the deSolve package.
 - **times**: time steps at which the model should be evaluated
@@ -29,7 +29,7 @@ The class aims to be used to describe the experiment you want to analyse. It has
 - **measFunc**: function that converts the output of the ode solution
 - **y**: initial (state) values of the ODE system, has to be a vector
 - **meas**: matrix with the (experimental) measurements of the system
-- **sd**: optional standard deviations of the measurements, is used by the algorithms as weights in the costfunction
+- **sd**: optional standard deviations of the measurements, is used by the algorithms as weights in the cost function
 - **custom**: customized link function (is internally used)
 - **nnStates**: bit vector that indicates if states should be observed by the root function
 - **nnTollerance**: tolerance at which a function is seen as zero (optional)
@@ -136,7 +136,7 @@ The results are returned as list of resultsSeeds objects, which store the estima
 
 ### Plotting
 
-The standard plot gives you three figure:
+The standard plot gives you three figures:
 
 1. The estimated states (blue without hidden inputs, red with hidden inputs)
 2. The estimated hidden inputs
@@ -165,17 +165,17 @@ The plotting function will give you three plots.
  
  Full Bayesian algorithm to detect hidden inputs in ODE based models.The algorithm is an extension of the Dynamic Elastic Net algorithm (Engelhardt et al. 2016) inspired by the Elastic-Net Regression.
   
-  Ordinary differential equations (ODEs) are a popular approach to quantitatively model molecular networks based on biological knowledge. However, such knowledge is typically restricted. Wrongly modelled biological mechanisms as well as relevant external influence factors that are not included into the model likely manifest in major discrepancies between model predictions and experimental data. 
+  Ordinary differential equations (ODEs) are a popular approach to quantitatively model molecular networks based on biological knowledge. However, such knowledge is typically restricted. Wrongly modeled biological mechanisms as well as relevant external influence factors that are not included into the model likely manifest in major discrepancies between model predictions and experimental data. 
   Finding the exact reasons for such observed discrepancies can be quite challenging in practice. In order to address this issue we suggest a Bayesian approach to estimate hidden influences in ODE based models. The method can distinguish between exogenous and endogenous hidden influences. Thus, we can detect wrongly specified as well as missed 
   molecular interactions in the model. 
   
-  The BDEN as a new and fully probabilistic approach, supports the modeller in an algorithmic manner to identify possible sources of errors in ODE based models on the basis of experimental data.  THE BDEN does not require pre-specified hyper-parameters. 
+  The BDEN as a new and fully probabilistic approach, supports the modeler in an algorithmic manner to identify possible sources of errors in ODE based models on the basis of experimental data.  THE BDEN does not require pre-specified hyper-parameters. 
   
   BDEN thus provides a systematic Bayesian computational method to identify target nodes and reconstruct the corresponding error signal including detection of missing and wrong molecular interactions within the assumed model. The method works for ODE based systems even with uncertain knowledge and noisy data. In contrast to approaches based on point estimates the Bayesian framework incorporates the given uncertainty and circumvents numerical pitfalls which frequently arise from optimization methods (Engelhardt et al. 2017).
   
 ## BDEN
 
-The algorithm can be executed in a smiliar fashion as the DEN algorithm. However computational time is much higher. See demonstration on how to use the algorithm. For further information look into the documentation of the functions.
+The algorithm can be executed in a similar fashion as the DEN algorithm. However computational time is much higher. See demonstration on how to use the algorithm. For further information look into the documentation of the functions.
 
 ```{R, eval = FALSE}
 

@@ -1,6 +1,6 @@
 #' estimating the optimal control using the dynamic elastic net
 #'
-#' @param alphaStep starting value of the stepsize for the gradient descent, will be calculate to minimize the costfunction by backtracking algorithm
+#' @param alphaStep starting value of the stepsize for the gradient descent, will be calculate to minimize the cost function by backtracking algorithm
 #' @param armijoBeta  scaling of the alphaStep to find a approximately optimal value for the stepsize
 #' @param x0 initial state of the ode system
 #' @param parameters parameters of the ODE-system
@@ -11,7 +11,7 @@
 #' @param modelFunc function that describes the ODE-system of the model
 #' @param measFunc function that maps the states to the outputs
 #' @param optW vector that indicated at which knots of the network the algorithm should estimate the hidden inputs
-#' @param origAUC AUCs of the first optimisation; only used by the algorithm
+#' @param origAUC AUCs of the first optimization; only used by the algorithm
 #' @param plotEsti boolean that controls of the current estimates should be plotted
 #' @param modelInput an dataset that describes the external input of the system
 #' @param conjGrad boolean that indicates the usage of conjugate gradient method over the normal steepest descent
@@ -21,7 +21,7 @@
 #' @param nnStates a bit vector indicating the states that should be non negative
 #' @param verbose Boolean indicating if an output in the console should be created to display the gradient descent steps
 #'
-#' @return A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the costfunction
+#' @return A list containing the estimated hidden inputs, the AUCs, the estimated states and resulting measurements and the cost function
 optimal_control_gradient_descent <- function(alphaStep, armijoBeta, x0, parameters, alpha1, alpha2, measData, constStr,
                           SD, modelFunc, measFunc, modelInput, optW, origAUC, maxIteration, plotEsti, conjGrad, eps, nnStates, verbose) {
   

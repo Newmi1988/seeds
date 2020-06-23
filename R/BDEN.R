@@ -4,13 +4,13 @@
 #' is an extension of the Dynamic Elastic Net algorithm (Engelhardt et al. 2016) inspired by the Elastic-Net Regression.
 #' 
 #' Ordinary differential equations (ODEs) are a popular approach to quantitatively model molecular networks based on biological knowledge. 
-#' However, such knowledge is typically restricted. Wrongly modelled biological mechanisms as well as relevant external influence factors 
+#' However, such knowledge is typically restricted. Wrongly modeled biological mechanisms as well as relevant external influence factors 
 #' that are not included into the model likely manifest in major discrepancies between model predictions and experimental data. 
 #' Finding the exact reasons for such observed discrepancies can be quite challenging in practice. 
 #' In order to address this issue we suggest a Bayesian approach to estimate hidden influences in ODE based models. 
 #' The method can distinguish between exogenous and endogenous hidden influences. Thus, we can detect wrongly specified as well as missed 
 #' molecular interactions in the model. 
-#' The BDEN as a new and fully probabilistic approach, supports the modeller in an algorithmic manner to identify possible sources of errors 
+#' The BDEN as a new and fully probabilistic approach, supports the modeler in an algorithmic manner to identify possible sources of errors 
 #' in ODE based models on the basis of experimental data.  THE BDEN does not require pre-specified hyper-parameters. 
 #' BDEN thus provides a systematic Bayesian computational method to identify target nodes and reconstruct the corresponding 
 #' error signal including detection of missing and wrong molecular interactions within the assumed model. 
@@ -28,13 +28,13 @@
 #' @param gibbs_update         gibbs algorithm
 #' @param ode_sol              ode solver
 #' @param NegativeStates       Negative states are allowed
-#' @param numbertrialsstep     number of gibbs updates per timepoint. This should be at least 10. Values have direct influnce on the runtime. 
-#' @param numbertrialseps      number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influnce on the runtime.
+#' @param numbertrialsstep     number of gibbs updates per timepoint. This should be at least 10. Values have direct influence on the runtime. 
+#' @param numbertrialseps      number of samples per mcmc step. This should be greater than numberStates*500.Values have direct influence on the runtime.
 #' @param numbertrialinner     number of inner samples. This should be greater 15 to guarantee a reasonable exploration of the sample space. Values have direct influnce on the runtime.
 #' @param lambda               initial shrinkage parameter.
 #' @param Grad_correct         correction factor for initial sigma estimate
 #' @param alpha                mcmc tuning parameter (weighting of observed states)
-#' @param beta_init                 mcmc tuning parameter (weigthing of observed states)
+#' @param beta_init                 mcmc tuning parameter (weighting of observed states)
 #' @param printstatesignore    states ignored in final output (default = FALSE)
 
 #' @return                     returns a results-object with default plot function
