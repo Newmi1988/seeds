@@ -39,7 +39,7 @@
 
 #' @return                     returns a results-object with default plot function
 #' 
-#' @examples docexamples/DEN.R
+#' @example ./docexamples/DEN.R
 #' 
 #' @export
 #' 

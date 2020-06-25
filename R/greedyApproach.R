@@ -58,7 +58,7 @@
 #'
 #' @return returns a list of results objects. The default plot function can be used to plot the results.
 #' 
-#' @example /docexamples/DEN.R
+#' @example ./docexamples/DEN.R
 #'
 #' @export
 DEN <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, measData, sd, epsilon,
