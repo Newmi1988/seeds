@@ -79,6 +79,7 @@ numerical pitfalls which frequently arise from optimization methods (Engelhardt 
 For a complete example of the usage take a look into the vignette of the package.
 }
 \examples{
+library(deSolve)
 data(uvbModel)
 results <- DEN(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001,
                  epsilon = 0.2, plotEstimates = TRUE)
