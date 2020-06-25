@@ -13,7 +13,7 @@ The algorithms contained in the *seeds* package are implementation of the dynami
 
 Both algorithm makes heavy use of the deSolve package. The use of Rtools is recommended to significantly shorten the computing time of the algorithm. It is not possible to use the BDEN algorithm without Rtools.
 
-## The DEN (dynamic elstic net) Algorithm
+## The DEN (dynamic elastic net) Algorithm
 
 The first Algorithm is a greedy method for generating a sparse solution for the hidden inputs. The algorithm is based on Pontryagin's Maximum Principle and implements an iterative gradient descent method which aims at minimizing the Hamilton function of the system. 
 
@@ -22,7 +22,7 @@ Rtools is suggested, because of the immense computational cost of the step size 
 ## The odeModel Class
 The class aims to be used to describe the experiment you want to analyze. It has the following slots:
 
-- **func**: A funtion containing the ode-equations of the model. For syntax look at the given examples of the deSolve package.
+- **func**: A function containing the ode-equations of the model. For syntax look at the given examples of the deSolve package.
 - **times**: time steps at which the model should be evaluated
 - **parms**: the parameters of the model
 - **input**: matrix containing the inputs with the time points
