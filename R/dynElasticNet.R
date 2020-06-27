@@ -207,12 +207,13 @@ optimal_control_gradient_descent <- function(alphaStep, armijoBeta, x0, paramete
   #             1     a measurement function is given
   #             2     if no function is given all states are considered observable
   getMeassures <- function(x, measFunc) {
-    if (missing(measFunc)) {
+    if (isTRUE(all.equal(measFunc, function(x) { }))) {
       message('No meassurement function defined. Assuming all states are observable.')
-      y <- x[, -1, drop = FALSE]
+      y = x[, -1, drop = FALSE]
     } else {
       y = measFunc(x[, -1, drop = FALSE])
     }
+    
     y = as.data.frame(cbind(x[, 1], y))
     names(y)[1] <- 't'
     names(y)[-1] <- paste0(rep("y", ncol(y) - 1), 1:(ncol(y) - 1))
@@ -504,6 +505,9 @@ optimal_control_gradient_descent <- function(alphaStep, armijoBeta, x0, paramete
     cost = sum(unlist(yCost$Start)) + sum(unlist(yCost$Middle)) + sum(unlist(yCost$End)) + alphaDynNet$a1 * wCost$L1 + alphaDynNet$a2 * wCost$L2
     return(cost)
   }
+  
+  # print(solNominal)
+  # print(measFunc)
 
   yHat <- getMeassures(solNominal, measFunc)
   yNominal <- apply(X = yHat[, -1, drop = FALSE], MARGIN = 2, FUN = function(x) stats::approxfun(x = yHat[, 1], y = x, rule = 2, method = 'linear'))
