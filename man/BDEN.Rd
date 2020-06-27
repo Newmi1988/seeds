@@ -79,8 +79,15 @@ numerical pitfalls which frequently arise from optimization methods (Engelhardt 
 For a complete example of the usage take a look into the vignette of the package.
 }
 \examples{
+\donttest{
 library(deSolve)
-data(uvbModel)
-results <- DEN(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001,
-                 epsilon = 0.2, plotEstimates = TRUE)
+data(bden_uvb)
+
+results <- BDEN(odeModel          = Model,
+                lambda            = .001,
+                beta_init         = c(1,1,1,1,1),
+                numbertrialsstep  = 15,
+                numbertrialseps   = 2000,
+                numbertrialinner  = 10)
+}
 }

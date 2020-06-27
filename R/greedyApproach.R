@@ -58,8 +58,15 @@
 #'
 #' @return returns a list of results objects. The default plot function can be used to plot the results.
 #' 
-#' @example ./docexamples/DEN.R
-#'
+#' @examples 
+#' \donttest{
+#' library(devtools)
+#' data(uvbModel)
+#' 
+#' results <- DEN(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001,
+#'                 epsilon = 0.2, plotEstimates = TRUE)
+#' }
+#' 
 #' @export
 DEN <- function(odeModel, alphaStep, Beta, alpha1, alpha2, x0, optW, measFunc, measData, sd, epsilon,
                            parameters, systemInput, modelFunc, greedyLogical, plotEstimates, conjGrad, cString, nnStates, verbose) {

@@ -90,8 +90,12 @@ if a set of hidden gives a lower cost than a set with additional hidden inputs.
 For a complete example of the usage take a look into the vignette of the package.
 }
 \examples{
-library(deSolve)
+\donttest{
+library(devtools)
 data(uvbModel)
+
 results <- DEN(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001,
-                 epsilon = 0.2, plotEstimates = TRUE)
+                epsilon = 0.2, plotEstimates = TRUE)
+}
+
 }
