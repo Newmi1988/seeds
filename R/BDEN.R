@@ -41,7 +41,6 @@
 #' 
 #' @examples 
 #' \donttest{
-#' library(deSolve)
 #' data(bden_uvb)
 #' 
 #' results <- BDEN(odeModel          = Model,

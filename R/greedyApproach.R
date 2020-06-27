@@ -60,7 +60,6 @@
 #' 
 #' @examples 
 #' \donttest{
-#' library(devtools)
 #' data(uvbModel)
 #' 
 #' results <- DEN(odeModel = uvbModel, alphaStep = 500, alpha2 = 0.0001,

@@ -80,7 +80,6 @@ For a complete example of the usage take a look into the vignette of the package
 }
 \examples{
 \donttest{
-library(deSolve)
 data(bden_uvb)
 
 results <- BDEN(odeModel          = Model,
