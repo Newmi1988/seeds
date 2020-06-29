@@ -10,7 +10,7 @@
 #' 
 #' @examples 
 #' 
-#' \donttest{ 
+#' \dontrun{ 
 #' 
 #' t <- uvbData[,1]
 #' y <- uvbData[,1:3]

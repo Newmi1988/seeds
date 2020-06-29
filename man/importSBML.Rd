@@ -21,7 +21,7 @@ A simple function for importing sbml models from a extensive markup language fil
 }
 \examples{
 
-\donttest{ 
+\dontrun{ 
 
 t <- uvbData[,1]
 y <- uvbData[,1:3]
