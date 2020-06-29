@@ -1,11 +1,7 @@
 on:
   push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-
+    tags:
+    - '*'
 name: R-CMD-check
 
 jobs:
