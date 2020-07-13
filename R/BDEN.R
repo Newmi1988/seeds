@@ -40,7 +40,7 @@
 #' @return                     returns a results-object with default plot function
 #' 
 #' @examples 
-#' \dontrun{
+#' \donttest{
 #' data(bden_uvb)
 #' 
 #' results <- BDEN(odeModel          = Model,

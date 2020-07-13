@@ -14,13 +14,13 @@ Description: Algorithms to calculate the hidden inputs of systems of differentia
   To use the experimental SBML import function, the 'rsbml' package is required. For installation I refer to the official 'rsbml' page: <https://bioconductor.org/packages/release/bioc/html/rsbml.html>.
 License: MIT + file LICENSE
 Maintainer: Tobias Newmiwaka <tobias.newmiwaka@gmail.com>
-Depends:
-    R (>= 3.5.0)
 Encoding: UTF-8
 URL: https://github.com/Newmi1988/seeds
 BugReports: https://github.com/Newmi1988/seeds/issues
 LazyData: true
 RoxygenNote: 7.1.1
+Depends:
+    R (>= 3.5.0)
 biocViews:
 Imports: deSolve (>= 1.20),
     pracma (>= 2.1.4),
