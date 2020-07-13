@@ -12,13 +12,9 @@ Description: Algorithms to calculate the hidden inputs of systems of differentia
   also called the Dynamic Elastic Net, as proposed in the paper "Learning (from) the errors of a systems biology model" 
   (Engelhardt, Froelich, Kschischo 2016) <doi:10.1038/srep20772>.
   To use the experimental SBML import function, the 'rsbml' package is required. For installation I refer to the official 'rsbml' page: <https://bioconductor.org/packages/release/bioc/html/rsbml.html>.
-License: MIT + file LICENSE
 Maintainer: Tobias Newmiwaka <tobias.newmiwaka@gmail.com>
-Encoding: UTF-8
 URL: https://github.com/Newmi1988/seeds
 BugReports: https://github.com/Newmi1988/seeds/issues
-LazyData: true
-RoxygenNote: 7.1.1
 Depends:
     R (>= 3.5.0)
 biocViews:
@@ -44,4 +40,8 @@ Suggests:
     knitr,
     rmarkdown,
     rsbml
+RoxygenNote: 7.1.1
 VignetteBuilder: knitr
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
